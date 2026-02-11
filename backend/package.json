@@ -1,0 +1,23 @@
+{
+  "name": "sonetyo-backend",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Backend off-chain futuro para Sonetyo (API, indexadores, servicios externos). La lógica de contratos vive ahora en /contracts.",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "ethers": "^6.11.1",
+    "express": "^4.19.2",
+    "knex": "^3.1.0",
+    "pg": "^8.11.3",
+    "sqlite3": "^5.1.7"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.0"
+  }
+}
