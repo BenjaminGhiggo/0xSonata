@@ -13,7 +13,7 @@ function App() {
         <div className="container">
           <h1 className="logo">
             <span className="logo-icon" aria-hidden="true">𝄞</span>
-            <span className="logo-text">Sonetyo</span>
+            <span className="logo-text">0xSonata</span>
           </h1>
           <p className="tagline">Registra y protege tus ideas musicales on-chain</p>
         </div>
@@ -47,7 +47,7 @@ function App() {
 
       <footer className="footer">
         <div className="container">
-          <p>Sonetyo — Registro y tokenización de creatividad musical</p>
+          <p>0xSonata — Registro y tokenización de creatividad musical</p>
           <p>Red: zkSYS PoB Devnet (57042) · Gas (TSYS) acreditado a wallets registradas en el programa</p>
         </div>
       </footer>

@@ -1,8 +1,8 @@
 {
-  "name": "sonetyo-backend",
+  "name": "0xsonata-backend",
   "version": "0.0.1",
   "private": true,
-  "description": "Backend off-chain futuro para Sonetyo (API, indexadores, servicios externos). La lógica de contratos vive ahora en /contracts.",
+  "description": "Backend off-chain futuro para 0xSonata (API, indexadores, servicios externos). La lógica de contratos vive ahora en /contracts.",
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js"

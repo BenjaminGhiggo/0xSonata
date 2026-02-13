@@ -1,9 +1,9 @@
-# Especificación de Dominio – Sonetyo
+# Especificación de Dominio – 0xSonata
 
 ## 1. Entidades principales
 
-- **Idea musical (Sonetyo Proof)**
-  - Representación on-chain: NFT ERC-721 (`SonetyoNFT`).
+- **Idea musical (Sonata Proof)**
+  - Representación on-chain: NFT ERC-721 (`SonataNFT`).
   - Atributos:
     - `audioHash` (`bytes32`): hash SHA-256 del archivo de audio (puede provenir tanto de creaciones tradicionales como de herramientas de IA musical).
     - `timestamp` (`uint256`): momento de registro.
@@ -28,7 +28,7 @@
   - Atributos:
     - `vaultId` (`uint256`): identificador del vault.
     - `creator` (`address`): creador del proyecto.
-    - `ideaTokenIds` (`uint256[]`): lista de `tokenId` de `SonetyoNFT` incluidos.
+    - `ideaTokenIds` (`uint256[]`): lista de `tokenId` de `SonataNFT` incluidos.
     - `metadataURI` (`string`): metadata IPFS con título, descripción, portada, etc.
 
 ## 2. Relaciones
@@ -38,7 +38,7 @@
   - Puede aparecer en **cero o más Proyectos** (vaults).
 
 - Un **Artista**:
-  - Puede tener **muchas ideas** (varios `SonetyoNFT`).
+  - Puede tener **muchas ideas** (varios `SonataNFT`).
   - Puede tener **uno o varios contratos CreatorToken** (para hackathon se asume 1 contrato principal).
 
 - Un **Proyecto (Vault)**:
@@ -49,12 +49,12 @@
 
 1. **Registrar idea musical (incluyendo ideas generadas o asistidas por IA)**
    - Entrada: archivo de audio (grabación, demo, loop, beat o pieza generada/asistida por IA musical).
-   - Proceso: calcular hash SHA-256 en frontend → llamar a `SonetyoNFT.mint(hash, uri)`.
+   - Proceso: calcular hash SHA-256 en frontend → llamar a `SonataNFT.mint(hash, uri)`.
    - Resultado: NFT emitido al creador + registro inmutable on-chain que actúa como **prueba de existencia y autoría** de la idea, independientemente de si la herramienta utilizada fue tradicional o IA.
 
 2. **Verificar idea de otro artista**
    - Entrada: `tokenId`.
-   - Proceso: `SonetyoNFT.verify(tokenId)` desde una dirección distinta a `creator`.
+   - Proceso: `SonataNFT.verify(tokenId)` desde una dirección distinta a `creator`.
    - Resultado: incremento de `verificationCount` y métrica de reputación para verifier.
 
 3. **Emitir Creator Token para un artista**
@@ -65,7 +65,7 @@
 4. **Crear Project Vault**
    - Entrada: lista de `ideaTokenIds`, `metadataURI`.
    - Proceso: validar que el llamador es creador/propietario de todas las ideas → mintear `ProjectVault`.
-   - Resultado: un NFT que representa un proyecto (EP, álbum, pack de ideas) enlazado a Sonetyo Proofs existentes.
+   - Resultado: un NFT que representa un proyecto (EP, álbum, pack de ideas) enlazado a Sonata Proofs existentes.
 
 5. **Rankear artistas y contenidos**
    - Entrada: métricas on-chain (`creatorMintCount`, `verificationCount`, etc.) y datos off-chain agregados en backend.

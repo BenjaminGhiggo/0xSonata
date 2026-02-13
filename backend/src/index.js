@@ -16,7 +16,7 @@ initDb()
     app.listen(config.port, () => {
       // eslint-disable-next-line no-console
       console.log(
-        `Sonetyo backend escuchando en http://localhost:${config.port} (RPC: ${config.rpcUrl}, DB: ${config.dbClient})`,
+        `0xSonata backend escuchando en http://localhost:${config.port} (RPC: ${config.rpcUrl}, DB: ${config.dbClient})`,
       );
     });
   })

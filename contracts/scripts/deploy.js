@@ -5,12 +5,12 @@ async function main() {
 
   console.log("Desplegando contratos con la cuenta:", deployer.address);
 
-  // 1) SonetyoNFT (prueba de ideas)
-  const SonetyoNFT = await hre.ethers.getContractFactory("SonetyoNFT");
-  const sonetyo = await SonetyoNFT.deploy();
-  await sonetyo.waitForDeployment();
-  const sonetyoAddress = await sonetyo.getAddress();
-  console.log("✅ SonetyoNFT desplegado en:", sonetyoAddress);
+  // 1) SonataNFT (prueba de ideas)
+  const SonataNFT = await hre.ethers.getContractFactory("SonataNFT");
+  const sonata = await SonataNFT.deploy();
+  await sonata.waitForDeployment();
+  const sonataAddress = await sonata.getAddress();
+  console.log("✅ SonataNFT desplegado en:", sonataAddress);
 
   // 2) CreatorToken de ejemplo (podría hacerse vía factory más adelante)
   const CreatorToken = await hre.ethers.getContractFactory("CreatorToken");
@@ -24,15 +24,15 @@ async function main() {
   const creatorTokenAddress = await creatorToken.getAddress();
   console.log("✅ CreatorToken de ejemplo desplegado en:", creatorTokenAddress);
 
-  // 3) ProjectVault (apunta al contrato SonetyoNFT)
+  // 3) ProjectVault (apunta al contrato SonataNFT)
   const ProjectVault = await hre.ethers.getContractFactory("ProjectVault");
-  const vault = await ProjectVault.deploy(sonetyoAddress);
+  const vault = await ProjectVault.deploy(sonataAddress);
   await vault.waitForDeployment();
   const vaultAddress = await vault.getAddress();
   console.log("✅ ProjectVault desplegado en:", vaultAddress);
 
   console.log("\n🔗 Direcciones para frontend / backend:");
-  console.log("   SONETYO_NFT_ADDRESS=", sonetyoAddress);
+  console.log("   SONATA_NFT_ADDRESS=", sonataAddress);
   console.log("   CREATOR_TOKEN_DEMO_ADDRESS=", creatorTokenAddress);
   console.log("   PROJECT_VAULT_ADDRESS=", vaultAddress);
 }

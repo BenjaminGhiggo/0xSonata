@@ -1,8 +1,8 @@
 const { ethers } = require("ethers");
 const config = require("../../config/env");
 
-// ABI mínimo necesario para lecturas desde SonetyoNFT
-const SONETYO_ABI = [
+// ABI mínimo necesario para lecturas desde SonataNFT
+const SONATA_ABI = [
   "function totalSupply() view returns (uint256)",
   "function getCreatorStats(address creator) view returns (uint256 totalMints, uint256 totalVerificationsGiven)",
   "function getProof(uint256 tokenId) view returns (tuple(bytes32 audioHash,uint256 timestamp,address creator,uint256 verificationCount))",
@@ -18,11 +18,11 @@ function getProvider() {
   return new ethers.JsonRpcProvider(config.rpcUrl);
 }
 
-function getSonetyoContract() {
-  if (!config.sonetyoAddress) {
-    throw new Error("SONETYO_NFT_ADDRESS no configurado");
+function getSonataContract() {
+  if (!config.sonataAddress) {
+    throw new Error("SONATA_NFT_ADDRESS no configurado");
   }
-  return new ethers.Contract(config.sonetyoAddress, SONETYO_ABI, getProvider());
+  return new ethers.Contract(config.sonataAddress, SONATA_ABI, getProvider());
 }
 
 function getProjectVaultContract() {
@@ -33,7 +33,7 @@ function getProjectVaultContract() {
 }
 
 async function getCreatorStats(address) {
-  const contract = getSonetyoContract();
+  const contract = getSonataContract();
   const [totalMints, totalVerificationsGiven] = await contract.getCreatorStats(address);
   return {
     totalMints: Number(totalMints),
@@ -42,7 +42,7 @@ async function getCreatorStats(address) {
 }
 
 async function getProof(tokenId) {
-  const contract = getSonetyoContract();
+  const contract = getSonataContract();
   const proof = await contract.getProof(tokenId);
   return {
     audioHash: proof.audioHash,
@@ -53,7 +53,7 @@ async function getProof(tokenId) {
 }
 
 async function getIdeasByCreator(address) {
-  const contract = getSonetyoContract();
+  const contract = getSonataContract();
   const total = await contract.totalSupply();
   const totalNumber = Number(total);
 

@@ -16,7 +16,7 @@ export function HelpCard() {
         aria-expanded={open}
         aria-controls="help-content"
       >
-        <span className="help-card__title">📋 Cómo usar Sonetyo</span>
+        <span className="help-card__title">📋 Cómo usar 0xSonata</span>
         <span className="help-card__chevron" aria-hidden>{open ? '▼' : '▶'}</span>
       </button>
       <div id="help-content" className="help-card__content" hidden={!open} role="region" aria-label="Instrucciones de uso">

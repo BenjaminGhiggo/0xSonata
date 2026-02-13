@@ -1,14 +1,14 @@
-## ✅ Segunda revisión — Cumplimiento de requisitos (Sonetyo)
+## ✅ Segunda revisión — Cumplimiento de requisitos (0xSonata)
 
-Este documento resume cómo **Sonetyo** cumple con todos los requisitos de la 2da revisión del programa **zkSYS Proof‑of‑Builders**.
+Este documento resume cómo **0xSonata** cumple con todos los requisitos de la 2da revisión del programa **zkSYS Proof‑of‑Builders**.
 
 ---
 
 ### 1. Nombre final del proyecto
 
-- **Nombre oficial:** `Sonetyo`
+- **Nombre oficial:** `0xSonata`
 - **Descripción corta:**  
-  **Sonetyo** es una plataforma Web3 para que artistas casuales, emergentes y profesionales registren sus ideas musicales (beats, melodías, loops, tarareos, demos), incluidas aquellas **generadas o asistidas por herramientas de IA musical**, y obtengan una **prueba pública, inmutable y fechada de autoría** representada por un NFT en la red zkSYS PoB.
+  **0xSonata** es una plataforma Web3 para que artistas casuales, emergentes y profesionales registren sus ideas musicales (beats, melodías, loops, tarareos, demos), incluidas aquellas **generadas o asistidas por herramientas de IA musical**, y obtengan una **prueba pública, inmutable y fechada de autoría** representada por un NFT en la red zkSYS PoB.
 
 ---
 
@@ -21,7 +21,7 @@ Vivimos un momento donde la **IA llegó a la música y se quedará para siempre*
   - Registrar la **prueba de que su idea existía en una fecha concreta**.
   - Construir una **reputación visible** a partir de su actividad creativa.
 
-En este contexto, **Sonetyo** se plantea como:
+En este contexto, **0xSonata** se plantea como:
 
 - Una capa de **prueba de creatividad** (Capa 1) que no discrimina si la idea fue creada a mano, con DAW tradicional o con IA musical: si el creador decide que esa idea le representa, puede registrarla.
 - Una capa de **reputación y ranking** (Capa 2/3) que:
@@ -54,12 +54,12 @@ En este contexto, **Sonetyo** se plantea como:
   - Componentes principales:
     - `WalletConnect` + `WalletContext` (`frontend/src/components/WalletConnect.jsx`, `frontend/src/context/WalletContext.jsx`).
     - `MintForm` (`frontend/src/components/MintForm.jsx`), `VerifyForm` (`frontend/src/components/VerifyForm.jsx`) y otros componentes auxiliares.
-  - Utiliza **`ethers.js`** con `BrowserProvider` y `Signer` para firmar transacciones y leer datos del contrato `SonetyoNFT`.
+  - Utiliza **`ethers.js`** con `BrowserProvider` y `Signer` para firmar transacciones y leer datos del contrato `SonataNFT`.
   - Configuración de contrato y red centralizada en `frontend/src/utils/config.js`.
 
 - **Contratos (`contracts/`):**
   - Proyecto **Hardhat** aislado en la carpeta `contracts/`:
-    - `contracts/src/SonetyoNFT.sol` — contrato ERC‑721 principal para registrar ideas (Sonetyo Proof).
+    - `contracts/src/SonataNFT.sol` — contrato ERC‑721 principal para registrar ideas (Sonata Proof).
     - `contracts/src/CreatorToken.sol` — token ERC‑20 por artista.
     - `contracts/src/ProjectVault.sol` — NFT que agrupa ideas en proyectos.
     - `contracts/scripts/deploy.js` — script de despliegue a zkSYS PoB Devnet.
@@ -81,7 +81,7 @@ En este contexto, **Sonetyo** se plantea como:
 ### 3. URL para testear la demo
 
 - **URL de la demo en producción:**  
-  [`https://sonetyo.netlify.app/`](https://sonetyo.netlify.app/)
+  [`https://0xsonata.netlify.app/`](https://0xsonata.netlify.app/)
 
 Desde esta URL cualquier revisor puede:
 
@@ -100,7 +100,7 @@ Desde esta URL cualquier revisor puede:
   - RPC: `https://rpc-pob.dev11.top`
   - Explorer: `https://explorer-pob.dev11.top`
 
-- **Contrato principal (SonetyoNFT):**
+- **Contrato principal (SonataNFT):**
 
   - **Dirección (último despliegue):**
 
@@ -148,8 +148,8 @@ Todo el código fuente del proyecto está publicado en un repositorio público d
 
 - **Contenido relevante:**
   - **Backend (`backend/`):**
-    - `contracts/SonetyoNFT.sol` — contrato principal ERC‑721.
-    - `test/SonetyoNFT.test.js` — tests unitarios (14 casos).
+    - `contracts/src/SonataNFT.sol` — contrato principal ERC‑721.
+    - `test/SonataNFT.test.js` — tests unitarios (14 casos).
     - `scripts/deploy.js` — script de despliegue a zkSYS PoB Devnet.
     - `hardhat.config.js` — configuración de Hardhat y redes.
     - Documentación y archivos de diseño (`propuesta.md`, `plan.md`, `criterios.md`, `entregable.semana1.md`).
@@ -171,8 +171,8 @@ Para la comunicación y difusión del proyecto se utiliza la siguiente cuenta of
 
 Desde esta cuenta se comparten:
 
-- Actualizaciones de progreso del proyecto Sonetyo.
-- Enlaces a la demo (`https://sonetyo.netlify.app/`).
+- Actualizaciones de progreso del proyecto 0xSonata.
+- Enlaces a la demo (`https://0xsonata.netlify.app/`).
 - Comunicaciones relacionadas con el hackathon y la comunidad.
 
 ---
@@ -183,7 +183,7 @@ A lo largo del desarrollo se identificaron y resolvieron las siguientes observac
 
 1. **Migración de Tanenbaum a zkSYS PoB Devnet**
    - Antes: el contrato y la dApp apuntaban a Syscoin Tanenbaum Testnet.
-   - Ahora: el contrato `SonetyoNFT` está desplegado en **zkSYS PoB Devnet (57042)** y el frontend está configurado para usar esa red y la dirección de contrato via `VITE_CONTRACT_ADDRESS`.
+   - Ahora: el contrato `SonataNFT` está desplegado en **zkSYS PoB Devnet (57042)** y el frontend está configurado para usar esa red y la dirección de contrato via `VITE_CONTRACT_ADDRESS`.
 
 2. **Sincronización del estado de la wallet entre componentes**
    - Problema: cada componente (WalletConnect, MintForm, VerifyForm) gestionaba su propia instancia de `useWallet`, generando estados inconsistentes.
@@ -195,12 +195,12 @@ A lo largo del desarrollo se identificaron y resolvieron las siguientes observac
 
 4. **Claridad y estética de la interfaz (heurísticas de Nielsen)**
    - Se aplicaron mejoras de UX:
-     - Tema claro y vivo, con un encabezado que incluye una **clave de sol** (𝄞) y el nombre “Sonetyo” en degradado rojo‑rosa‑morado.
+     - Tema claro y vivo, con un encabezado que incluye una **clave de sol** (𝄞) y el nombre “0xSonata” en degradado rojo‑rosa‑morado.
      - Mensajes de estado (visibilidad del sistema) durante operaciones críticas.
      - Textos y placeholders descriptivos (qué es un Token ID, qué formatos de audio se aceptan, etc.).
      - Mensajes de error en español claro, indicando tanto el problema como la acción sugerida.
 
-Con todo lo anterior, **Sonetyo** cumple los criterios de la 2da revisión:
+Con todo lo anterior, **0xSonata** cumple los criterios de la 2da revisión:
 
 - Nombre final del proyecto.
 - Documentación técnica y de arquitectura.

@@ -1,4 +1,4 @@
-# Especificación de Frontend – Sonetyo
+# Especificación de Frontend – 0xSonata
 
 ## 1. Clientes previstos
 
@@ -7,7 +7,7 @@
   - Integra wallet EVM (Pali/Metamask compatible con zkSYS PoB Devnet).
   - Orientado tanto a artistas tradicionales como a creadores que utilizan **herramientas de IA musical** (Suno, Udio, etc.) para generar sus primeras ideas.
 
-La visión de Sonetyo es acompañar a la nueva ola de **artistas emergentes potenciados por IA**, permitiéndoles registrar pruebas de sus creaciones y mostrar sus méritos mediante rankings y reputación visible.
+La visión de 0xSonata es acompañar a la nueva ola de **artistas emergentes potenciados por IA**, permitiéndoles registrar pruebas de sus creaciones y mostrar sus méritos mediante rankings y reputación visible.
 
 ## 2. Rutas/páginas principales (cliente web)
 
@@ -15,7 +15,7 @@ La visión de Sonetyo es acompañar a la nueva ola de **artistas emergentes pote
    - Objetivo: atraer usuarios y clientes.
    - Contenido:
      - Hero con mensaje principal:
-       - “La IA llegó a la música para quedarse. Sonetyo te ayuda a registrar tus ideas y mostrar tu éxito.”
+       - “La IA llegó a la música para quedarse. 0xSonata te ayuda a registrar tus ideas y mostrar tu éxito.”
      - Explicación de las 3 capas:
        - Prueba de creatividad (NFT ideas).
        - Reputación (stats, verificaciones, rankings).
@@ -25,7 +25,7 @@ La visión de Sonetyo es acompañar a la nueva ola de **artistas emergentes pote
        - “Explorar artistas emergentes”.
      - Sección “¿Cómo funciona?” con 3 pasos:
        - Crear idea (incluso con IA musical).
-       - Registrar hash en Sonetyo.
+       - Registrar hash en 0xSonata.
        - Crecer en reputación y ranking.
 
 2. `/dashboard` – Dashboard de artista (requiere wallet conectada)
@@ -35,7 +35,7 @@ La visión de Sonetyo es acompañar a la nueva ola de **artistas emergentes pote
        - Resumen de Creator Token (si existe).
        - Vista rápida de su posición en el ranking y de su tier (Oro/Plata/Bronce/Emergente).
      - **Mis ideas**:
-       - Lista de ideas registradas (SonetyoNFT) con filtros.
+       - Lista de ideas registradas (SonataNFT) con filtros.
        - Acciones: ver detalle, copiar hash, ver en explorer.
        - Enlace directo a herramientas de IA musical recomendadas (Suno, Udio, etc.), reforzando el mensaje de que la creatividad asistida por IA también merece ser registrada.
      - **Mis proyectos (Vaults)**:
@@ -69,7 +69,7 @@ La visión de Sonetyo es acompañar a la nueva ola de **artistas emergentes pote
 - Visual:
   - **Primer lugar**:
     - Tarjeta con borde dorado, efecto de “llamas” suaves (animación CSS controlada).
-    - Insignia: “🔥 Oro – Leyenda Sonetyo”.
+    - Insignia: “🔥 Oro – Leyenda 0xSonata”.
   - **Segundo lugar**:
     - Tarjeta con borde plata reluciente, brillo animado.
     - Insignia: “🥈 Plata – Estrella en ascenso”.
@@ -96,7 +96,7 @@ La visión de Sonetyo es acompañar a la nueva ola de **artistas emergentes pote
 ## 4. Servicios de frontend
 
 - `frontend/src/services/blockchain-service.(ts|js)`:
-  - `getSonetyoContract(providerOrSigner)`
+  - `getSonataContract(providerOrSigner)`
   - `getCreatorTokenContract(address, providerOrSigner)`
   - `getProjectVaultContract(providerOrSigner)`
   - Funciones de alto nivel:
@@ -119,7 +119,7 @@ La visión de Sonetyo es acompañar a la nueva ola de **artistas emergentes pote
   - `account`, `chainId`, `provider`, `signer`.
 - Se ampliará para:
   - Guardar direcciones de:
-    - `SONETYO_NFT_ADDRESS`
+    - `SONATA_NFT_ADDRESS`
     - `CREATOR_TOKEN_ADDRESS` (por ahora demo)
     - `PROJECT_VAULT_ADDRESS`
 
@@ -127,7 +127,7 @@ La visión de Sonetyo es acompañar a la nueva ola de **artistas emergentes pote
 
 El frontend debe reflejar explícitamente el objetivo principal del proyecto:
 
-- En un mundo donde la **IA musical** hace posible que cada vez más personas experimenten y creen ideas sonoras, Sonetyo quiere ser la capa que:
+- En un mundo donde la **IA musical** hace posible que cada vez más personas experimenten y creen ideas sonoras, 0xSonata quiere ser la capa que:
   - Registra la **prueba de existencia y autoría** de esas ideas (aunque hayan sido generadas o asistidas por IA).
   - Ofrece herramientas de visibilidad y reputación (rankings, tierlist) para que los nuevos artistas emergentes puedan mostrar sus méritos y progresar en su carrera creativa.
 

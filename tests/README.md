@@ -1,4 +1,4 @@
-# Tests de integración / e2e – Sonetyo
+# Tests de integración / e2e – 0xSonata
 
 Esta carpeta está reservada para pruebas de:
 

@@ -1,14 +1,14 @@
-# 🎵 Sonetyo
+# 🎵 0xSonata
 
 **"La idea musical existe desde el momento en que la creas."**
 
-Sonetyo es una plataforma Web3 para que artistas casuales, emergentes y profesionales registren sus ideas musicales y obtengan una **prueba pública, inmutable y fechada de autoría** representada por un NFT, usando estándares EVM.
+0xSonata es una plataforma Web3 para que artistas casuales, emergentes y profesionales registren sus ideas musicales y obtengan una **prueba pública, inmutable y fechada de autoría** representada por un NFT, usando estándares EVM.
 
 ## 🚀 Estado del Proyecto
 
 ### ✅ Completado (Semana 1)
 
-- **Smart Contract:** `SonetyoNFT.sol` (ERC-721) desplegable en zkSYS PoB Devnet (57042)
+- **Smart Contract:** `SonataNFT.sol` (ERC-721) desplegable en zkSYS PoB Devnet (57042)
 - **Tests:** 14 tests unitarios pasando
 - **Frontend:** App React + Vite con conexión de wallet, mint y verify
 - **Red:** zkSYS PoB Devnet (Chain ID 57042). Tras deploy, configurar `VITE_CONTRACT_ADDRESS` en `frontend/.env`
@@ -69,7 +69,7 @@ Abre http://localhost:3000 en tu navegador.
 ```
 hackathon-blockchain/
 ├── contracts/
-│   └── SonetyoNFT.sol          # Contrato principal
+│   └── SonataNFT.sol          # Contrato principal
 ├── frontend/                    # App React + Vite
 │   ├── src/
 │   │   ├── components/         # WalletConnect, MintForm, VerifyForm
@@ -80,7 +80,7 @@ hackathon-blockchain/
 ├── scripts/
 │   └── deploy.js               # Script de deploy
 ├── test/
-│   └── SonetyoNFT.test.js      # Tests unitarios
+│   └── SonataNFT.test.js      # Tests unitarios
 ├── hardhat.config.js
 └── README.md
 ```

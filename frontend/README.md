@@ -1,6 +1,6 @@
-# Sonetyo Frontend
+# 0xSonata Frontend
 
-Frontend React para Sonetyo — Sistema de registro de ideas musicales on-chain.
+Frontend React para 0xSonata — Sistema de registro de ideas musicales on-chain.
 
 ## Instalación
 

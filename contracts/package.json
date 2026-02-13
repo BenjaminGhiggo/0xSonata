@@ -1,8 +1,8 @@
 {
-  "name": "sonetyo-contracts",
+  "name": "0xsonata-contracts",
   "version": "1.0.0",
   "private": true,
-  "description": "Contratos inteligentes de Sonetyo (Sonetyo Proof, CreatorToken, ProjectVault) para zkSYS PoB Devnet",
+  "description": "Contratos inteligentes de 0xSonata (Sonata Proof, CreatorToken, ProjectVault) para zkSYS PoB Devnet",
   "scripts": {
     "test": "npx hardhat test"
   },

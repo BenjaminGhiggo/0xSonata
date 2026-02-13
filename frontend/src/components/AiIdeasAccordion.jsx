@@ -4,7 +4,7 @@ import { useState } from 'react';
  * Acordeón opcional para enlazar herramientas de IA que generan música.
  * Cumple heurísticas de Nielsen:
  * - Es opcional, minimalista y con lenguaje claro.
- * - Previene errores explicando que Sonetyo sólo registra la huella del audio.
+ * - Previene errores explicando que 0xSonata sólo registra la huella del audio.
  */
 export function AiIdeasAccordion() {
   const [open, setOpen] = useState(false);
@@ -36,7 +36,7 @@ export function AiIdeasAccordion() {
             <p className="help-card__note">
               <strong>¿No tienes todavía un audio?</strong> Puedes crearlo en tu DAW, grabarlo con tu
               celular o generar una idea con IA en estas plataformas, descargar el archivo y luego
-              registrarlo en Sonetyo.
+              registrarlo en 0xSonata.
             </p>
 
             <ul className="help-card__list">
@@ -80,11 +80,11 @@ export function AiIdeasAccordion() {
             <p className="help-card__note">
               Después de generar tu idea, descarga el archivo (MP3, WAV u otro formato compatible) y
               súbelo en <strong>&quot;Registrar nueva idea&quot;</strong> para guardar su huella
-              on-chain como Sonetyo Proof.
+              on-chain como Sonata Proof.
             </p>
 
             <p className="help-card__note">
-              <strong>Importante:</strong> estas plataformas son externas a Sonetyo. Revisa siempre sus
+              <strong>Importante:</strong> estas plataformas son externas a 0xSonata. Revisa siempre sus
               términos de uso y licencias antes de usar el audio generado en proyectos comerciales.
             </p>
           </>

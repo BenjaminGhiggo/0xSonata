@@ -10,7 +10,7 @@ export function WalletConnect() {
   if (!hasWallet) {
     return (
       <div className="wallet-card wallet-card--error" role="alert">
-        <p>Necesitas tener instalada Pali Wallet para usar Sonetyo.</p>
+        <p>Necesitas tener instalada Pali Wallet para usar 0xSonata.</p>
         <a href="https://paliwallet.com/" target="_blank" rel="noopener noreferrer">
           Instalar Pali Wallet
         </a>

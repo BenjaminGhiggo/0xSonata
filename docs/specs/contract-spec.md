@@ -1,6 +1,6 @@
-# Especificación de Contratos – Sonetyo
+# Especificación de Contratos – 0xSonata
 
-## 1. SonetyoNFT (Prueba de ideas musicales)
+## 1. SonataNFT (Prueba de ideas musicales)
 
 - **Tipo**: ERC-721 + `ERC721URIStorage` + `Ownable`.
 - **Responsabilidad**: registrar ideas musicales como NFTs con hash + timestamp + creador.
@@ -8,7 +8,7 @@
 ### 1.1. Estado
 
 - `uint256 _nextTokenId`
-- `mapping(uint256 => SonetyoProof) proofs`
+- `mapping(uint256 => SonataProof) proofs`
 - `mapping(bytes32 => bool) hashExists`
 - `mapping(address => uint256) creatorMintCount`
 - `mapping(address => uint256) verifierCount`
@@ -68,13 +68,13 @@ constructor(
 ## 3. ProjectVault (NFT de proyecto)
 
 - **Tipo**: ERC-721 + `ERC721URIStorage` + `Ownable`.
-- **Responsabilidad**: agrupar varias ideas (SonetyoNFT) en un proyecto.
+- **Responsabilidad**: agrupar varias ideas (SonataNFT) en un proyecto.
 
 ### 3.1. Estado
 
 - `uint256 _nextVaultId`
 - `mapping(uint256 => Vault) _vaults`
-- `SonetyoNFT public immutable sonetyoProof`
+- `SonataNFT public immutable sonataProof`
 
 Donde:
 
@@ -88,18 +88,18 @@ struct Vault {
 ### 3.2. Constructor
 
 ```solidity
-constructor(address sonetyoAddress) ERC721("Sonetyo Project Vault", "SONVLT") Ownable(msg.sender)
+constructor(address sonataAddress) ERC721("Sonata Project Vault", "SONVLT") Ownable(msg.sender)
 ```
 
 - Reverts:
-  - `"Direccion Sonetyo invalida"` si `sonetyoAddress == 0`.
+  - `"Direccion Sonata invalida"` si `sonataAddress == 0`.
 
 ### 3.3. Funciones
 
 - `function createVault(uint256[] calldata ideaTokenIds, string calldata metadataURI) external returns (uint256)`
   - Reverts:
     - `"Sin ideas"` si `ideaTokenIds.length == 0`.
-    - `"Idea inexistente"` si `sonetyoProof.ownerOf(tokenId) == 0`.
+    - `"Idea inexistente"` si `sonataProof.ownerOf(tokenId) == 0`.
     - `"No eres creador ni dueno de la idea"` si el msg.sender no es `proof.creator` ni `ownerOf(tokenId)`.
   - Efectos:
     - Crea nueva entrada en `_vaults`.

@@ -83,7 +83,7 @@ export function MintForm() {
     setStep('tx');
 
     try {
-      const tokenURI = uri.trim() || `ipfs://demo/sonetyo/${Date.now()}`;
+      const tokenURI = uri.trim() || `ipfs://demo/0xsonata/${Date.now()}`;
       const tx = await contract.mint(hash, tokenURI);
       setResult({
         type: 'pending',
@@ -97,7 +97,7 @@ export function MintForm() {
         .map(log => {
           try { return contract.interface.parseLog(log); } catch { return null; }
         })
-        .find(log => log && log.name === 'SonetyoMinted');
+        .find(log => log && log.name === 'SonataMinted');
 
       const tokenId = mintEvent ? mintEvent.args.tokenId.toString() : 'N/A';
 

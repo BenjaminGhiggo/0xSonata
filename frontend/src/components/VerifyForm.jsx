@@ -46,7 +46,7 @@ export function VerifyForm() {
         .map(log => {
           try { return contract.interface.parseLog(log); } catch { return null; }
         })
-        .find(log => log && log.name === 'SonetyoVerified');
+        .find(log => log && log.name === 'SonataVerified');
 
       const newCount = verifyEvent ? verifyEvent.args.newVerificationCount.toString() : 'N/A';
 

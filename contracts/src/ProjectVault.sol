@@ -5,14 +5,14 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-import "./SonetyoNFT.sol";
+import "./SonataNFT.sol";
 
 /**
  * @title ProjectVault
- * @dev NFT que agrupa varias ideas (Sonetyo Proofs) en un solo proyecto.
+ * @dev NFT que agrupa varias ideas (Sonata Proofs) en un solo proyecto.
  *
  * Un vault representa un proyecto musical compuesto por varias ideas registradas:
- * - Referencia a tokenIds de SonetyoNFT.
+ * - Referencia a tokenIds de SonataNFT.
  * - Metadata propia del proyecto (IPFS).
  */
 contract ProjectVault is ERC721, ERC721URIStorage, Ownable {
@@ -24,7 +24,7 @@ contract ProjectVault is ERC721, ERC721URIStorage, Ownable {
     uint256 private _nextVaultId;
     mapping(uint256 => Vault) private _vaults;
 
-    SonetyoNFT public immutable sonetyoProof;
+    SonataNFT public immutable sonataProof;
 
     event VaultCreated(
         uint256 indexed vaultId,
@@ -32,13 +32,13 @@ contract ProjectVault is ERC721, ERC721URIStorage, Ownable {
         uint256[] ideaTokenIds
     );
 
-    constructor(address sonetyoAddress) ERC721("Sonetyo Project Vault", "SONVLT") Ownable(msg.sender) {
-        require(sonetyoAddress != address(0), "Direccion Sonetyo invalida");
-        sonetyoProof = SonetyoNFT(sonetyoAddress);
+    constructor(address sonataAddress) ERC721("Sonata Project Vault", "SONVLT") Ownable(msg.sender) {
+        require(sonataAddress != address(0), "Direccion Sonata invalida");
+        sonataProof = SonataNFT(sonataAddress);
     }
 
     /**
-     * @dev Crea un nuevo vault agrupando varias ideas (tokenIds de SonetyoNFT).
+     * @dev Crea un nuevo vault agrupando varias ideas (tokenIds de SonataNFT).
      * Requiere que el llamador sea creador de todas las ideas o propietario actual del NFT.
      */
     function createVault(
@@ -52,11 +52,11 @@ contract ProjectVault is ERC721, ERC721URIStorage, Ownable {
             uint256 tokenId = ideaTokenIds[i];
 
             // Debe existir
-            require(sonetyoProof.ownerOf(tokenId) != address(0), "Idea inexistente");
+            require(sonataProof.ownerOf(tokenId) != address(0), "Idea inexistente");
 
             // Debe ser creador original o propietario actual
-            SonetyoNFT.SonetyoProof memory proof = sonetyoProof.proofs(tokenId);
-            address owner = sonetyoProof.ownerOf(tokenId);
+            SonataNFT.SonataProof memory proof = sonataProof.proofs(tokenId);
+            address owner = sonataProof.ownerOf(tokenId);
             require(
                 proof.creator == msg.sender || owner == msg.sender,
                 "No eres creador ni dueno de la idea"

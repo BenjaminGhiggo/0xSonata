@@ -1,4 +1,4 @@
-# Especificación de Backend – Sonetyo (Fase futura)
+# Especificación de Backend – 0xSonata (Fase futura)
 
 ## 1. Objetivo
 
@@ -9,7 +9,7 @@ Proveer una API off-chain opcional que complemente a los contratos:
 
 ## 1.1 Arquitectura (DDD)
 
-El backend de Sonetyo sigue un enfoque de **Domain-Driven Design (DDD)** con cuatro capas:
+El backend de 0xSonata sigue un enfoque de **Domain-Driven Design (DDD)** con cuatro capas:
 
 - `domain/`:
   - Entidades de dominio (por ejemplo `Project`).
@@ -46,7 +46,7 @@ El backend de Sonetyo sigue un enfoque de **Domain-Driven Design (DDD)** con cua
 
 - Módulo `infrastructure/blockchain/syscoin-adapter`:
   - Conoce:
-    - `SONETYO_NFT_ADDRESS`
+    - `SONATA_NFT_ADDRESS`
     - `PROJECT_VAULT_ADDRESS`
   - Expone funciones de lectura:
     - `getIdeasByCreator(address)` (futuro)

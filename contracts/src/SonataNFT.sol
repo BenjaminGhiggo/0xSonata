@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 /**
- * @title SonetyoNFT
+ * @title SonataNFT
  * @dev NFT para registro de ideas musicales con prueba de existencia on-chain
  * @notice "La idea musical existe desde el momento en que la creas"
  *
@@ -19,11 +19,11 @@ import "@openzeppelin/contracts/access/Ownable.sol";
  * - Capa 2: Reputación del artista (stats agregadas)
  * - Capa 3: Tokenización e inversión en creatividad (Creator Pool Tokens, Project Vaults)
  */
-contract SonetyoNFT is ERC721, ERC721URIStorage, Ownable {
+contract SonataNFT is ERC721, ERC721URIStorage, Ownable {
 
     // ============ Estructuras ============
 
-    struct SonetyoProof {
+    struct SonataProof {
         bytes32 audioHash;      // Hash SHA-256 del audio
         uint256 timestamp;      // Momento del registro
         address creator;        // Creador original
@@ -34,8 +34,8 @@ contract SonetyoNFT is ERC721, ERC721URIStorage, Ownable {
 
     uint256 private _nextTokenId;
 
-    // tokenId => SonetyoProof
-    mapping(uint256 => SonetyoProof) public proofs;
+    // tokenId => SonataProof
+    mapping(uint256 => SonataProof) public proofs;
 
     // audioHash => existe (para evitar duplicados)
     mapping(bytes32 => bool) public hashExists;
@@ -51,14 +51,14 @@ contract SonetyoNFT is ERC721, ERC721URIStorage, Ownable {
 
     // ============ Eventos ============
 
-    event SonetyoMinted(
+    event SonataMinted(
         uint256 indexed tokenId,
         address indexed creator,
         bytes32 audioHash,
         uint256 timestamp
     );
 
-    event SonetyoVerified(
+    event SonataVerified(
         uint256 indexed tokenId,
         address indexed verifier,
         uint256 newVerificationCount
@@ -66,7 +66,7 @@ contract SonetyoNFT is ERC721, ERC721URIStorage, Ownable {
 
     // ============ Constructor ============
 
-    constructor() ERC721("Sonetyo Proof", "SONETYO") Ownable(msg.sender) {}
+    constructor() ERC721("Sonata Proof", "SONATA") Ownable(msg.sender) {}
 
     // ============ Funciones Principales ============
 
@@ -76,7 +76,7 @@ contract SonetyoNFT is ERC721, ERC721URIStorage, Ownable {
 
         uint256 tokenId = _nextTokenId++;
 
-        proofs[tokenId] = SonetyoProof({
+        proofs[tokenId] = SonataProof({
             audioHash: audioHash,
             timestamp: block.timestamp,
             creator: msg.sender,
@@ -89,7 +89,7 @@ contract SonetyoNFT is ERC721, ERC721URIStorage, Ownable {
         _safeMint(msg.sender, tokenId);
         _setTokenURI(tokenId, uri);
 
-        emit SonetyoMinted(tokenId, msg.sender, audioHash, block.timestamp);
+        emit SonataMinted(tokenId, msg.sender, audioHash, block.timestamp);
 
         return tokenId;
     }
@@ -104,12 +104,12 @@ contract SonetyoNFT is ERC721, ERC721URIStorage, Ownable {
         proofs[tokenId].verificationCount++;
         verifierCount[msg.sender]++;
 
-        emit SonetyoVerified(tokenId, msg.sender, proofs[tokenId].verificationCount);
+        emit SonataVerified(tokenId, msg.sender, proofs[tokenId].verificationCount);
     }
 
     // ============ Funciones de Consulta ============
 
-    function getProof(uint256 tokenId) external view returns (SonetyoProof memory) {
+    function getProof(uint256 tokenId) external view returns (SonataProof memory) {
         require(_ownerOf(tokenId) != address(0), "Token no existe");
         return proofs[tokenId];
     }

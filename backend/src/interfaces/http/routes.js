@@ -6,7 +6,7 @@ const router = express.Router();
 
 // Ping básico
 router.get("/health", (_req, res) => {
-  res.json({ status: "ok", service: "sonetyo-backend" });
+  res.json({ status: "ok", service: "0xsonata-backend" });
 });
 
 // Stats de un artista (creador)
@@ -42,7 +42,7 @@ router.get("/artists/:address/projects", async (req, res) => {
   }
 });
 
-// Detalle de una idea (Sonetyo Proof)
+// Detalle de una idea (Sonata Proof)
 router.get("/ideas/:tokenId", async (req, res) => {
   try {
     const tokenId = parseInt(req.params.tokenId, 10);

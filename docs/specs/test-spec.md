@@ -1,8 +1,8 @@
-# Especificación de Tests – Sonetyo
+# Especificación de Tests – 0xSonata
 
 ## 1. Tests de contratos (unitarios)
 
-- **SonetyoNFT**
+- **SonataNFT**
   - Debe mintear correctamente con hash válido y no registrado.
   - Debe rechazar hashes duplicados.
   - No permite verificar propia idea.
