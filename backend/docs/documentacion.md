@@ -8,7 +8,30 @@ Este documento resume cómo **Sonetyo** cumple con todos los requisitos de la 2d
 
 - **Nombre oficial:** `Sonetyo`
 - **Descripción corta:**  
-  **Sonetyo** es una plataforma Web3 para que artistas casuales, emergentes y profesionales registren sus ideas musicales (beats, melodías, loops, tarareos, demos) y obtengan una **prueba pública, inmutable y fechada de autoría** representada por un NFT en la red zkSYS PoB.
+  **Sonetyo** es una plataforma Web3 para que artistas casuales, emergentes y profesionales registren sus ideas musicales (beats, melodías, loops, tarareos, demos), incluidas aquellas **generadas o asistidas por herramientas de IA musical**, y obtengan una **prueba pública, inmutable y fechada de autoría** representada por un NFT en la red zkSYS PoB.
+
+---
+
+### 1.1 Visión actualizada: IA y artistas emergentes
+
+Vivimos un momento donde la **IA llegó a la música y se quedará para siempre**:
+
+- Cada vez más personas, sin formación musical formal, pueden experimentar con IA para generar beats, melodías o ideas sonoras.
+- Esto produce una nueva ola de **artistas emergentes** que necesitan un lugar donde:
+  - Registrar la **prueba de que su idea existía en una fecha concreta**.
+  - Construir una **reputación visible** a partir de su actividad creativa.
+
+En este contexto, **Sonetyo** se plantea como:
+
+- Una capa de **prueba de creatividad** (Capa 1) que no discrimina si la idea fue creada a mano, con DAW tradicional o con IA musical: si el creador decide que esa idea le representa, puede registrarla.
+- Una capa de **reputación y ranking** (Capa 2/3) que:
+  - Calcula métricas de actividad (ideas registradas, verificaciones).
+  - Muestra una **tierlist visual**:
+    - Oro en llamas (primer lugar).
+    - Plata reluciente (segundo lugar).
+    - Bronce brillante (tercer lugar).
+  - Expone otros rankings (ideas más verificadas, artistas emergentes de la semana) para que la comunidad pueda descubrir talento nuevo.
+- Una futura capa de **tokenización y servicios adicionales** (Creator Tokens, Project Vaults) descritos en la documentación de contratos, que permitirán agrupar ideas en proyectos y crear activos representativos de la carrera de un artista.
 
 ---
 
@@ -19,36 +42,39 @@ Este documento resume cómo **Sonetyo** cumple con todos los requisitos de la 2d
 - **Frontend (`frontend/`):**
   - Implementado con **React + Vite**.
   - Conexión a wallet a través de `window.ethereum` (Pali Wallet).
+  - Páginas principales (según `docs/specs/frontend-spec.md`):
+    - `/landing`: landing pública, explica la propuesta de valor para artistas emergentes (incluyendo los que usan IA musical) y muestra un resumen de rankings.
+    - `/dashboard`: dashboard de artista (requiere wallet) con:
+      - Registro de ideas.
+      - Gestión de proyectos (Vaults).
+      - Vista de Creator Token.
+      - Visualización de posición en rankings/tierlist.
+    - `/explore`: exploración de artistas, proyectos e ideas más verificadas.
+    - `/admin`: panel interno de monitorización.
   - Componentes principales:
-    - `WalletConnect` + `WalletContext` (`frontend/src/components/WalletConnect.jsx`, `frontend/src/context/WalletContext.jsx`): gestionan conexión de la wallet, detección de red y estado compartido (cuenta conectada, `signer`, contrato).
-    - `MintForm` (`frontend/src/components/MintForm.jsx`): permite subir un archivo de audio, calcular el hash SHA‑256 en el navegador y llamar a `mint(bytes32 audioHash, string uri)` en el contrato.
-    - `VerifyForm` (`frontend/src/components/VerifyForm.jsx`): permite introducir un Token ID y llamar a `verify(uint256 tokenId)` para atestiguar ideas de otros artistas.
+    - `WalletConnect` + `WalletContext` (`frontend/src/components/WalletConnect.jsx`, `frontend/src/context/WalletContext.jsx`).
+    - `MintForm` (`frontend/src/components/MintForm.jsx`), `VerifyForm` (`frontend/src/components/VerifyForm.jsx`) y otros componentes auxiliares.
   - Utiliza **`ethers.js`** con `BrowserProvider` y `Signer` para firmar transacciones y leer datos del contrato `SonetyoNFT`.
-  - Configuración de contrato y red centralizada en `frontend/src/utils/config.js`, donde se importa `VITE_CONTRACT_ADDRESS` desde variables de entorno y se define la configuración de **zkSYS PoB Devnet (Chain ID 57042)**.
+  - Configuración de contrato y red centralizada en `frontend/src/utils/config.js`.
 
-- **Backend / Smart Contracts (`backend/`):**
-  - Proyecto **Hardhat** con:
-    - `backend/hardhat.config.js` — configuración de redes (incluyendo `devnet` → zkSYS PoB Devnet), compilador Solidity (0.8.24) y toolbox.
-    - `backend/contracts/SonetyoNFT.sol` — contrato ERC‑721 principal.
-    - `backend/scripts/deploy.js` — script de despliegue a zkSYS PoB Devnet.
-    - `backend/test/SonetyoNFT.test.js` — 14 tests unitarios para validar el comportamiento.
-  - **Contrato `SonetyoNFT.sol`:**
-    - Deriva de `ERC721` y `ERC721URIStorage` (OpenZeppelin).
-    - `mint(bytes32 audioHash, string uri) external returns (uint256)`  
-      Registra una idea musical calculando su hash SHA‑256 en el frontend y almacenándolo on‑chain junto con un `timestamp` y el `creator`. Previene duplicados usando `hashExists[audioHash]`.
-    - `verify(uint256 tokenId) external`  
-      Permite a cualquier cuenta, excepto el propio creador del NFT, atestiguar que conoce/ha visto la idea asociada al `tokenId`, incrementando `verificationCount` y `verifierCount[msg.sender]`. Evita verificaciones duplicadas por la misma cuenta.
-    - `getProof(uint256 tokenId) external view returns (SonetyoProof)`  
-      Devuelve la estructura `SonetyoProof` (hash del audio, timestamp, creador, número de verificaciones).
-    - `getCreatorStats(address creator) external view returns (uint256 totalMints, uint256 totalVerificationsGiven)`  
-      Proporciona métricas de reputación del creador.
-    - `isHashRegistered(bytes32 audioHash) external view returns (bool)`  
-      Permite al frontend saber si un determinado hash ya está registrado, usado para prevenir reverts y mejorar la UX.
-  - Estructura y diseño se documentan en:
-    - `backend/README.md` (instalación, estructura de carpetas, flujo general).
-    - `backend/propuesta.md` (visión, capas del sistema, relación con la economía creativa).
-    - `backend/plan.md` (roadmap de implementación).
-    - `backend/criterios.md` y `backend/entregable.semana1.md` (alineación con los criterios del programa).
+- **Contratos (`contracts/`):**
+  - Proyecto **Hardhat** aislado en la carpeta `contracts/`:
+    - `contracts/src/SonetyoNFT.sol` — contrato ERC‑721 principal para registrar ideas (Sonetyo Proof).
+    - `contracts/src/CreatorToken.sol` — token ERC‑20 por artista.
+    - `contracts/src/ProjectVault.sol` — NFT que agrupa ideas en proyectos.
+    - `contracts/scripts/deploy.js` — script de despliegue a zkSYS PoB Devnet.
+  - Estos contratos corresponden a la Capa 1 (prueba de creatividad) y Capa 3 (tokenización) descritas en la propuesta original.
+
+- **Backend (`backend/`):**
+  - API Node.js/Express que:
+    - Expone endpoints para:
+      - Listar ideas y proyectos por artista.
+      - Crear proyectos (persistencia off-chain).
+      - (Futuro) Rankings globales (Top creadores, Top ideas verificadas, Emergentes).
+    - Se integra con:
+      - La chain (zkSYS PoB Devnet) vía `ethers.js` y los ABIs de los contratos.
+      - Una base de datos SQL (PostgreSQL en producción, SQLite por defecto en el repo) para almacenar proyectos y agregados.
+  - Arquitectura del backend descrita en `docs/specs/backend-spec.md` bajo un enfoque DDD (domain, application, infrastructure, interfaces).
 
 ---
 

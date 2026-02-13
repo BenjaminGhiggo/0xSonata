@@ -28,3 +28,13 @@
   4. Artista crea un ProjectVault agrupando las 2 ideas.
   5. Frontend muestra el vault y las ideas asociadas correctamente.
 
+- Rankings y tierlist:
+  - Verificar que el backend calcula correctamente el ranking **Top creadores** a partir de datos simulados de `creatorMintCount` y verificaciones.
+  - Verificar que el endpoint de proyectos devuelve proyectos coherentes para un artista (`GET /artists/:address/projects`).
+  - Verificar que el frontend:
+    - Muestra al primer lugar con estilo “oro en llamas”.
+    - Muestra al segundo con “plata reluciente”.
+    - Muestra al tercero con “bronce brillante”.
+  - Verificar que el ranking de **ideas más verificadas** muestra correctamente las ideas por orden descendente de `verificationCount`.
+  - Verificar que el módulo de “Emergentes de la semana” incluye artistas cuyo crecimiento en número de ideas/verificaciones en la última semana supera un umbral definido.
+

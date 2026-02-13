@@ -1,5 +1,5 @@
 const express = require("express");
-const { getCreatorStats, getProof, getVault } = require("../../infrastructure/blockchain/syscoin-adapter");
+const { getCreatorStats, getProof, getVault, getIdeasByCreator } = require("../../infrastructure/blockchain/syscoin-adapter");
 const { projectRepository } = require("../../infrastructure/repositories/ProjectRepositorySql");
 
 const router = express.Router();
@@ -15,6 +15,17 @@ router.get("/artists/:address/stats", async (req, res) => {
     const { address } = req.params;
     const stats = await getCreatorStats(address);
     res.json({ address, ...stats });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// Lista de ideas de un artista (desde chain)
+router.get("/artists/:address/ideas", async (req, res) => {
+  try {
+    const { address } = req.params;
+    const ideas = await getIdeasByCreator(address);
+    res.json(ideas);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

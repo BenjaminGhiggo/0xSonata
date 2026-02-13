@@ -52,6 +52,29 @@ async function getProof(tokenId) {
   };
 }
 
+async function getIdeasByCreator(address) {
+  const contract = getSonetyoContract();
+  const total = await contract.totalSupply();
+  const totalNumber = Number(total);
+
+  const ideas = [];
+
+  for (let tokenId = 0; tokenId < totalNumber; tokenId += 1) {
+    const proof = await contract.getProof(tokenId);
+    if (proof.creator.toLowerCase() === address.toLowerCase()) {
+      ideas.push({
+        tokenId,
+        audioHash: proof.audioHash,
+        timestamp: Number(proof.timestamp),
+        creator: proof.creator,
+        verificationCount: Number(proof.verificationCount),
+      });
+    }
+  }
+
+  return ideas;
+}
+
 async function getVault(vaultId) {
   const contract = getProjectVaultContract();
   const vault = await contract.getVault(vaultId);
@@ -65,6 +88,7 @@ async function getVault(vaultId) {
 module.exports = {
   getCreatorStats,
   getProof,
+  getIdeasByCreator,
   getVault,
 };
 

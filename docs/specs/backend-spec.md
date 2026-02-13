@@ -5,7 +5,23 @@
 Proveer una API off-chain opcional que complemente a los contratos:
 - Agregación de datos (listas de ideas por artista, proyectos enriquecidos).
 - Indexación de eventos de la cadena.
-- Endpoints amigables para el frontend.
+- Endpoints amigables para el frontend (web e iOS) siguiendo una arquitectura DDD con capas claras.
+
+## 1.1 Arquitectura (DDD)
+
+El backend de Sonetyo sigue un enfoque de **Domain-Driven Design (DDD)** con cuatro capas:
+
+- `domain/`:
+  - Entidades de dominio (por ejemplo `Project`).
+  - Reglas básicas de negocio (validaciones, modelos puros sin dependencias técnicas).
+- `application/` (futuro cercano):
+  - Casos de uso orquestados (por ejemplo `CreateProjectUseCase`, `ListArtistProjectsUseCase`), que coordinan dominio + infraestructura.
+- `infrastructure/`:
+  - Adaptadores a la blockchain (`infrastructure/blockchain/syscoin-adapter.js`).
+  - Adaptadores de base de datos (`infrastructure/database/knex.js`).
+  - Repositorios concretos (`infrastructure/repositories/ProjectRepositorySql.js`).
+- `interfaces/`:
+  - Adaptadores HTTP (Express) que exponen una API REST (`interfaces/http/routes.js`) consumida por el frontend web y el cliente iOS (Swift).
 
 ## 2. Endpoints propuestos (versión mínima)
 

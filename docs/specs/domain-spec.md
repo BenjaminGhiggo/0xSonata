@@ -5,17 +5,23 @@
 - **Idea musical (Sonetyo Proof)**
   - Representación on-chain: NFT ERC-721 (`SonetyoNFT`).
   - Atributos:
-    - `audioHash` (`bytes32`): hash SHA-256 del archivo de audio.
+    - `audioHash` (`bytes32`): hash SHA-256 del archivo de audio (puede provenir tanto de creaciones tradicionales como de herramientas de IA musical).
     - `timestamp` (`uint256`): momento de registro.
     - `creator` (`address`): dirección del creador original.
     - `verificationCount` (`uint256`): verificaciones sociales recibidas.
 
 - **Artista**
   - Representación on-chain: contrato ERC-20 (`CreatorToken`) desplegado para un artista concreto.
-  - Atributos:
+  - Pensado para artistas **emergentes** que hoy pueden iniciar su carrera creativa apoyándose en herramientas de IA musical.
+  - Atributos on-chain:
     - `artist` (`address`): dueño / owner del token.
     - `name`, `symbol`: identidad del token.
     - `totalSupply`: oferta total emitida.
+  - Atributos off-chain (calculados en backend para rankings):
+    - `totalIdeas`: número total de ideas registradas.
+    - `totalVerificationsGiven`: verificaciones realizadas a otros artistas.
+    - `tier`: nivel en la tierlist (Oro / Plata / Bronce / Emergente).
+    - `rankGlobal`: posición en el ranking global.
 
 - **Proyecto (Vault)**
   - Representación on-chain: NFT ERC-721 (`ProjectVault`).
@@ -41,10 +47,10 @@
 
 ## 3. Casos de uso de dominio
 
-1. **Registrar idea musical**
-   - Entrada: archivo de audio.
+1. **Registrar idea musical (incluyendo ideas generadas o asistidas por IA)**
+   - Entrada: archivo de audio (grabación, demo, loop, beat o pieza generada/asistida por IA musical).
    - Proceso: calcular hash SHA-256 en frontend → llamar a `SonetyoNFT.mint(hash, uri)`.
-   - Resultado: NFT emitido al creador + registro inmutable on-chain.
+   - Resultado: NFT emitido al creador + registro inmutable on-chain que actúa como **prueba de existencia y autoría** de la idea, independientemente de si la herramienta utilizada fue tradicional o IA.
 
 2. **Verificar idea de otro artista**
    - Entrada: `tokenId`.
@@ -60,4 +66,10 @@
    - Entrada: lista de `ideaTokenIds`, `metadataURI`.
    - Proceso: validar que el llamador es creador/propietario de todas las ideas → mintear `ProjectVault`.
    - Resultado: un NFT que representa un proyecto (EP, álbum, pack de ideas) enlazado a Sonetyo Proofs existentes.
+
+5. **Rankear artistas y contenidos**
+   - Entrada: métricas on-chain (`creatorMintCount`, `verificationCount`, etc.) y datos off-chain agregados en backend.
+   - Proceso: cálculo periódico de rankings (Top creadores, Top ideas verificadas, Emergentes de la semana) y asignación de una **tier visual** (Oro en llamas, Plata reluciente, Bronce brillante) para los primeros puestos.
+   - Resultado: un modelo de reputación visible para los usuarios que premia la constancia creativa y la participación social, especialmente importante en un contexto donde la IA facilita la creación de cada vez más artistas emergentes.
+
 
