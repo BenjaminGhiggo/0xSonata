@@ -1,0 +1,22 @@
+{
+  "name": "0xsonata-contracts",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Smart contracts for 0xSonata – Sonata Proof (ERC-721) on zkSYS PoB Devnet",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test",
+    "deploy:local": "hardhat run scripts/deploy.ts --network hardhat",
+    "deploy:devnet": "hardhat run scripts/deploy.ts --network devnet"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "@openzeppelin/contracts": "^5.4.0",
+    "@types/node": "^25.3.0",
+    "dotenv": "^17.3.1",
+    "hardhat": "^2.28.6",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.9.3"
+  }
+}
