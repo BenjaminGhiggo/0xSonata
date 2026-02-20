@@ -14,6 +14,6 @@
 
 export default () => ({
   port: parseInt(process.env.PORT || '3000', 10),
-  rpcUrl: process.env.RPC_URL || 'https://rpc-pob.dev11.top',
+  rpcUrl: process.env.RPC_URL || '',
   sonataNftAddress: process.env.SONATA_NFT_ADDRESS || '',
 });

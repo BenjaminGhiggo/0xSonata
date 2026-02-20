@@ -1,42 +1,23 @@
-// POR QUE: Centralizar la configuracion del frontend en un solo lugar.
-//   Si cambia la direccion del contrato o la red, solo se modifica aqui.
-//
-// QUE: Exporta un objeto con los datos que el frontend necesita para
-//   conectarse a la blockchain y mostrar links al explorer.
-//
-// COMO: Angular puede reemplazar este archivo por environment.prod.ts
-//   en builds de produccion (configurado en angular.json).
+// ARCHIVO GENERADO por scripts/set-env.js — NO EDITAR MANUALMENTE
+// Para cambiar valores, edita .env y ejecuta: npm run config
 
 export const environment = {
   production: false,
 
-  // Direccion del contrato SonataNFT desplegado
-  // Se obtiene tras ejecutar: cd ../contracts && npm run deploy:devnet
-  contractAddress: '',
+  contractAddress: '0x01c9A88bFe2a2B3729c3d97279Ca88F7cC3Ef373',
 
-  // Chain ID de zkSYS PoB Devnet en formato hexadecimal y decimal
-  chainIdHex: '0xDED2',
   chainId: 57042,
-
-  // URL del nodo RPC para lecturas directas desde el frontend
+  chainIdHex: '0xDED2',
   rpcUrl: 'https://rpc-pob.dev11.top',
-
-  // URL base del block explorer para links a transacciones y direcciones
   explorerBaseUrl: 'https://explorer-pob.dev11.top',
 
-  // Configuracion completa de la red (usada para agregarla a la wallet)
   networkConfig: {
     chainId: '0xDED2',
     chainName: 'zkSYS PoB Devnet',
+    nativeCurrency: { name: 'tSYS', symbol: 'tSYS', decimals: 18 },
     rpcUrls: ['https://rpc-pob.dev11.top'],
-    nativeCurrency: {
-      name: 'TSYS',
-      symbol: 'TSYS',
-      decimals: 18,
-    },
     blockExplorerUrls: ['https://explorer-pob.dev11.top'],
   },
 
-  // URL del backend NestJS
   apiUrl: 'http://localhost:3000/api',
 };

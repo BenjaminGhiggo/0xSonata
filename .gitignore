@@ -33,6 +33,10 @@ pnpm-debug.log*
 # Angular
 .angular/
 
+# Environment files generados por scripts/set-env.js (no subir a git)
+frontend/src/environments/environment.ts
+frontend/src/environments/environment.prod.ts
+
 # Misc
 *.tgz
 coverage/

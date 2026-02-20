@@ -54,22 +54,22 @@ export class BlockchainService implements OnModuleInit {
   // OnModuleInit: NestJS llama a este metodo automaticamente cuando el modulo
   // se inicializa. Es el momento ideal para conectarse a la blockchain.
   onModuleInit(): void {
-    const rpcUrl = this.configService.get<string>('rpcUrl', 'https://rpc-pob.dev11.top');
+    const rpcUrl = this.configService.get<string>('rpcUrl', '');
     const contractAddress = this.configService.get<string>('sonataNftAddress', '');
 
-    // Crear provider: es el "canal de comunicacion" con el nodo RPC
-    // Internamente mantiene una conexion HTTP y envia peticiones JSON-RPC
+    if (!rpcUrl) {
+      this.logger.error('RPC_URL no configurada en .env. El backend no puede conectar a la blockchain.');
+      return;
+    }
+
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
 
     if (contractAddress) {
-      // Crear instancia del contrato en modo lectura (sin signer)
-      // El tercer parametro (provider) permite LEER pero no ESCRIBIR
-      // Para escribir necesitariamos un Signer (wallet con clave privada)
       this.contract = new ethers.Contract(contractAddress, SONATA_ABI, this.provider);
       this.isReady = true;
       this.logger.log(`Conectado a SonataNFT en ${contractAddress} via ${rpcUrl}`);
     } else {
-      this.logger.warn('SONATA_NFT_ADDRESS no configurada. Endpoints de blockchain no funcionaran.');
+      this.logger.warn('SONATA_NFT_ADDRESS no configurada en .env. Endpoints de blockchain no funcionaran.');
     }
   }
 
