@@ -40,3 +40,10 @@ frontend/src/environments/environment.prod.ts
 # Misc
 *.tgz
 coverage/
+
+# Generados por install.sh
+docker-compose.yml
+backend/Dockerfile
+frontend/Dockerfile
+frontend/nginx.conf
+contracts/Dockerfile
