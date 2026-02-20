@@ -47,10 +47,3 @@ backend/Dockerfile
 frontend/Dockerfile
 frontend/nginx.conf
 contracts/Dockerfile
-
-# Generados por install.sh
-docker-compose.yml
-backend/Dockerfile
-frontend/Dockerfile
-frontend/nginx.conf
-contracts/Dockerfile
