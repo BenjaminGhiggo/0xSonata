@@ -1,0 +1,85 @@
+// Estilos globales de 0xSonata
+// Estos estilos aplican a toda la aplicacion
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  color: #111827;
+  line-height: 1.6;
+}
+
+// Botones reutilizables
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.btn-primary {
+  background: #f59e0b;
+  color: #0a0e1a;
+
+  &:hover:not(:disabled) {
+    background: #f97316;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+  }
+}
+
+.btn-secondary {
+  background: transparent;
+  color: #374151;
+  border: 1px solid rgba(148, 163, 184, 0.5);
+
+  &:hover:not(:disabled) {
+    background: rgba(0, 0, 0, 0.03);
+    border-color: #f59e0b;
+  }
+}
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 0.85rem;
+}
+
+.btn-large {
+  padding: 14px 24px;
+  font-size: 1.05rem;
+}
+
+// Focus visible para accesibilidad (navegacion con teclado)
+*:focus-visible {
+  outline: 2px solid #f59e0b;
+  outline-offset: 2px;
+}
+
+a {
+  color: #f59e0b;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
