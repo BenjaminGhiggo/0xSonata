@@ -11,9 +11,27 @@
 //   separa cada linea en clave=valor, y los deja en process.env.
 //   Esta funcion simplemente toma esos valores y los agrupa en un objeto
 //   con nombres claros y valores por defecto.
+//
+// VALIDACION ESTRICTA: Si RPC_URL no esta configurada, lanzamos un error
+// inmediatamente. Esto evita que la aplicacion arranque silenciosamente
+// y falle despues cuando se intente conectar a la blockchain.
 
-export default () => ({
-  port: parseInt(process.env.PORT || '3000', 10),
-  rpcUrl: process.env.RPC_URL || '',
-  sonataNftAddress: process.env.SONATA_NFT_ADDRESS || '',
-});
+export default () => {
+  const rpcUrl = process.env.RPC_URL;
+  const sonataNftAddress = process.env.SONATA_NFT_ADDRESS;
+
+  // Validacion estricta: RPC_URL es obligatoria
+  if (!rpcUrl) {
+    throw new Error(
+      'RPC_URL no configurada en .env. ' +
+      'El backend no puede conectar a la blockchain sin una URL de nodo RPC. ' +
+      'Agrega RPC_URL=https://rpc-pob.dev11.top a tu backend/.env'
+    );
+  }
+
+  return {
+    port: parseInt(process.env.PORT || '3000', 10),
+    rpcUrl,
+    sonataNftAddress: sonataNftAddress || '',
+  };
+};
