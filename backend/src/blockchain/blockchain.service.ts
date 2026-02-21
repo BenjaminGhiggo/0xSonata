@@ -1,145 +1,145 @@
-// POR QUE: Todos los endpoints necesitan leer datos del contrato SonataNFT.
-//   Este servicio centraliza la conexion para no crear multiples conexiones
-//   al nodo RPC (cada conexion consume red y memoria).
-//
-// QUE: Servicio que conecta a la blockchain y expone funciones de lectura:
-//   - getProof(tokenId): datos de una idea musical registrada
-//   - getCreatorStats(address): cuantas ideas registro y cuantas verifico
-//   - getTotalSupply(): cuantas ideas existen en total
-//   - getIdeasByCreator(address): lista de todas las ideas de un artista
-//
-// COMO: ethers.JsonRpcProvider envia peticiones HTTP POST al nodo RPC.
-//   Por ejemplo, cuando llamas a contract.totalSupply(), ethers:
-//   1. Codifica la llamada en formato ABI (un string hexadecimal)
-//   2. Envia un POST al RPC con metodo "eth_call" y los datos codificados
-//   3. Recibe la respuesta hexadecimal y la decodifica al tipo esperado (uint256)
-
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
 
-// ABI minima: solo las funciones de lectura que necesitamos.
-// Cada string describe una funcion del contrato en formato "human-readable".
-// ethers.js la convierte internamente en el formato binario ABI que entiende la EVM.
 const SONATA_ABI = [
   'function totalSupply() view returns (uint256)',
-  'function getCreatorStats(address creator) view returns (uint256 totalMints, uint256 totalVerificationsGiven)',
-  'function getProof(uint256 tokenId) view returns (tuple(bytes32 audioHash, uint256 timestamp, address creator, uint256 verificationCount))',
+  'function getCreatorStats(address creator) view returns (uint256 totalMints, uint256 totalVerificationsGiven, uint256 totalVerificationsReceived, uint8 tier)',
+  'function getProof(uint256 tokenId) view returns (tuple(bytes32 audioHash, uint256 timestamp, address creator, uint256 verificationCount, uint256 stepCount))',
+  'function getCreativeSteps(uint256 tokenId) view returns (tuple(bytes32 contentHash, uint8 stepType, uint256 timestamp, string metadata)[])',
   'function isHashRegistered(bytes32 audioHash) view returns (bool)',
+  'function getTier(address creator) view returns (uint8)',
+  'function getVerificationWeight(address verifier) view returns (uint256)',
+  'function stakeBalance(address) view returns (uint256)',
+  'function MIN_STAKE() view returns (uint256)',
 ];
 
-// Tipo que representa los datos de una idea musical (Sonata Proof)
+const VAULT_ABI = [
+  'function totalVaults() view returns (uint256)',
+  'function getVault(uint256 vaultId) view returns (uint256 id, address creator, uint256[] ideaTokenIds, address[] collaborators, uint256[] splits, string metadataURI, uint256 totalReceived, uint256 createdAt)',
+  'function getCreatorVaults(address creator) view returns (uint256[])',
+];
+
 export interface SonataProof {
   audioHash: string;
   timestamp: number;
   creator: string;
   verificationCount: number;
+  stepCount: number;
 }
 
-// Tipo para las estadisticas de un artista
+export interface CreativeStepData {
+  contentHash: string;
+  stepType: number;
+  timestamp: number;
+  metadata: string;
+}
+
 export interface CreatorStats {
   totalMints: number;
   totalVerificationsGiven: number;
+  totalVerificationsReceived: number;
+  tier: number;
+}
+
+export interface VaultData {
+  id: number;
+  creator: string;
+  ideaTokenIds: number[];
+  collaborators: string[];
+  splits: number[];
+  metadataURI: string;
+  totalReceived: string;
+  createdAt: number;
 }
 
 @Injectable()
 export class BlockchainService implements OnModuleInit {
   private readonly logger = new Logger(BlockchainService.name);
   private provider!: ethers.JsonRpcProvider;
-  private contract!: ethers.Contract;
+  private sonataNft!: ethers.Contract;
+  private projectVault!: ethers.Contract;
   private isReady = false;
+  private hasVault = false;
 
   constructor(private readonly configService: ConfigService) {}
 
-  // OnModuleInit: NestJS llama a este metodo automaticamente cuando el modulo
-  // se inicializa. Es el momento ideal para conectarse a la blockchain.
   onModuleInit(): void {
     const rpcUrl = this.configService.get<string>('rpcUrl', '');
-    const contractAddress = this.configService.get<string>('sonataNftAddress', '');
+    const nftAddress = this.configService.get<string>('sonataNftAddress', '');
+    const vaultAddress = this.configService.get<string>('projectVaultAddress', '');
 
     if (!rpcUrl) {
-      this.logger.error('RPC_URL no configurada en .env. El backend no puede conectar a la blockchain.');
+      this.logger.error('RPC_URL no configurada');
       return;
     }
 
     this.provider = new ethers.JsonRpcProvider(rpcUrl);
 
-    if (contractAddress) {
-      this.contract = new ethers.Contract(contractAddress, SONATA_ABI, this.provider);
+    if (nftAddress) {
+      this.sonataNft = new ethers.Contract(nftAddress, SONATA_ABI, this.provider);
       this.isReady = true;
-      this.logger.log(`Conectado a SonataNFT en ${contractAddress} via ${rpcUrl}`);
-    } else {
-      this.logger.warn('SONATA_NFT_ADDRESS no configurada en .env. Endpoints de blockchain no funcionaran.');
+      this.logger.log(`SonataNFT conectado: ${nftAddress}`);
+    }
+
+    if (vaultAddress) {
+      this.projectVault = new ethers.Contract(vaultAddress, VAULT_ABI, this.provider);
+      this.hasVault = true;
+      this.logger.log(`ProjectVault conectado: ${vaultAddress}`);
     }
   }
 
-  // Verifica si el servicio esta listo para hacer consultas
   private ensureReady(): void {
     if (!this.isReady) {
-      throw new Error('BlockchainService no esta listo. Configura SONATA_NFT_ADDRESS en .env');
+      throw new Error('BlockchainService no conectado. Configura SONATA_NFT_ADDRESS en .env');
     }
   }
 
-  // Obtiene los datos de una idea musical por su tokenId
   async getProof(tokenId: number): Promise<SonataProof> {
     this.ensureReady();
-    this.logger.debug(`getProof(${tokenId}) - consultando contrato...`);
-
-    // contract.getProof() traduce la llamada a una peticion eth_call al nodo RPC
-    // El nodo ejecuta la funcion view del contrato (sin gastar gas) y devuelve el resultado
-    const proof = await this.contract.getProof(tokenId);
-
-    // proof es un array-like que ethers devuelve con propiedades nombradas
-    // Convertimos a un objeto simple para mayor claridad
-    const result: SonataProof = {
+    const proof = await this.sonataNft.getProof(tokenId);
+    return {
       audioHash: proof.audioHash,
       timestamp: Number(proof.timestamp),
       creator: proof.creator,
       verificationCount: Number(proof.verificationCount),
+      stepCount: Number(proof.stepCount),
     };
-
-    this.logger.debug(`getProof(${tokenId}) -> creator: ${result.creator}, verifications: ${result.verificationCount}`);
-    return result;
   }
 
-  // Obtiene las estadisticas de un artista (cuantas ideas registro, cuantas verifico)
+  async getCreativeSteps(tokenId: number): Promise<CreativeStepData[]> {
+    this.ensureReady();
+    const steps = await this.sonataNft.getCreativeSteps(tokenId);
+    return steps.map((s: any) => ({
+      contentHash: s.contentHash,
+      stepType: Number(s.stepType),
+      timestamp: Number(s.timestamp),
+      metadata: s.metadata,
+    }));
+  }
+
   async getCreatorStats(address: string): Promise<CreatorStats> {
     this.ensureReady();
-    this.logger.debug(`getCreatorStats(${address}) - consultando contrato...`);
-
-    // Devuelve un array de 2 BigInt: [totalMints, totalVerificationsGiven]
-    // Number() convierte BigInt a number (seguro porque estos valores son pequenos)
-    const [totalMints, totalVerificationsGiven] = await this.contract.getCreatorStats(address);
-
-    const result: CreatorStats = {
+    const [totalMints, totalVerificationsGiven, totalVerificationsReceived, tier] =
+      await this.sonataNft.getCreatorStats(address);
+    return {
       totalMints: Number(totalMints),
       totalVerificationsGiven: Number(totalVerificationsGiven),
+      totalVerificationsReceived: Number(totalVerificationsReceived),
+      tier: Number(tier),
     };
-
-    this.logger.debug(`getCreatorStats(${address}) -> mints: ${result.totalMints}, verifications: ${result.totalVerificationsGiven}`);
-    return result;
   }
 
-  // Cuantas ideas musicales existen en total registradas en el contrato
   async getTotalSupply(): Promise<number> {
     this.ensureReady();
-    const total = await this.contract.totalSupply();
-    return Number(total);
+    return Number(await this.sonataNft.totalSupply());
   }
 
-  // Obtiene TODAS las ideas de un artista especifico.
-  // Recorre todos los tokens y filtra por creator.
-  // NOTA: Este enfoque es simple pero lento si hay muchos tokens.
-  //   En produccion usariamos un indexador (subgraph) en lugar de iterar.
   async getIdeasByCreator(address: string): Promise<Array<SonataProof & { tokenId: number }>> {
     this.ensureReady();
-    this.logger.debug(`getIdeasByCreator(${address}) - buscando ideas...`);
-
     const totalSupply = await this.getTotalSupply();
     const ideas: Array<SonataProof & { tokenId: number }> = [];
 
-    // Iteramos cada tokenId desde 0 hasta totalSupply-1
-    // Para cada uno, pedimos el proof y verificamos si el creator coincide
     for (let tokenId = 0; tokenId < totalSupply; tokenId++) {
       try {
         const proof = await this.getProof(tokenId);
@@ -147,12 +147,36 @@ export class BlockchainService implements OnModuleInit {
           ideas.push({ tokenId, ...proof });
         }
       } catch {
-        // Si un tokenId no existe o da error, lo saltamos
-        this.logger.debug(`Token ${tokenId} no accesible, saltando`);
+        continue;
       }
     }
-
-    this.logger.debug(`getIdeasByCreator(${address}) -> encontradas ${ideas.length} ideas`);
     return ideas;
+  }
+
+  async getStakeBalance(address: string): Promise<string> {
+    this.ensureReady();
+    const bal = await this.sonataNft.stakeBalance(address);
+    return ethers.formatEther(bal);
+  }
+
+  async getVault(vaultId: number): Promise<VaultData> {
+    if (!this.hasVault) throw new Error('ProjectVault no configurado');
+    const v = await this.projectVault.getVault(vaultId);
+    return {
+      id: Number(v.id),
+      creator: v.creator,
+      ideaTokenIds: v.ideaTokenIds.map(Number),
+      collaborators: [...v.collaborators],
+      splits: v.splits.map(Number),
+      metadataURI: v.metadataURI,
+      totalReceived: ethers.formatEther(v.totalReceived),
+      createdAt: Number(v.createdAt),
+    };
+  }
+
+  async getCreatorVaults(address: string): Promise<number[]> {
+    if (!this.hasVault) throw new Error('ProjectVault no configurado');
+    const ids = await this.projectVault.getCreatorVaults(address);
+    return ids.map(Number);
   }
 }

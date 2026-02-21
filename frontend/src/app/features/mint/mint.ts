@@ -1,285 +1,301 @@
-// POR QUE: La funcion principal de 0xSonata es registrar ideas musicales.
-//   Este componente es la "ventanilla de registro" donde el artista:
-//   1. Sube su archivo de audio
-//   2. Ve la huella (hash) calculada automaticamente
-//   3. Firma la transaccion de mint
-//   4. Recibe su Token ID como prueba
-//
-// QUE: Formulario con upload de audio, calculo de hash SHA-256,
-//   verificacion de duplicados, y mint on-chain.
-//
-// COMO: Usa signals para manejar el estado local del formulario.
-//   El flujo completo es:
-//   1. Usuario selecciona archivo -> handleFileChange()
-//   2. Se calcula hash SHA-256 en el navegador -> calculateFileHash()
-//   3. Se verifica si ya esta registrado -> contractService.isHashRegistered()
-//   4. Si no esta registrado, el usuario puede hacer mint
-//   5. mint() abre popup de firma en la wallet -> contractService.mint()
-//   6. Se espera confirmacion y se muestra resultado
-
 import { Component, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ethers } from 'ethers';
 import { WalletService } from '../../core/services/wallet.service';
-import { ContractService } from '../../core/services/contract.service';
+import { ContractService, STEP_TYPES } from '../../core/services/contract.service';
 import { calculateFileHash } from '../../shared/utils/hash.util';
 import { getFriendlyError, EXPLORER_BASE_URL } from '../../shared/utils/error-messages.util';
 
-const MAX_FILE_MB = 10;
-
-// Tipo para el resultado exitoso de mint
-interface MintSuccess {
-  type: 'success';
-  txHash: string;
-  tokenId: string;
-  blockNumber: number;
-}
+type Phase = 'upload' | 'steps' | 'complete';
 
 @Component({
   selector: 'app-mint',
   standalone: true,
-  imports: [RouterLink],
+  imports: [CommonModule, RouterLink],
   template: `
-    <div class="page">
-      <a routerLink="/" class="back-link">&#8592; Volver</a>
-      <h1>Registrar nueva idea</h1>
-      <p class="subtitle">Sube un audio corto (beat, melodia, loop, tarareo) y registralo on-chain.</p>
+    <div class="min-h-screen bg-[radial-gradient(circle_at_50%_-20%,#1e1b4b_0%,#05060b_80%)]">
+      <!-- NAV -->
+      <nav class="flex items-center justify-between px-6 md:px-10 py-6 sticky top-0 z-50 backdrop-blur-xl border-b"
+           style="background: rgba(5,6,11,0.6); border-color: rgba(255,255,255,0.05);">
+        <a routerLink="/" class="flex items-center space-x-3 no-underline">
+          <div class="w-10 h-10 bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full flex items-center justify-center font-black italic text-white shadow-lg text-sm">0x</div>
+          <span class="text-xl font-black uppercase italic tracking-tighter text-white">0xSonata</span>
+        </a>
+        @if (!walletService.isConnected()) {
+          <button (click)="walletService.connect()"
+                  class="px-4 py-2 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all">
+            Conectar Wallet
+          </button>
+        } @else {
+          <span class="text-xs text-white/40 font-mono">{{ walletService.account()?.slice(0,6) }}...{{ walletService.account()?.slice(-4) }}</span>
+        }
+      </nav>
 
-      @if (!walletService.isConnected()) {
-        <div class="card card--muted">
-          <p>Conecta tu wallet para poder registrar ideas.</p>
-        </div>
-      } @else {
-        <div class="card">
-          <!-- Paso 1: Seleccionar archivo de audio -->
-          <div class="form-group">
-            <label for="audioFile">Archivo de audio</label>
-            <input
-              type="file"
-              id="audioFile"
-              accept="audio/*"
-              (change)="handleFileChange($event)"
-              [disabled]="isProcessing()"
-            />
-            <p class="hint">Max. {{ maxFileMB }} MB. Formatos: MP3, WAV, OGG.</p>
+      <div class="max-w-2xl mx-auto mt-12 px-6 pb-20">
+        @if (!walletService.isConnected()) {
+          <div class="bg-white/5 p-10 rounded-[3rem] border border-white/10 text-center">
+            <p class="text-xl font-bold text-white/60 mb-4">Conecta tu wallet para registrar tu proceso creativo</p>
+            <button (click)="walletService.connect()"
+                    class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase hover:brightness-110 transition-all">
+              Conectar Pali Wallet
+            </button>
+          </div>
+        } @else {
+          <div class="bg-white/5 p-10 rounded-[3rem] border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+            <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-purple-500 to-pink-500"></div>
 
-            @if (fileName()) {
-              <p class="file-info">{{ fileName() }} ({{ fileSizeKB() }} KB)</p>
+            <!-- PHASE INDICATOR -->
+            <div class="flex items-center justify-center space-x-3 mb-8">
+              @for (p of ['upload', 'steps', 'complete']; track p) {
+                <div class="flex items-center space-x-2">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center text-xs font-black"
+                       [class]="phase() === p ? 'bg-purple-500 text-white' : (phaseIndex(p) < phaseIndex(phase()) ? 'bg-green-500 text-white' : 'bg-white/10 text-white/40')">
+                    {{ phaseIndex(p) < phaseIndex(phase()) ? '✓' : phaseIndex(p) + 1 }}
+                  </div>
+                  @if (p !== 'complete') {
+                    <div class="w-12 h-0.5" [class]="phaseIndex(p) < phaseIndex(phase()) ? 'bg-green-500' : 'bg-white/10'"></div>
+                  }
+                </div>
+              }
+            </div>
+
+            <!-- PHASE 1: UPLOAD & MINT -->
+            @if (phase() === 'upload') {
+              <h2 class="text-3xl font-black uppercase mb-2 italic tracking-tighter text-white">Registrar Idea</h2>
+              <p class="text-xs text-white/40 mb-8 font-bold uppercase tracking-widest">Sube tu audio y mintea el NFT base</p>
+
+              <div class="space-y-6">
+                <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase opacity-40 ml-2 text-white">Archivo de audio</label>
+                  <label class="flex items-center justify-center w-full p-8 rounded-2xl border-2 border-dashed border-white/20 hover:border-purple-500/50 transition-all cursor-pointer bg-white/[0.02]">
+                    <input type="file" accept="audio/*" (change)="handleFileChange($event)" [disabled]="isProcessing()" class="hidden">
+                    <div class="text-center">
+                      @if (fileName()) {
+                        <p class="text-white font-bold">{{ fileName() }}</p>
+                        <p class="text-white/40 text-xs mt-1">{{ fileSizeKB() }} KB</p>
+                      } @else {
+                        <p class="text-white/40 text-sm">Arrastra o selecciona un archivo de audio (max 10 MB)</p>
+                      }
+                    </div>
+                  </label>
+                </div>
+
+                @if (audioHash()) {
+                  <div class="space-y-2">
+                    <label class="text-[10px] font-black uppercase opacity-40 ml-2 text-white">Hash SHA-256</label>
+                    <div class="p-4 rounded-2xl bg-white/5 border border-white/10 font-mono text-xs text-green-400 break-all">
+                      {{ audioHash() }}
+                    </div>
+                  </div>
+                }
+
+                <div class="space-y-2">
+                  <label class="text-[10px] font-black uppercase opacity-40 ml-2 text-white">Token URI (opcional)</label>
+                  <input type="text" [value]="tokenUri()" (input)="onUriChange($event)"
+                         placeholder="ipfs://..."
+                         class="w-full p-4 rounded-2xl font-bold outline-none text-white text-sm"
+                         style="background: var(--card-bg); border: 1px solid var(--border-color);"
+                         [disabled]="isProcessing()">
+                </div>
+
+                @if (statusMessage()) {
+                  <p class="text-yellow-500 text-sm animate-pulse">{{ statusMessage() }}</p>
+                }
+
+                <button (click)="handleMint()"
+                        [disabled]="!audioHash() || isProcessing()"
+                        class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 p-5 rounded-2xl font-black uppercase text-white hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-purple-900/40 disabled:opacity-40 disabled:cursor-not-allowed">
+                  {{ isProcessing() ? (statusMessage() || 'Procesando...') : 'Mintear NFT Base' }}
+                </button>
+              </div>
+            }
+
+            <!-- PHASE 2: CREATIVE STEPS -->
+            @if (phase() === 'steps') {
+              <h2 class="text-3xl font-black uppercase mb-2 italic tracking-tighter text-white">Chain of Evidence</h2>
+              <p class="text-xs text-white/40 mb-2 font-bold uppercase tracking-widest">Token #{{ mintedTokenId() }} — Documenta tu proceso creativo</p>
+              <p class="text-xs text-white/30 mb-8">Cada paso se registra on-chain como prueba de control humano</p>
+
+              <div class="space-y-3 mb-8">
+                @for (step of stepTypes; track step.id) {
+                  <div class="flex items-center justify-between p-4 rounded-2xl border transition-all"
+                       [class]="isStepDone(step.id) ? 'bg-green-500/20 border-green-500/50' : (currentStep() === step.id ? 'bg-purple-500/10 border-purple-500/50' : 'bg-white/5 border-white/10')">
+                    <div>
+                      <span class="text-[10px] font-black uppercase tracking-widest"
+                            [class]="isStepDone(step.id) ? 'text-green-400' : 'text-white/60'">
+                        {{ step.label }}
+                      </span>
+                      <p class="text-[9px] text-white/30 mt-0.5">{{ step.description }}</p>
+                    </div>
+                    <div>
+                      @if (isStepDone(step.id)) {
+                        <span class="text-green-400 text-xs font-bold">✓ On-chain</span>
+                      } @else if (currentStep() === step.id && isProcessing()) {
+                        <span class="text-yellow-400 text-xs animate-pulse">Firmando...</span>
+                      } @else {
+                        <button (click)="submitStep(step.id)"
+                                [disabled]="isProcessing()"
+                                class="px-3 py-1.5 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 text-[10px] font-black uppercase hover:bg-purple-500/30 transition-all disabled:opacity-30">
+                          ⚡ Registrar
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+              </div>
+
+              <!-- Integrity bar -->
+              <div class="p-6 bg-purple-500/5 border border-purple-500/10 rounded-2xl mb-6">
+                <div class="flex justify-between items-center mb-2">
+                  <span class="text-[10px] font-black uppercase opacity-40 text-white">Integridad Legal</span>
+                  <span class="text-xs font-black italic"
+                        [class]="completedStepsCount() >= 3 ? 'text-green-500' : 'text-yellow-500'">
+                    {{ completedStepsCount() < 3 ? 'EVIDENCIA DÉBIL' : 'EVIDENCIA FUERTE' }}
+                  </span>
+                </div>
+                <div class="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+                  <div class="h-full bg-purple-500 transition-all duration-500"
+                       [style.width.%]="(completedStepsCount() / 5) * 100"></div>
+                </div>
+              </div>
+
+              @if (statusMessage()) {
+                <p class="text-yellow-500 text-sm mb-4 animate-pulse">{{ statusMessage() }}</p>
+              }
+
+              <div class="flex space-x-3">
+                <button (click)="finishProcess()"
+                        class="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 p-4 rounded-2xl font-black uppercase text-white hover:brightness-110 transition-all text-sm">
+                  Finalizar Proceso
+                </button>
+                <a routerLink="/" class="px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold text-sm hover:bg-white/10 transition-all no-underline text-center">
+                  Volver
+                </a>
+              </div>
+            }
+
+            <!-- PHASE 3: COMPLETE -->
+            @if (phase() === 'complete') {
+              <div class="text-center py-8">
+                <div class="text-6xl mb-6">🎵</div>
+                <h2 class="text-3xl font-black uppercase italic tracking-tighter text-green-400 mb-4">Proceso Registrado</h2>
+                <p class="text-white/60 mb-2">Token ID: <span class="font-mono text-white font-bold">#{{ mintedTokenId() }}</span></p>
+                <p class="text-white/40 text-xs mb-8">{{ completedStepsCount() }}/5 pasos documentados on-chain</p>
+
+                <div class="space-y-3">
+                  <a [href]="explorerBaseUrl + '/tx/' + mintTxHash()"
+                     target="_blank" rel="noopener noreferrer"
+                     class="block w-full p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 text-purple-400 font-bold text-sm hover:bg-purple-500/20 transition-all no-underline">
+                    Ver en Explorer
+                  </a>
+                  <a routerLink="/"
+                     class="block w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold text-sm hover:bg-white/10 transition-all no-underline">
+                    Volver al Leaderboard
+                  </a>
+                </div>
+              </div>
             }
           </div>
 
-          <!-- Paso 2: Mostrar hash calculado -->
-          @if (audioHash()) {
-            <div class="form-group">
-              <label>Huella del audio (calculada automaticamente)</label>
-              <input type="text" [value]="audioHash()" readonly class="hash-input" />
+          @if (errorMessage()) {
+            <div class="mt-4 p-4 rounded-2xl bg-red-500/10 border border-red-500/30 text-red-400 text-sm">
+              {{ errorMessage() }}
             </div>
           }
-
-          <!-- Paso 3: Token URI (opcional) -->
-          <div class="form-group">
-            <label for="uriInput">Token URI <span class="optional">(opcional)</span></label>
-            <input
-              type="text"
-              id="uriInput"
-              [value]="tokenUri()"
-              (input)="onUriChange($event)"
-              placeholder="ipfs://... o dejalo vacio para demo"
-              [disabled]="isProcessing()"
-            />
-          </div>
-
-          <!-- Estado actual del proceso -->
-          @if (statusMessage()) {
-            <p class="status-message">{{ statusMessage() }}</p>
-          }
-
-          <!-- Botones -->
-          <div class="form-actions">
-            <button
-              class="btn btn-primary btn-large"
-              (click)="handleMint()"
-              [disabled]="!audioHash() || isProcessing()"
-            >
-              {{ isProcessing() ? statusMessage() || 'Procesando...' : 'Registrar idea' }}
-            </button>
-            <button class="btn btn-secondary" (click)="handleClear()" [disabled]="isProcessing()">
-              Limpiar
-            </button>
-          </div>
-        </div>
-
-        <!-- Mensaje de error -->
-        @if (errorMessage()) {
-          <div class="alert alert-error">
-            <p>{{ errorMessage() }}</p>
-          </div>
         }
-
-        <!-- Resultado exitoso -->
-        @if (result()) {
-          <div class="alert alert-success">
-            <p>Idea registrada correctamente.</p>
-            @if (result()!.tokenId !== 'N/A') {
-              <p class="token-id">Token ID: <strong>{{ result()!.tokenId }}</strong> (guardalo para verificar despues)</p>
-            }
-            <a
-              [href]="explorerBaseUrl + '/tx/' + result()!.txHash"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="explorer-link"
-            >
-              Ver en Explorer
-            </a>
-          </div>
-        }
-      }
+      </div>
     </div>
   `,
-  styles: [`
-    .page { max-width: 600px; margin: 0 auto; padding: 24px 16px; }
-    .back-link { color: #6b7280; text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 16px; }
-    .back-link:hover { color: #f59e0b; }
-    h1 { margin-bottom: 8px; }
-    .subtitle { color: #6b7280; margin-bottom: 24px; }
-    .card {
-      background: #fff; border: 1px solid rgba(148,163,184,0.5); border-radius: 14px;
-      padding: 24px; box-shadow: 0 4px 12px rgba(148,163,184,0.2);
-    }
-    .card--muted { opacity: 0.6; }
-    .form-group { margin-bottom: 20px; }
-    .form-group label { display: block; margin-bottom: 8px; color: #374151; font-weight: 500; font-size: 0.9rem; }
-    .form-group input[type="file"],
-    .form-group input[type="text"] {
-      width: 100%; padding: 12px; border: 1px solid rgba(148,163,184,0.5);
-      border-radius: 8px; font-size: 0.95rem;
-    }
-    .form-group input:focus { outline: none; border-color: #f59e0b; box-shadow: 0 0 0 3px rgba(245,158,11,0.1); }
-    .hint { font-size: 0.85rem; color: #6b7280; margin-top: 6px; }
-    .optional { font-weight: normal; color: #6b7280; }
-    .file-info { margin-top: 8px; font-size: 0.85rem; color: #6b7280; }
-    .hash-input { font-family: 'Courier New', monospace; font-size: 0.85rem; }
-    .form-actions { display: flex; gap: 12px; margin-top: 20px; }
-    .form-actions .btn-primary { flex: 1; }
-    .status-message { color: #f59e0b; font-size: 0.9rem; margin: 12px 0; }
-    .alert { margin-top: 16px; padding: 16px; border-radius: 8px; border: 1px solid; }
-    .alert-success { background: rgba(16,185,129,0.1); border-color: #16a34a; color: #16a34a; }
-    .alert-error { background: rgba(239,68,68,0.1); border-color: #dc2626; color: #dc2626; }
-    .alert p { margin-bottom: 8px; }
-    .token-id { font-size: 0.9rem; }
-    .explorer-link { color: #f59e0b; text-decoration: none; font-weight: 500; display: inline-block; margin-top: 8px; }
-    .explorer-link:hover { text-decoration: underline; }
-  `]
 })
 export class Mint {
-  readonly maxFileMB = MAX_FILE_MB;
   readonly explorerBaseUrl = EXPLORER_BASE_URL;
+  readonly stepTypes = STEP_TYPES;
 
-  // Signals locales para el estado del formulario
+  readonly phase = signal<Phase>('upload');
   readonly fileName = signal('');
   readonly fileSizeKB = signal('');
   readonly audioHash = signal('');
   readonly tokenUri = signal('');
   readonly statusMessage = signal<string | null>(null);
   readonly errorMessage = signal<string | null>(null);
-  readonly result = signal<MintSuccess | null>(null);
   readonly isProcessing = signal(false);
+  readonly mintedTokenId = signal('');
+  readonly mintTxHash = signal('');
+  readonly completedStepIds = signal<number[]>([]);
+  readonly currentStep = signal<number | null>(null);
+
+  completedStepsCount = () => this.completedStepIds().length;
 
   constructor(
     readonly walletService: WalletService,
     private readonly contractService: ContractService,
   ) {}
 
-  onUriChange(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    this.tokenUri.set(input.value);
+  phaseIndex(p: string): number {
+    return ['upload', 'steps', 'complete'].indexOf(p);
   }
 
-  // Se ejecuta cuando el usuario selecciona un archivo de audio
+  isStepDone(id: number): boolean {
+    return this.completedStepIds().includes(id);
+  }
+
+  onUriChange(event: Event): void {
+    this.tokenUri.set((event.target as HTMLInputElement).value);
+  }
+
   async handleFileChange(event: Event): Promise<void> {
-    const input = event.target as HTMLInputElement;
-    const file = input.files?.[0];
+    const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
 
-    // Limpiar estado anterior
     this.errorMessage.set(null);
-    this.result.set(null);
     this.audioHash.set('');
 
-    // Validar tamano del archivo
     const sizeMB = file.size / (1024 * 1024);
-    if (sizeMB > MAX_FILE_MB) {
-      this.errorMessage.set(`El archivo es muy grande (${sizeMB.toFixed(1)} MB). Usa un audio de hasta ${MAX_FILE_MB} MB.`);
-      return;
-    }
-
-    // Validar que sea un archivo de audio
-    const type = file.type?.toLowerCase() || '';
-    const isAudio = type.startsWith('audio/');
-    if (!isAudio && !file.name.match(/\.(mp3|wav|ogg|webm|flac|aac|m4a)$/i)) {
-      this.errorMessage.set('Por favor elige un archivo de audio (MP3, WAV, OGG, etc.).');
+    if (sizeMB > 10) {
+      this.errorMessage.set(`Archivo muy grande (${sizeMB.toFixed(1)} MB). Max 10 MB.`);
       return;
     }
 
     this.fileName.set(file.name);
     this.fileSizeKB.set((file.size / 1024).toFixed(2));
 
-    // Calcular hash SHA-256 del audio
     try {
-      this.statusMessage.set('Calculando huella del audio...');
+      this.statusMessage.set('Calculando hash SHA-256...');
       this.isProcessing.set(true);
       const hash = await calculateFileHash(file);
       this.audioHash.set(hash);
-      console.log('[DEBUG] Hash calculado exitosamente');
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : String(err);
-      console.log('[ERROR] Error calculando hash:', message);
-      this.errorMessage.set('No se pudo procesar el archivo. Prueba con otro formato de audio.');
+    } catch {
+      this.errorMessage.set('No se pudo procesar el archivo.');
     } finally {
       this.statusMessage.set(null);
       this.isProcessing.set(false);
     }
   }
 
-  // Ejecuta el mint: verifica duplicado y envia la transaccion
   async handleMint(): Promise<void> {
     const hash = this.audioHash();
     if (!hash) return;
 
     this.errorMessage.set(null);
-    this.result.set(null);
     this.isProcessing.set(true);
 
     try {
-      // Paso 1: Verificar si el hash ya esta registrado
-      this.statusMessage.set('Verificando si el audio ya esta registrado...');
-      const alreadyRegistered = await this.contractService.isHashRegistered(hash);
-      if (alreadyRegistered) {
-        this.errorMessage.set('Este audio ya fue registrado on-chain. Elige otro archivo u otra idea.');
+      this.statusMessage.set('Verificando duplicados...');
+      const exists = await this.contractService.isHashRegistered(hash);
+      if (exists) {
+        this.errorMessage.set('Este audio ya esta registrado on-chain.');
         return;
       }
 
-      // Paso 2: Enviar transaccion de mint
       this.statusMessage.set('Firmando en tu wallet...');
-      const uri = this.tokenUri().trim() || 'ipfs://demo/0xsonata/' + Date.now();
-      const mintResult = await this.contractService.mint(hash, uri);
+      const uri = this.tokenUri().trim() || 'ipfs://0xsonata/' + Date.now();
+      const result = await this.contractService.mint(hash, uri);
 
-      // Paso 3: Mostrar resultado
-      this.result.set({
-        type: 'success',
-        txHash: mintResult.txHash,
-        tokenId: mintResult.tokenId,
-        blockNumber: mintResult.blockNumber,
-      });
-
-      // Limpiar formulario
-      this.audioHash.set('');
-      this.fileName.set('');
-      this.fileSizeKB.set('');
-      this.tokenUri.set('');
-
-      console.log('[DEBUG] Mint exitoso. Token ID:', mintResult.tokenId);
+      this.mintedTokenId.set(result.tokenId);
+      this.mintTxHash.set(result.txHash);
+      this.phase.set('steps');
     } catch (err: unknown) {
-      console.log('[ERROR] Error en mint:', err);
       this.errorMessage.set(getFriendlyError(err));
     } finally {
       this.statusMessage.set(null);
@@ -287,12 +303,33 @@ export class Mint {
     }
   }
 
-  handleClear(): void {
-    this.fileName.set('');
-    this.fileSizeKB.set('');
-    this.audioHash.set('');
-    this.tokenUri.set('');
+  async submitStep(stepType: number): Promise<void> {
+    const tokenId = parseInt(this.mintedTokenId(), 10);
+    if (isNaN(tokenId)) return;
+
     this.errorMessage.set(null);
-    this.result.set(null);
+    this.isProcessing.set(true);
+    this.currentStep.set(stepType);
+
+    try {
+      const stepLabel = STEP_TYPES.find(s => s.id === stepType)?.label || 'Step';
+      this.statusMessage.set(`Registrando: ${stepLabel}...`);
+
+      const contentHash = ethers.keccak256(ethers.toUtf8Bytes(`token-${tokenId}-step-${stepType}-${Date.now()}`));
+      const metadata = JSON.stringify({ step: stepLabel, timestamp: new Date().toISOString() });
+
+      await this.contractService.addStep(tokenId, contentHash, stepType, metadata);
+      this.completedStepIds.update(ids => [...ids, stepType]);
+    } catch (err: unknown) {
+      this.errorMessage.set(getFriendlyError(err));
+    } finally {
+      this.statusMessage.set(null);
+      this.isProcessing.set(false);
+      this.currentStep.set(null);
+    }
+  }
+
+  finishProcess(): void {
+    this.phase.set('complete');
   }
 }

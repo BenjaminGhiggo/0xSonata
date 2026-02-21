@@ -1,0 +1,198 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;900&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-primary: #a855f7;
+  --color-secondary: #ec4899;
+  --color-accent: #94a3b8;
+}
+
+@layer base {
+  html {
+    font-size: 20px;
+  }
+
+  :root {
+    --primary: #a855f7;
+    --secondary: #ec4899;
+    --accent: #94a3b8;
+    --gold: #ffd700;
+    --silver: #e2e8f0;
+    --silver-bright: #f1f5f9;
+    --bronze: #cd7f32;
+    --bg-base: #05060b;
+    --bg-nav: rgba(5, 6, 11, 0.7);
+    --card-bg: rgba(255, 255, 255, 0.05);
+    --card-border: rgba(255, 255, 255, 0.05);
+    --card-hover: rgba(168, 85, 247, 0.15);
+    --text-main: #ffffff;
+    --text-muted: rgba(255, 255, 255, 0.6);
+    --text-subtle: rgba(255, 255, 255, 0.4);
+    --border-color: rgba(255, 255, 255, 0.1);
+    --badge-bg: rgba(255, 255, 255, 0.05);
+    --input-bg: rgba(255, 255, 255, 0.05);
+  }
+
+  body.light-mode {
+    --bg-base: #f8fafc;
+    --bg-nav: rgba(248, 250, 252, 0.85);
+    --card-bg: rgba(0, 0, 0, 0.03);
+    --card-border: rgba(0, 0, 0, 0.08);
+    --card-hover: rgba(168, 85, 247, 0.1);
+    --text-main: #0f172a;
+    --text-muted: rgba(15, 23, 42, 0.6);
+    --text-subtle: rgba(15, 23, 42, 0.4);
+    --border-color: rgba(0, 0, 0, 0.1);
+    --badge-bg: rgba(0, 0, 0, 0.05);
+    --input-bg: rgba(0, 0, 0, 0.04);
+  }
+
+  body {
+    font-family: 'Space Grotesk', sans-serif;
+    background-color: var(--bg-base);
+    color: var(--text-main);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    transition: background-color 0.5s ease, color 0.5s ease;
+  }
+}
+
+@keyframes feather-wave {
+  0%, 100% { transform: rotate(var(--rot-start)) translateY(0); }
+  50% { transform: rotate(var(--rot-end)) translateY(var(--move-y)); }
+}
+
+@keyframes divine-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes god-rays {
+  0% { transform: rotate(0deg); opacity: 0.1; }
+  100% { transform: rotate(360deg); opacity: 0.1; }
+}
+
+@keyframes aura-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.15); opacity: 0.4; }
+}
+
+@layer components {
+  .pedestal-divino {
+    background: linear-gradient(180deg, rgba(168, 85, 247, 0.2) 0%, var(--bg-base) 100%);
+    border-top: 4px solid var(--gold);
+    box-shadow: 0 -20px 50px -10px rgba(255, 215, 0, 0.2);
+  }
+
+  .pedestal-plata {
+    background: linear-gradient(180deg, rgba(148, 163, 184, 0.2) 0%, var(--bg-base) 100%);
+    border-top: 4px solid #cbd5e1;
+    box-shadow: 0 -15px 40px -10px rgba(203, 213, 225, 0.25);
+  }
+
+  .pedestal-bronce {
+    background: linear-gradient(180deg, rgba(146, 64, 14, 0.15) 0%, var(--bg-base) 100%);
+    border-top: 3px solid #92400e;
+  }
+
+  .silver-aura {
+    position: absolute;
+    inset: -15px;
+    background: radial-gradient(circle, rgba(203, 213, 225, 0.4) 0%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(15px);
+    animation: aura-pulse 4s ease-in-out infinite;
+    z-index: 5;
+  }
+
+  .god-rays {
+    position: absolute;
+    inset: -30%;
+    background: conic-gradient(from 0deg, transparent 0%, rgba(255, 215, 0, 0.15) 15%, transparent 30%);
+    animation: god-rays 30s linear infinite;
+    filter: blur(30px);
+  }
+
+  /* WINGS SYSTEM — gold (default) */
+  .wings-system {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 500px;
+    height: 300px;
+    display: flex;
+    justify-content: space-between;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .ala {
+    position: relative;
+    width: 220px;
+    height: 220px;
+  }
+
+  .ala-derecha {
+    transform: scaleX(-1);
+  }
+
+  .pluma {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 38px;
+    height: 120px;
+    border-radius: 100% 0% 100% 100% / 100% 0% 100% 100%;
+    transform-origin: top right;
+    animation: feather-wave 4s ease-in-out infinite;
+  }
+
+  .gold-wings .pluma {
+    background: linear-gradient(to bottom, #fff5cc, var(--gold), #b8860b);
+    filter: drop-shadow(0 0 12px rgba(255,215,0,0.4));
+  }
+
+  .silver-wings .pluma {
+    background: linear-gradient(to bottom, #ffffff, #cbd5e1, #64748b);
+    filter: drop-shadow(0 0 10px rgba(203, 213, 225, 0.4));
+  }
+
+  .bronze-wings .pluma {
+    background: linear-gradient(to bottom, #fff7ed, #92400e, #451a03);
+    filter: drop-shadow(0 0 10px rgba(146,64,14,0.2));
+    opacity: 0.7;
+  }
+
+  /* Silver wings */
+  .wings-sm {
+    width: 380px;
+    height: 230px;
+  }
+  .wings-sm .ala {
+    width: 170px;
+    height: 170px;
+  }
+  .wings-sm .pluma {
+    width: 30px;
+    height: 100px;
+  }
+
+  /* Bronze wings */
+  .wings-xs {
+    width: 300px;
+    height: 190px;
+  }
+  .wings-xs .ala {
+    width: 140px;
+    height: 140px;
+  }
+  .wings-xs .pluma {
+    width: 24px;
+    height: 80px;
+  }
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }

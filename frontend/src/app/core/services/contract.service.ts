@@ -1,56 +1,43 @@
-// POR QUE: Centralizar la interaccion con el contrato SonataNFT.
-//   Mint y Verify son operaciones criticas que requieren firma.
-//   Tenerlas en un solo lugar evita duplicar la ABI y la logica
-//   de creacion del contrato.
-//
-// QUE: Servicio que crea una instancia de ethers.Contract conectada
-//   al signer del usuario, y expone metodos para mint, verify, y consultas.
-//
-// COMO: ethers.Contract necesita 3 cosas para funcionar:
-//   1. La direccion del contrato en la blockchain
-//   2. La ABI (lista de funciones y sus parametros)
-//   3. Un signer (para operaciones de escritura) o provider (solo lectura)
-//   Cuando llamas a contract.mint(hash, uri), ethers:
-//   a) Codifica la funcion y parametros en formato ABI (bytes hexadecimales)
-//   b) Crea un objeto transaccion {to: contrato, data: bytesABI}
-//   c) Pide al signer que firme (popup en wallet)
-//   d) Envia la tx firmada al nodo RPC
-//   e) Devuelve un objeto TransactionResponse con el hash de la tx
-
 import { Injectable, computed } from '@angular/core';
 import { ethers } from 'ethers';
 import { WalletService } from './wallet.service';
 import { environment } from '../../../environments/environment';
 
-// ABI minima: solo declaramos las funciones que usamos.
-// Cada string describe una funcion en formato "human-readable" de ethers.
-// "view" = solo lectura (no gasta gas), sin "view" = escritura (gasta gas y necesita firma)
 const SONATA_ABI = [
   'function mint(bytes32 audioHash, string uri) external returns (uint256)',
   'function verify(uint256 tokenId) external',
-  'function getProof(uint256 tokenId) external view returns (bytes32 audioHash, uint256 timestamp, address creator, uint256 verificationCount)',
+  'function getProof(uint256 tokenId) external view returns (bytes32 audioHash, uint256 timestamp, address creator, uint256 verificationCount, uint256 stepCount)',
   'function isHashRegistered(bytes32 audioHash) external view returns (bool)',
   'function totalSupply() external view returns (uint256)',
+  'function addStep(uint256 tokenId, bytes32 contentHash, uint8 stepType, string metadata) external',
+  'function getCreativeSteps(uint256 tokenId) external view returns (tuple(bytes32 contentHash, uint8 stepType, uint256 timestamp, string metadata)[])',
+  'function deposit() external payable',
+  'function withdraw(uint256 amount) external',
+  'function stakeBalance(address) external view returns (uint256)',
+  'function getTier(address creator) external view returns (uint8)',
+  'function getCreatorStats(address creator) external view returns (uint256 totalMints, uint256 totalVerificationsGiven, uint256 totalVerificationsReceived, uint8 tier)',
+  'function getVerificationWeight(address verifier) external view returns (uint256)',
+  'function MIN_STAKE() external view returns (uint256)',
   'event SonataMinted(uint256 indexed tokenId, address indexed creator, bytes32 audioHash, uint256 timestamp)',
   'event SonataVerified(uint256 indexed tokenId, address indexed verifier, uint256 newVerificationCount)',
+  'event StepAdded(uint256 indexed tokenId, uint8 stepType, bytes32 contentHash)',
+  'event StakeDeposited(address indexed user, uint256 amount)',
 ];
 
-// Tipo para los datos de una idea musical (proof)
 export interface SonataProof {
   audioHash: string;
   timestamp: number;
   creator: string;
   verificationCount: number;
+  stepCount: number;
 }
 
-// Tipo para el resultado de un mint exitoso
 export interface MintResult {
   txHash: string;
   tokenId: string;
   blockNumber: number;
 }
 
-// Tipo para el resultado de un verify exitoso
 export interface VerifyResult {
   txHash: string;
   tokenId: number;
@@ -58,18 +45,26 @@ export interface VerifyResult {
   blockNumber: number;
 }
 
+export interface CreativeStepData {
+  contentHash: string;
+  stepType: number;
+  timestamp: number;
+  metadata: string;
+}
+
+export const STEP_TYPES = [
+  { id: 0, label: 'Prompt Inicial', description: 'Texto/instruccion usada para generar con IA (Suno, Udio, etc.)' },
+  { id: 1, label: 'Variacion IA', description: 'Resultado generado por la herramienta de IA' },
+  { id: 2, label: 'Seleccion Creativa', description: 'La variacion elegida por el artista' },
+  { id: 3, label: 'Edicion DAW', description: 'Edicion en Ableton, FL Studio, Logic, etc.' },
+  { id: 4, label: 'Master Final', description: 'Version final masterizada lista para publicar' },
+];
+
 @Injectable({ providedIn: 'root' })
 export class ContractService {
-  // Signal computado que crea la instancia del contrato.
-  // Se recalcula automaticamente cuando el signer cambia (conectar/desconectar wallet).
-  // Si no hay signer o no hay direccion de contrato, devuelve null.
   readonly contract = computed(() => {
     const signer = this.walletService.signer();
-    if (!signer || !environment.contractAddress) {
-      return null;
-    }
-    // Crea una instancia del contrato conectada al signer del usuario
-    // Esto permite hacer tanto lecturas (view) como escrituras (mint/verify)
+    if (!signer || !environment.contractAddress) return null;
     return new ethers.Contract(environment.contractAddress, SONATA_ABI, signer);
   });
 
@@ -77,114 +72,117 @@ export class ContractService {
 
   constructor(private readonly walletService: WalletService) {}
 
-  // Verifica si un hash de audio ya fue registrado en el contrato.
-  // Util para avisar al usuario ANTES de intentar el mint (evita gastar gas en vano).
   async isHashRegistered(audioHash: string): Promise<boolean> {
     const c = this.contract();
     if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
-
-    console.log('[DEBUG] Verificando si hash ya esta registrado:', audioHash.substring(0, 10) + '...');
-    const registered = await c['isHashRegistered'](audioHash);
-    console.log('[DEBUG] Hash registrado:', registered);
-    return registered as boolean;
+    return (await c['isHashRegistered'](audioHash)) as boolean;
   }
 
-  // Registra una nueva idea musical on-chain.
-  // Proceso:
-  // 1. Llama a contract.mint(hash, uri) que abre popup de firma en la wallet
-  // 2. Si el usuario firma, se envia la transaccion a la blockchain
-  // 3. Esperamos a que se confirme (se incluya en un bloque)
-  // 4. Leemos el evento SonataMinted para obtener el tokenId asignado
   async mint(audioHash: string, uri: string): Promise<MintResult> {
     const c = this.contract();
     if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
 
-    console.log('[DEBUG] Enviando transaccion mint...');
-    console.log('[DEBUG]   audioHash:', audioHash.substring(0, 10) + '...');
-    console.log('[DEBUG]   uri:', uri);
-
-    // contract.mint() abre popup de firma. Si el usuario rechaza, lanza error.
-    // Si acepta, devuelve un TransactionResponse (la tx fue enviada pero no confirmada aun)
     const tx = await c['mint'](audioHash, uri);
-    console.log('[DEBUG] Transaccion enviada, hash:', tx.hash);
-
-    // tx.wait() espera a que la transaccion se incluya en un bloque
-    // Devuelve el receipt con los logs (eventos emitidos)
     const receipt = await tx.wait();
-    console.log('[DEBUG] Transaccion confirmada en bloque:', receipt.blockNumber);
 
-    // Buscamos el evento SonataMinted en los logs del receipt.
-    // Los eventos son la forma que tiene el contrato de "avisar" que algo paso.
-    // Cada log es un blob binario; contract.interface.parseLog() lo decodifica.
     let tokenId = 'N/A';
-    for (let i = 0; i < receipt.logs.length; i++) {
+    for (const log of receipt.logs) {
       try {
-        const parsed = c.interface.parseLog(receipt.logs[i]);
-        if (parsed && parsed.name === 'SonataMinted') {
+        const parsed = c.interface.parseLog(log);
+        if (parsed?.name === 'SonataMinted') {
           tokenId = parsed.args['tokenId'].toString();
           break;
         }
-      } catch {
-        // Logs de otros contratos (ej: ERC721 Transfer) no parsean con nuestra ABI
-      }
+      } catch { /* skip */ }
     }
 
-    console.log('[DEBUG] Token ID asignado:', tokenId);
-    return {
-      txHash: receipt.hash,
-      tokenId,
-      blockNumber: receipt.blockNumber,
-    };
+    return { txHash: receipt.hash, tokenId, blockNumber: receipt.blockNumber };
   }
 
-  // Verifica la idea de otro artista.
-  // Similar a mint pero llama a verify(tokenId) en vez de mint(hash, uri).
+  async addStep(tokenId: number, contentHash: string, stepType: number, metadata: string): Promise<string> {
+    const c = this.contract();
+    if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+    const tx = await c['addStep'](tokenId, contentHash, stepType, metadata);
+    const receipt = await tx.wait();
+    return receipt.hash;
+  }
+
+  async getCreativeSteps(tokenId: number): Promise<CreativeStepData[]> {
+    const c = this.contract();
+    if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+    const steps = await c['getCreativeSteps'](tokenId);
+    return steps.map((s: [string, number, bigint, string]) => ({
+      contentHash: s[0],
+      stepType: Number(s[1]),
+      timestamp: Number(s[2]),
+      metadata: s[3],
+    }));
+  }
+
+  async deposit(amountEther: string): Promise<string> {
+    const c = this.contract();
+    if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+    const tx = await c['deposit']({ value: ethers.parseEther(amountEther) });
+    const receipt = await tx.wait();
+    return receipt.hash;
+  }
+
+  async getStakeBalance(address: string): Promise<string> {
+    const c = this.contract();
+    if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+    const balance = await c['stakeBalance'](address);
+    return ethers.formatEther(balance);
+  }
+
   async verify(tokenId: number): Promise<VerifyResult> {
     const c = this.contract();
     if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
 
-    console.log('[DEBUG] Enviando transaccion verify para tokenId:', tokenId);
-
     const tx = await c['verify'](tokenId);
-    console.log('[DEBUG] Transaccion enviada, hash:', tx.hash);
-
     const receipt = await tx.wait();
-    console.log('[DEBUG] Transaccion confirmada en bloque:', receipt.blockNumber);
 
-    // Buscamos el evento SonataVerified
     let newVerificationCount = 'N/A';
-    for (let i = 0; i < receipt.logs.length; i++) {
+    for (const log of receipt.logs) {
       try {
-        const parsed = c.interface.parseLog(receipt.logs[i]);
-        if (parsed && parsed.name === 'SonataVerified') {
+        const parsed = c.interface.parseLog(log);
+        if (parsed?.name === 'SonataVerified') {
           newVerificationCount = parsed.args['newVerificationCount'].toString();
           break;
         }
-      } catch {
-        // Logs de otros contratos
-      }
+      } catch { /* skip */ }
     }
 
-    console.log('[DEBUG] Nuevo conteo de verificaciones:', newVerificationCount);
-    return {
-      txHash: receipt.hash,
-      tokenId,
-      newVerificationCount,
-      blockNumber: receipt.blockNumber,
-    };
+    return { txHash: receipt.hash, tokenId, newVerificationCount, blockNumber: receipt.blockNumber };
   }
 
-  // Obtiene los datos de una idea por tokenId (lectura, no gasta gas)
   async getProof(tokenId: number): Promise<SonataProof> {
     const c = this.contract();
     if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
-
     const proof = await c['getProof'](tokenId);
     return {
       audioHash: proof[0],
       timestamp: Number(proof[1]),
       creator: proof[2],
       verificationCount: Number(proof[3]),
+      stepCount: Number(proof[4]),
+    };
+  }
+
+  async getTier(address: string): Promise<number> {
+    const c = this.contract();
+    if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+    return Number(await c['getTier'](address));
+  }
+
+  async getCreatorStats(address: string): Promise<{ totalMints: number; totalVerificationsGiven: number; totalVerificationsReceived: number; tier: number }> {
+    const c = this.contract();
+    if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+    const stats = await c['getCreatorStats'](address);
+    return {
+      totalMints: Number(stats[0]),
+      totalVerificationsGiven: Number(stats[1]),
+      totalVerificationsReceived: Number(stats[2]),
+      tier: Number(stats[3]),
     };
   }
 }

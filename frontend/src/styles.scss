@@ -1,5 +1,29 @@
-// Estilos globales de 0xSonata
-// Estos estilos aplican a toda la aplicacion
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@400;900&display=swap');
+
+:root {
+  --primary: #a855f7;
+  --secondary: #ec4899;
+  --accent: #94a3b8;
+  --gold: #ffd700;
+  --silver: #e2e8f0;
+  --silver-bright: #f1f5f9;
+  --bronze: #cd7f32;
+  --bg-base: #05060b;
+  --card-bg: rgba(255, 255, 255, 0.05);
+  --text-main: #ffffff;
+  --text-muted: rgba(255, 255, 255, 0.6);
+  --border-color: rgba(255, 255, 255, 0.1);
+}
+
+body.light-mode {
+  --bg-base: #f8fafc;
+  --card-bg: rgba(0, 0, 0, 0.05);
+  --text-main: #0f172a;
+  --text-muted: rgba(15, 23, 42, 0.6);
+  --border-color: rgba(0, 0, 0, 0.1);
+}
 
 * {
   box-sizing: border-box;
@@ -8,78 +32,105 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
+  background-color: var(--bg-base);
+  color: var(--text-main);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  color: #111827;
-  line-height: 1.6;
+  overflow-x: hidden;
+  transition: background-color 0.5s ease, color 0.5s ease;
 }
 
-// Botones reutilizables
-.btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 8px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-
-  &:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-    transform: none;
-  }
+@keyframes feather-wave {
+  0%, 100% { transform: rotate(var(--rot-start)) translateY(0); }
+  50% { transform: rotate(var(--rot-end)) translateY(var(--move-y)); }
 }
 
-.btn-primary {
-  background: #f59e0b;
-  color: #0a0e1a;
-
-  &:hover:not(:disabled) {
-    background: #f97316;
-    transform: translateY(-1px);
-    box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-  }
+@keyframes divine-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-20px); }
 }
 
-.btn-secondary {
-  background: transparent;
-  color: #374151;
-  border: 1px solid rgba(148, 163, 184, 0.5);
-
-  &:hover:not(:disabled) {
-    background: rgba(0, 0, 0, 0.03);
-    border-color: #f59e0b;
-  }
+@keyframes god-rays {
+  0% { transform: rotate(0deg); opacity: 0.1; }
+  100% { transform: rotate(360deg); opacity: 0.1; }
 }
 
-.btn-sm {
-  padding: 6px 14px;
-  font-size: 0.85rem;
+@keyframes aura-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.2; }
+  50% { transform: scale(1.15); opacity: 0.4; }
 }
 
-.btn-large {
-  padding: 14px 24px;
-  font-size: 1.05rem;
+.wings-system {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  width: 500px; height: 300px;
+  display: flex; justify-content: space-between;
+  pointer-events: none; z-index: 0;
 }
 
-// Focus visible para accesibilidad (navegacion con teclado)
+.ala { position: relative; width: 220px; height: 220px; }
+.ala-derecha { transform: scaleX(-1); }
+
+.pluma {
+  position: absolute; top: 0; right: 0;
+  width: 38px; height: 120px;
+  border-radius: 100% 0% 100% 100% / 100% 0% 100% 100%;
+  transform-origin: top right;
+  animation: feather-wave 4s ease-in-out infinite;
+}
+
+.gold-wings .pluma {
+  background: linear-gradient(to bottom, #fff5cc, var(--gold), #b8860b);
+  filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0.4));
+}
+
+.silver-wings .pluma {
+  background: linear-gradient(to bottom, #ffffff, #cbd5e1, #64748b);
+  filter: drop-shadow(0 0 10px rgba(203, 213, 225, 0.4));
+}
+
+.bronze-wings .pluma {
+  background: linear-gradient(to bottom, #fff7ed, #92400e, #451a03);
+  filter: drop-shadow(0 0 10px rgba(146, 64, 14, 0.2));
+  opacity: 0.7;
+}
+
+.pedestal-divino {
+  background: linear-gradient(180deg, rgba(168, 85, 247, 0.2) 0%, var(--bg-base) 100%);
+  border-top: 4px solid var(--gold);
+  box-shadow: 0 -20px 50px -10px rgba(255, 215, 0, 0.2);
+}
+
+.pedestal-plata {
+  background: linear-gradient(180deg, rgba(148, 163, 184, 0.2) 0%, var(--bg-base) 100%);
+  border-top: 4px solid #cbd5e1;
+  box-shadow: 0 -15px 40px -10px rgba(203, 213, 225, 0.25);
+}
+
+.pedestal-bronce {
+  background: linear-gradient(180deg, rgba(146, 64, 14, 0.15) 0%, var(--bg-base) 100%);
+  border-top: 3px solid #92400e;
+}
+
+.silver-aura {
+  position: absolute; inset: -15px;
+  background: radial-gradient(circle, rgba(203, 213, 225, 0.4) 0%, transparent 70%);
+  border-radius: 50%; filter: blur(15px);
+  animation: aura-pulse 4s ease-in-out infinite; z-index: 5;
+}
+
+.god-rays {
+  position: absolute; inset: -50%;
+  background: conic-gradient(from 0deg, transparent 0%, rgba(255, 215, 0, 0.15) 15%, transparent 30%);
+  animation: god-rays 30s linear infinite; filter: blur(40px);
+}
+
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
+
 *:focus-visible {
   outline: 2px solid #f59e0b;
   outline-offset: 2px;
-}
-
-a {
-  color: #f59e0b;
-  text-decoration: none;
-
-  &:hover {
-    text-decoration: underline;
-  }
 }

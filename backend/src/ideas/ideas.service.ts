@@ -1,36 +1,93 @@
-// POR QUE: El controller no debe contener logica de negocio directamente.
-//   Si el dia de manana agregamos cache o validaciones adicionales,
-//   lo hacemos aqui sin tocar el controller.
-//
-// QUE: Servicio intermedio entre el controller (HTTP) y el BlockchainService
-//   (lectura on-chain). Hoy es un "pass-through" simple, pero es la capa
-//   donde se agregaria cache, transformaciones, o validaciones de negocio.
-//
-// COMO: Recibe el tokenId del controller, llama al BlockchainService,
-//   y devuelve el resultado. Si el contrato lanza un error (ej: token no existe),
-//   lo captura y lo relanza como una excepcion HTTP que NestJS entiende.
-
-import { Injectable, Logger, NotFoundException } from '@nestjs/common';
-import { BlockchainService, SonataProof } from '../blockchain/blockchain.service';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { BlockchainService } from '../blockchain/blockchain.service';
+import { Idea } from '../database/entities/idea.entity';
+import { CreativeStep } from '../database/entities/creative-step.entity';
 
 @Injectable()
 export class IdeasService {
-  private readonly logger = new Logger(IdeasService.name);
+  constructor(
+    private readonly blockchainService: BlockchainService,
+    @InjectRepository(Idea) private ideaRepo: Repository<Idea>,
+    @InjectRepository(CreativeStep) private stepRepo: Repository<CreativeStep>,
+  ) {}
 
-  constructor(private readonly blockchainService: BlockchainService) {}
+  async getIdea(tokenId: number) {
+    const dbIdea = await this.ideaRepo.findOne({
+      where: { tokenId },
+      relations: ['steps'],
+    });
 
-  async getProof(tokenId: number): Promise<SonataProof & { tokenId: number }> {
-    this.logger.debug(`Buscando idea con tokenId: ${tokenId}`);
+    if (dbIdea) {
+      return {
+        tokenId: dbIdea.tokenId,
+        audioHash: dbIdea.audioHash,
+        creator: dbIdea.creatorAddress,
+        verificationCount: dbIdea.verificationCount,
+        stepCount: dbIdea.stepCount,
+        timestamp: dbIdea.blockTimestamp,
+        steps: dbIdea.steps?.map((s) => ({
+          contentHash: s.contentHash,
+          stepType: s.stepType,
+          timestamp: s.blockTimestamp,
+          metadata: s.metadata,
+        })) || [],
+      };
+    }
 
     try {
       const proof = await this.blockchainService.getProof(tokenId);
-      return { tokenId, ...proof };
-    } catch (error: unknown) {
-      // Si el contrato revierte con "Token no existe", devolvemos un 404 HTTP
-      // Esto traduce un error de blockchain a un error HTTP que el frontend entiende
-      const message = error instanceof Error ? error.message : String(error);
-      this.logger.debug(`Error al buscar tokenId ${tokenId}: ${message}`);
-      throw new NotFoundException(`Idea con tokenId ${tokenId} no encontrada`);
+      const steps = await this.blockchainService.getCreativeSteps(tokenId);
+      return {
+        tokenId,
+        audioHash: proof.audioHash,
+        creator: proof.creator,
+        verificationCount: proof.verificationCount,
+        stepCount: proof.stepCount,
+        timestamp: proof.timestamp,
+        steps: steps.map((s) => ({
+          contentHash: s.contentHash,
+          stepType: s.stepType,
+          timestamp: s.timestamp,
+          metadata: s.metadata,
+        })),
+      };
+    } catch {
+      throw new NotFoundException(`Idea ${tokenId} no encontrada`);
     }
+  }
+
+  async syncIdea(data: {
+    tokenId: number;
+    audioHash: string;
+    creatorAddress: string;
+    verificationCount: number;
+    stepCount: number;
+    tokenURI?: string;
+    blockTimestamp: number;
+    txHash?: string;
+  }) {
+    let idea = await this.ideaRepo.findOne({ where: { tokenId: data.tokenId } });
+
+    if (idea) {
+      Object.assign(idea, data);
+    } else {
+      idea = this.ideaRepo.create(data);
+    }
+
+    return this.ideaRepo.save(idea);
+  }
+
+  async syncStep(data: {
+    tokenId: number;
+    contentHash: string;
+    stepType: number;
+    metadata: string;
+    blockTimestamp: number;
+    txHash?: string;
+  }) {
+    const step = this.stepRepo.create(data);
+    return this.stepRepo.save(step);
   }
 }
