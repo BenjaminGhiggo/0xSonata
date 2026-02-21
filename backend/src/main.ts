@@ -5,8 +5,9 @@ import { AppModule } from './app.module';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:4200';
-  app.enableCors({ origin: corsOrigin, credentials: true });
+  // CORS: permite que el frontend Angular (localhost:4200) haga peticiones
+  // Sin esto, el navegador bloquea las peticiones entre puertos distintos
+  app.enableCors({ origin: process.env.CORS_ORIGIN || 'https://0xsonata.site', credentials: true });
 
   app.setGlobalPrefix('api');
 
