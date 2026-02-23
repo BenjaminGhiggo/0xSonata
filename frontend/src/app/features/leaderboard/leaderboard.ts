@@ -24,13 +24,12 @@ interface DisplayEntry extends LeaderboardEntry {
       <!-- H4: NAV CONSISTENTE — H2: Labels en español -->
       <nav class="flex flex-wrap items-center justify-between px-8 md:px-12 py-5 sticky top-0 z-50 backdrop-blur-xl border-b gap-4"
            style="background: var(--bg-nav); border-color: var(--border-color);">
-        <div class="flex items-center space-x-4 cursor-pointer" routerLink="/">
-          <div class="w-12 h-12 bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full flex items-center justify-center font-black italic text-white shadow-lg text-sm">0x</div>
-          <div>
-            <span class="text-xl md:text-2xl font-black uppercase italic tracking-tighter" style="color: var(--text-main)">0xSonata</span>
-            <div class="text-xs font-bold tracking-[0.2em] uppercase -mt-0.5" style="color: var(--text-subtle)">Cadena de Evidencia Creativa</div>
+        <a routerLink="/" class="flex items-center space-x-4 no-underline cursor-pointer">
+          <div class="logo">
+            <span class="logo-icon">&#119070;</span>
+            <span class="logo-text">0xSonata</span>
           </div>
-        </div>
+        </a>
         <div class="flex items-center space-x-3 md:space-x-6">
           <!-- H1: Indicador de pagina activa con underline -->
           <button (click)="setView('leaderboard')"
@@ -124,7 +123,8 @@ interface DisplayEntry extends LeaderboardEntry {
         <!-- TOP 3 PODIO -->
         @if (!isLoading() && top3().length >= 3) {
           <div class="max-w-5xl mx-auto px-8 mt-16">
-            <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-8" style="color: var(--text-subtle)">Top artistas</h2>
+            <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-4" style="color: var(--text-subtle)">Top artistas</h2>
+            <div class="h-12"></div>
             <div class="grid grid-cols-3 items-end gap-4 md:gap-8">
 
               <!-- #2 PLATA -->
@@ -138,10 +138,10 @@ interface DisplayEntry extends LeaderboardEntry {
                        [alt]="'Avatar de ' + top3()[1].alias">
                   <div class="absolute -top-8 left-1/2 -translate-x-1/2 text-4xl z-20">🥈</div>
                 </div>
-                <h3 class="text-lg md:text-xl font-bold text-center text-slate-300 uppercase tracking-wide mb-3">{{ top3()[1].alias }}</h3>
+                <h3 class="text-lg md:text-xl font-bold text-center text-slate-300 uppercase tracking-wide mb-3" style="color: var(--text-main)">{{ top3()[1].alias }}</h3>
                 <div class="pedestal-plata w-full rounded-t-2xl text-center py-6 px-3" style="min-height: 140px;">
                   <span class="font-black text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[1].score | number }}</span>
-                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">{{ top3()[1].steps }}/5 Pasos</span>
+                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
                 </div>
               </div>
 
@@ -156,10 +156,10 @@ interface DisplayEntry extends LeaderboardEntry {
                        [alt]="'Avatar de ' + top3()[0].alias">
                   <div class="absolute -top-10 left-1/2 -translate-x-1/2 text-6xl z-20">👑</div>
                 </div>
-                <h3 class="text-2xl md:text-3xl font-black text-yellow-500 italic uppercase tracking-tighter text-center mb-4">{{ top3()[0].alias }}</h3>
+                <h3 class="text-2xl md:text-3xl font-black text-yellow-500 italic uppercase tracking-tighter text-center mb-4" style="color: var(--text-main)">{{ top3()[0].alias }}</h3>
                 <div class="pedestal-divino w-full rounded-t-3xl text-center py-10 px-4 shadow-xl" style="min-height: 200px;">
                   <span class="text-4xl md:text-5xl font-black italic drop-shadow-md tracking-tighter block" style="color: var(--text-main)">{{ top3()[0].score | number }}</span>
-                  <span class="text-sm uppercase font-black text-yellow-500/60 mt-3 tracking-[0.2em] block">Puntaje de Integridad</span>
+                  <span class="text-sm uppercase font-black mt-3 tracking-[0.2em] block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
                 </div>
               </div>
 
@@ -174,8 +174,8 @@ interface DisplayEntry extends LeaderboardEntry {
                 </div>
                 <h3 class="text-lg md:text-xl font-bold text-center mb-3" style="color: var(--text-main)">{{ top3()[2].alias }}</h3>
                 <div class="pedestal-bronce w-full rounded-t-2xl text-center py-5 px-3" style="min-height: 110px;">
-                  <span class="font-black text-orange-400 text-2xl tracking-tighter block">{{ top3()[2].score | number }}</span>
-                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Cadena Verificada</span>
+                  <span class="font-black text-orange-400 text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[2].score | number }}</span>
+                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
                 </div>
               </div>
 
@@ -193,19 +193,11 @@ interface DisplayEntry extends LeaderboardEntry {
                 <div class="flex items-center space-x-4">
                   <span class="font-black w-8 text-base" style="color: var(--text-subtle)">#{{ entry.rank }}</span>
                   <img [src]="getAvatar(entry.seed)" class="w-14 h-14 rounded-xl bg-black/20" [alt]="'Avatar de ' + entry.alias">
-                  <div>
-                    <span class="font-bold uppercase tracking-tight text-base group-hover:text-purple-400 transition-colors" style="color: var(--text-main)">{{ entry.alias }}</span>
-                    <div class="flex space-x-1.5 mt-2">
-                      @for (s of [0,1,2,3,4]; track s) {
-                        <div class="w-4 h-1.5 rounded-full" [class]="s < entry.steps ? 'bg-green-500' : 'bg-white/10'"
-                             [attr.title]="s < entry.steps ? 'Paso ' + (s+1) + ' completado' : 'Paso ' + (s+1) + ' pendiente'"></div>
-                      }
-                    </div>
-                  </div>
+                  <span class="font-bold uppercase tracking-tight text-base group-hover:text-purple-400 transition-colors" style="color: var(--text-main)">{{ entry.alias }}</span>
                 </div>
                 <div class="flex flex-col items-end">
                   <span class="text-xl font-black italic" style="color: var(--text-main)">{{ entry.score | number }}</span>
-                  <button class="text-xs uppercase font-bold transition-opacity mt-1" style="color: var(--text-subtle)">Ver Certificado</button>
+                  <span class="text-xs uppercase font-bold mt-1" style="color: var(--text-subtle)">Puntaje de Integridad</span>
                 </div>
               </div>
             }
@@ -371,8 +363,11 @@ interface DisplayEntry extends LeaderboardEntry {
         <div class="max-w-5xl mx-auto">
           <div class="flex flex-col md:flex-row justify-between items-center gap-6">
             <div class="flex items-center gap-3">
-              <div class="w-8 h-8 bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full flex items-center justify-center font-black italic text-white text-xs">0x</div>
-              <span class="text-sm font-bold" style="color: var(--text-muted)">0xSonata — Cadena de Evidencia Creativa</span>
+              <div class="logo" style="font-size: 1rem;">
+                <span class="logo-icon">&#119070;</span>
+                <span class="logo-text" style="font-size: 0.9rem;">0xSonata</span>
+              </div>
+              <span class="text-sm font-bold" style="color: var(--text-muted)">Cadena de Evidencia Creativa</span>
             </div>
             <nav class="flex items-center gap-6 text-sm" style="color: var(--text-subtle);">
               <button (click)="setView('leaderboard')" class="hover:text-purple-400 transition-colors">Ranking</button>
@@ -518,10 +513,10 @@ export class Leaderboard implements OnInit {
 
   private getFallbackData(): DisplayEntry[] {
     return [
-      { rank: 1, address: '0x...VA01', alias: 'Valeria_FL', totalMints: 5, totalVerificationsReceived: 8, tier: 1, tierLabel: 'Bronce', score: 4200, isSeed: true, seed: 'valeria', steps: 5, tierClass: 'gold' },
-      { rank: 2, address: '0x...DI02', alias: 'Diego_Prod', totalMints: 3, totalVerificationsReceived: 4, tier: 0, tierLabel: 'Emergente', score: 2800, isSeed: true, seed: 'diego', steps: 4, tierClass: 'silver' },
-      { rank: 3, address: '0x...AN03', alias: 'Andres_M', totalMints: 2, totalVerificationsReceived: 2, tier: 0, tierLabel: 'Emergente', score: 1500, isSeed: true, seed: 'andres', steps: 3, tierClass: 'bronze' },
-      { rank: 4, address: '0x...CA04', alias: 'Camila_AI', totalMints: 1, totalVerificationsReceived: 1, tier: 0, tierLabel: 'Emergente', score: 800, isSeed: true, seed: 'camila', steps: 2, tierClass: 'emergent' },
+      { rank: 1, address: '0x...VA01', alias: 'Valeria_FL', totalMints: 1, totalVerificationsReceived: 1, tier: 0, tierLabel: 'Emergente', score: 4, isSeed: true, seed: 'valeria', steps: 0, tierClass: 'emergent' },
+      { rank: 2, address: '0x...DI02', alias: 'Diego_Prod', totalMints: 1, totalVerificationsReceived: 0, tier: 0, tierLabel: 'Emergente', score: 3, isSeed: true, seed: 'diego', steps: 0, tierClass: 'emergent' },
+      { rank: 3, address: '0x...AN03', alias: 'Andres_M', totalMints: 0, totalVerificationsReceived: 0, tier: 0, tierLabel: 'Emergente', score: 2, isSeed: true, seed: 'andres', steps: 0, tierClass: 'emergent' },
+      { rank: 4, address: '0x...CA04', alias: 'Camila_AI', totalMints: 0, totalVerificationsReceived: 0, tier: 0, tierLabel: 'Emergente', score: 1, isSeed: true, seed: 'camila', steps: 0, tierClass: 'emergent' },
     ];
   }
 

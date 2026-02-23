@@ -9,41 +9,41 @@ const SEED_ARTISTS: Partial<Artist>[] = [
   {
     address: '0x000000000000000000000000000000000000VA01',
     alias: 'Valeria_FL',
-    totalMints: 5,
-    totalVerificationsGiven: 3,
-    totalVerificationsReceived: 8,
-    tier: 1,
-    score: 4200,
+    totalMints: 1,
+    totalVerificationsGiven: 0,
+    totalVerificationsReceived: 1,
+    tier: 0,
+    score: 4,
     isSeed: true,
   },
   {
     address: '0x000000000000000000000000000000000000DI02',
     alias: 'Diego_Prod',
-    totalMints: 3,
-    totalVerificationsGiven: 2,
-    totalVerificationsReceived: 4,
+    totalMints: 1,
+    totalVerificationsGiven: 0,
+    totalVerificationsReceived: 0,
     tier: 0,
-    score: 2800,
+    score: 3,
     isSeed: true,
   },
   {
     address: '0x000000000000000000000000000000000000AN03',
     alias: 'Andres_M',
-    totalMints: 2,
-    totalVerificationsGiven: 1,
-    totalVerificationsReceived: 2,
+    totalMints: 0,
+    totalVerificationsGiven: 0,
+    totalVerificationsReceived: 0,
     tier: 0,
-    score: 1500,
+    score: 2,
     isSeed: true,
   },
   {
     address: '0x000000000000000000000000000000000000CA04',
     alias: 'Camila_AI',
-    totalMints: 1,
-    totalVerificationsGiven: 1,
-    totalVerificationsReceived: 1,
+    totalMints: 0,
+    totalVerificationsGiven: 0,
+    totalVerificationsReceived: 0,
     tier: 0,
-    score: 800,
+    score: 1,
     isSeed: true,
   },
 ];
@@ -59,22 +59,19 @@ export class SeedService implements OnApplicationBootstrap {
   ) {}
 
   async onApplicationBootstrap() {
-    const count = await this.artistRepo.count({ where: { isSeed: true } });
-    if (count >= SEED_ARTISTS.length) {
-      this.logger.log('Seed data already exists, skipping');
-      return;
-    }
-
-    this.logger.log('Inserting seed data...');
+    this.logger.log('Ensuring seed data...');
 
     for (const data of SEED_ARTISTS) {
       const exists = await this.artistRepo.findOne({ where: { address: data.address } });
-      if (exists) continue;
-
+      if (exists) {
+        Object.assign(exists, data);
+        await this.artistRepo.save(exists);
+        continue;
+      }
       const artist = this.artistRepo.create(data);
       await this.artistRepo.save(artist);
     }
 
-    this.logger.log(`Seeded ${SEED_ARTISTS.length} artists for leaderboard`);
+    this.logger.log(`Seeded/updated ${SEED_ARTISTS.length} artists for leaderboard (scores min 1-4)`);
   }
 }

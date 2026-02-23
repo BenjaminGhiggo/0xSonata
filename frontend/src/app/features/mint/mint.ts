@@ -15,30 +15,28 @@ type Phase = 'upload' | 'steps' | 'complete';
   imports: [CommonModule, RouterLink],
   host: { style: 'display: block' },
   template: `
-    <div class="min-h-screen flex flex-col bg-[radial-gradient(circle_at_50%_-20%,#1e1b4b_0%,#05060b_80%)]">
-      <!-- H4: NAV CONSISTENTE -->
+    <div class="min-h-screen flex flex-col transition-colors duration-300"
+         [style.background]="'radial-gradient(circle at 50% -20%, var(--card-hover) 0%, var(--bg-base) 80%)'">
       <nav class="flex items-center justify-between px-8 md:px-12 py-5 sticky top-0 z-50 backdrop-blur-xl border-b"
            style="background: var(--bg-nav); border-color: var(--border-color);">
         <a routerLink="/" class="flex items-center space-x-4 no-underline">
-          <div class="w-12 h-12 bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full flex items-center justify-center font-black italic text-white shadow-lg text-sm">0x</div>
-          <div>
-            <span class="text-xl md:text-2xl font-black uppercase italic tracking-tighter text-white">0xSonata</span>
-            <div class="text-xs font-bold tracking-[0.2em] uppercase -mt-0.5 text-white/40">Cadena de Evidencia Creativa</div>
+          <div class="logo">
+            <span class="logo-icon">&#119070;</span>
+            <span class="logo-text">0xSonata</span>
           </div>
         </a>
         <div class="flex items-center gap-4">
-          <!-- H1: Indicador de pagina -->
-          <a routerLink="/" class="text-sm font-black uppercase tracking-widest text-white/40 no-underline pb-1" style="border-bottom: 2px solid transparent;">Ranking</a>
-          <span class="text-sm font-black uppercase tracking-widest text-white pb-1" style="border-bottom: 2px solid #a855f7;">Crear NFT</span>
-          <a routerLink="/verify" class="text-sm font-black uppercase tracking-widest text-white/40 no-underline pb-1" style="border-bottom: 2px solid transparent;">Verificar</a>
-          <div class="h-6 w-[1px] bg-white/10"></div>
+          <a routerLink="/" class="text-sm font-black uppercase tracking-widest no-underline pb-1" style="color: var(--text-subtle); border-bottom: 2px solid transparent;">Ranking</a>
+          <span class="text-sm font-black uppercase tracking-widest pb-1" style="color: var(--text-main); border-bottom: 2px solid #a855f7;">Crear NFT</span>
+          <a routerLink="/verify" class="text-sm font-black uppercase tracking-widest no-underline pb-1" style="color: var(--text-subtle); border-bottom: 2px solid transparent;">Verificar</a>
+          <div class="h-6 w-[1px]" style="background: var(--border-color);"></div>
           @if (!walletService.isConnected()) {
             <button (click)="walletService.connect()"
                     class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all">
               Conectar Wallet
             </button>
           } @else {
-            <span class="text-sm text-green-400/80 font-mono flex items-center gap-2">
+            <span class="text-sm font-mono flex items-center gap-2" style="color: var(--text-muted);">
               <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
               {{ walletService.account()?.slice(0,6) }}...{{ walletService.account()?.slice(-4) }}
             </span>
@@ -47,28 +45,25 @@ type Phase = 'upload' | 'steps' | 'complete';
       </nav>
 
       <div class="flex-1 max-w-3xl mx-auto mt-10 px-8 pb-20 w-full">
-        <!-- H3: Breadcrumb -->
-        <div class="mb-6 flex items-center gap-2 text-sm text-white/40">
-          <a routerLink="/" class="hover:text-purple-400 transition-colors no-underline text-white/40">Inicio</a>
+        <div class="mb-6 flex items-center gap-2 text-sm" style="color: var(--text-subtle);">
+          <a routerLink="/" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle);">Inicio</a>
           <span>/</span>
-          <span class="text-white">Registrar Proceso Creativo</span>
+          <span style="color: var(--text-main);">Registrar Proceso Creativo</span>
         </div>
 
         @if (!walletService.isConnected()) {
-          <div class="bg-white/5 p-10 rounded-3xl border border-white/10 text-center">
+          <div class="p-10 rounded-3xl border text-center" style="background: var(--card-bg); border-color: var(--border-color);">
             <div class="text-5xl mb-4">🔗</div>
-            <p class="text-xl font-bold text-white/60 mb-3">Conecta tu wallet para comenzar</p>
-            <!-- H9: Mensaje de error con contexto -->
-            <p class="text-sm text-white/30 mb-6">Necesitas Pali Wallet conectada a la red zkSYS PoB Devnet (Chain ID 57042)</p>
+            <p class="text-xl font-bold mb-3" style="color: var(--text-muted);">Conecta tu wallet para comenzar</p>
+            <p class="text-sm mb-6" style="color: var(--text-subtle);">Necesitas Pali Wallet conectada a la red zkSYS PoB Devnet (Chain ID 57042)</p>
             <button (click)="walletService.connect()"
                     class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase hover:brightness-110 transition-all">
               Conectar Pali Wallet
             </button>
-            <!-- H10: Link de ayuda -->
-            <p class="text-xs text-white/20 mt-4">¿No tienes Pali Wallet? <a href="https://paliwallet.com" target="_blank" class="text-purple-400 hover:underline no-underline">Descárgala aquí ↗</a></p>
+            <p class="text-xs mt-4" style="color: var(--text-subtle);">¿No tienes Pali Wallet? <a href="https://paliwallet.com" target="_blank" class="text-purple-400 hover:underline no-underline">Descárgala aquí ↗</a></p>
           </div>
         } @else {
-          <div class="bg-white/5 p-10 rounded-3xl border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+          <div class="p-10 rounded-3xl border backdrop-blur-2xl shadow-2xl relative overflow-hidden" style="background: var(--card-bg); border-color: var(--border-color);">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-500 to-pink-500"></div>
 
             <!-- H1: INDICADOR DE FASE — siempre visible -->
@@ -77,13 +72,15 @@ type Phase = 'upload' | 'steps' | 'complete';
                 <div class="flex items-center gap-2">
                   <div class="flex flex-col items-center gap-1">
                     <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black transition-all"
-                         [class]="phase() === p.id ? 'bg-purple-500 text-white ring-2 ring-purple-500/50' : (phaseIndex(p.id) < phaseIndex(phase()) ? 'bg-green-500 text-white' : 'bg-white/10 text-white/40')">
+                         [class]="phase() === p.id ? 'bg-purple-500 text-white ring-2 ring-purple-500/50' : (phaseIndex(p.id) < phaseIndex(phase()) ? 'bg-green-500 text-white' : '')"
+                         [style.background]="(phase() !== p.id && phaseIndex(p.id) >= phaseIndex(phase())) ? 'var(--badge-bg)' : null"
+                         [style.color]="(phase() !== p.id && phaseIndex(p.id) >= phaseIndex(phase())) ? 'var(--text-subtle)' : null">
                       {{ phaseIndex(p.id) < phaseIndex(phase()) ? '✓' : phaseIndex(p.id) + 1 }}
                     </div>
-                    <span class="text-xs font-bold" [class]="phase() === p.id ? 'text-purple-400' : 'text-white/30'">{{ p.label }}</span>
+                    <span class="text-xs font-bold" [class]="phase() === p.id ? 'text-purple-400' : ''" [style.color]="phase() === p.id ? '' : 'var(--text-subtle)'">{{ p.label }}</span>
                   </div>
                   @if (p.id !== 'complete') {
-                    <div class="w-16 h-0.5 mb-5" [class]="phaseIndex(p.id) < phaseIndex(phase()) ? 'bg-green-500' : 'bg-white/10'"></div>
+                    <div class="w-16 h-0.5 mb-5" [class]="phaseIndex(p.id) < phaseIndex(phase()) ? 'bg-green-500' : ''" [style.background]="phaseIndex(p.id) < phaseIndex(phase()) ? '' : 'var(--border-color)'"></div>
                   }
                 </div>
               }
@@ -91,22 +88,23 @@ type Phase = 'upload' | 'steps' | 'complete';
 
             <!-- FASE 1: SUBIR Y MINTEAR -->
             @if (phase() === 'upload') {
-              <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter text-white">Paso 1: Registrar Idea</h2>
-              <p class="text-sm text-white/40 mb-8">Sube tu archivo de audio. Se calculará un hash SHA-256 único y se registrará como NFT en blockchain.</p>
+              <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter" style="color: var(--text-main)">Paso 1: Registrar Idea</h2>
+              <p class="text-sm mb-8" style="color: var(--text-subtle)">Sube tu archivo de audio. Se calculará un hash SHA-256 único y se registrará como NFT en blockchain.</p>
 
               <div class="space-y-6">
                 <div class="space-y-2">
-                  <label class="text-sm font-black uppercase opacity-40 ml-2 text-white">Archivo de audio</label>
-                  <label class="flex items-center justify-center w-full p-10 rounded-2xl border-2 border-dashed border-white/20 hover:border-purple-500/50 transition-all cursor-pointer bg-white/[0.02]">
+                  <label class="text-sm font-black uppercase ml-2" style="color: var(--text-subtle)">Archivo de audio</label>
+                  <label class="flex items-center justify-center w-full p-10 rounded-2xl border-2 border-dashed hover:border-purple-500/50 transition-all cursor-pointer"
+                         style="border-color: var(--border-color); background: var(--input-bg);">
                     <input type="file" accept="audio/*" (change)="handleFileChange($event)" [disabled]="isProcessing()" class="hidden">
                     <div class="text-center">
                       @if (fileName()) {
-                        <p class="text-white font-bold text-base">{{ fileName() }}</p>
-                        <p class="text-white/40 text-sm mt-1">{{ fileSizeKB() }} KB</p>
+                        <p class="font-bold text-base" style="color: var(--text-main)">{{ fileName() }}</p>
+                        <p class="text-sm mt-1" style="color: var(--text-subtle)">{{ fileSizeKB() }} KB</p>
                       } @else {
                         <div class="text-3xl mb-2">📁</div>
-                        <p class="text-white/40 text-sm">Haz clic o arrastra un archivo de audio (max 10 MB)</p>
-                        <p class="text-white/20 text-xs mt-1">Formatos: MP3, WAV, OGG, FLAC</p>
+                        <p class="text-sm" style="color: var(--text-subtle)">Haz clic o arrastra un archivo de audio (max 10 MB)</p>
+                        <p class="text-xs mt-1" style="color: var(--text-subtle)">Formatos: MP3, WAV, OGG, FLAC</p>
                       }
                     </div>
                   </label>
@@ -114,19 +112,19 @@ type Phase = 'upload' | 'steps' | 'complete';
 
                 @if (audioHash()) {
                   <div class="space-y-2">
-                    <label class="text-sm font-black uppercase opacity-40 ml-2 text-white">Hash SHA-256 generado</label>
+                    <label class="text-sm font-black uppercase ml-2" style="color: var(--text-subtle)">Hash SHA-256 generado</label>
                     <div class="p-4 rounded-2xl bg-green-500/5 border border-green-500/20 font-mono text-sm text-green-400 break-all">
                       {{ audioHash() }}
                     </div>
-                    <p class="text-xs text-white/30 ml-2">Este hash es tu huella digital única. Nadie puede falsificarlo.</p>
+                    <p class="text-xs ml-2" style="color: var(--text-subtle)">Este hash es tu huella digital única. Nadie puede falsificarlo.</p>
                   </div>
                 }
 
                 <div class="space-y-2">
-                  <label class="text-sm font-black uppercase opacity-40 ml-2 text-white">Token URI (opcional)</label>
+                  <label class="text-sm font-black uppercase ml-2" style="color: var(--text-subtle)">Token URI (opcional)</label>
                   <input type="text" [value]="tokenUri()" (input)="onUriChange($event)"
                          placeholder="ipfs://... (se genera automáticamente si lo dejas vacío)"
-                         class="w-full p-4 rounded-2xl font-bold outline-none text-white text-sm"
+                         class="w-full p-4 rounded-2xl font-bold outline-none text-sm"
                          style="background: var(--card-bg); border: 1px solid var(--border-color);"
                          [disabled]="isProcessing()">
                 </div>
@@ -148,26 +146,31 @@ type Phase = 'upload' | 'steps' | 'complete';
 
             <!-- FASE 2: PASOS CREATIVOS -->
             @if (phase() === 'steps') {
-              <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter text-white">Paso 2: Documenta tu Proceso</h2>
-              <p class="text-sm text-white/40 mb-2">Token #{{ mintedTokenId() }} registrado. Ahora documenta cada paso de tu proceso creativo.</p>
-              <p class="text-xs text-white/30 mb-8">Cada paso se registra on-chain como prueba de control humano. Puedes completar los que apliquen a tu proceso.</p>
+              <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter mb-2" style="color: var(--text-main)">Paso 2: Documenta tu Proceso</h2>
+              <p class="text-sm mb-2" style="color: var(--text-subtle)">Token #{{ mintedTokenId() }} registrado. Ahora documenta cada paso de tu proceso creativo.</p>
+              <p class="text-xs mb-8" style="color: var(--text-subtle)">Cada paso se registra on-chain como prueba de control humano. Puedes completar los que apliquen a tu proceso.</p>
 
               <div class="space-y-3 mb-8">
                 @for (step of stepTypes; track step.id) {
                   <div class="flex items-center justify-between p-5 rounded-2xl border transition-all"
-                       [class]="isStepDone(step.id) ? 'bg-green-500/20 border-green-500/50' : (currentStep() === step.id ? 'bg-purple-500/10 border-purple-500/50' : 'bg-white/5 border-white/10')">
+                       [class]="isStepDone(step.id) ? 'bg-green-500/20 border-green-500/50' : (currentStep() === step.id ? 'bg-purple-500/10 border-purple-500/50' : '')"
+                       [style.background]="(!isStepDone(step.id) && currentStep() !== step.id) ? 'var(--card-bg)' : null"
+                       [style.border-color]="(!isStepDone(step.id) && currentStep() !== step.id) ? 'var(--border-color)' : null">
                     <div>
                       <div class="flex items-center gap-2">
                         <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black"
-                              [class]="isStepDone(step.id) ? 'bg-green-500/30 text-green-300' : 'bg-white/10 text-white/40'">
+                              [class]="isStepDone(step.id) ? 'bg-green-500/30 text-green-300' : ''"
+                              [style.background]="!isStepDone(step.id) ? 'var(--badge-bg)' : null"
+                              [style.color]="!isStepDone(step.id) ? 'var(--text-subtle)' : null">
                           {{ isStepDone(step.id) ? '✓' : step.id + 1 }}
                         </span>
                         <span class="text-sm font-black uppercase tracking-widest"
-                              [class]="isStepDone(step.id) ? 'text-green-400' : 'text-white/60'">
+                              [class]="isStepDone(step.id) ? 'text-green-400' : ''"
+                              [style.color]="!isStepDone(step.id) ? 'var(--text-muted)' : null">
                           {{ step.label }}
                         </span>
                       </div>
-                      <p class="text-xs text-white/30 mt-1 ml-9">{{ step.description }}</p>
+                      <p class="text-xs mt-1 ml-9" style="color: var(--text-subtle)">{{ step.description }}</p>
                     </div>
                     <div>
                       @if (isStepDone(step.id)) {
@@ -192,13 +195,13 @@ type Phase = 'upload' | 'steps' | 'complete';
               <!-- H1: Barra de progreso con texto claro -->
               <div class="p-6 bg-purple-500/5 border border-purple-500/10 rounded-2xl mb-6">
                 <div class="flex justify-between items-center mb-3">
-                  <span class="text-sm font-black uppercase opacity-40 text-white">Integridad de Evidencia</span>
+                  <span class="text-sm font-black uppercase" style="color: var(--text-subtle)">Integridad de Evidencia</span>
                   <span class="text-sm font-black italic"
                         [class]="completedStepsCount() >= 3 ? 'text-green-500' : 'text-yellow-500'">
                     {{ completedStepsCount() }}/5 — {{ completedStepsCount() < 3 ? 'Evidencia débil' : 'Evidencia fuerte' }}
                   </span>
                 </div>
-                <div class="w-full h-2 bg-white/5 rounded-full overflow-hidden">
+                <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--badge-bg);">
                   <div class="h-full bg-purple-500 transition-all duration-500"
                        [style.width.%]="(completedStepsCount() / 5) * 100"></div>
                 </div>
@@ -217,7 +220,8 @@ type Phase = 'upload' | 'steps' | 'complete';
                   Finalizar proceso →
                 </button>
                 <!-- H3: Volver siempre visible -->
-                <a routerLink="/" class="px-6 py-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold text-sm hover:bg-white/10 transition-all no-underline text-center">
+                <a routerLink="/" class="px-6 py-4 rounded-2xl border font-bold text-sm transition-all no-underline text-center"
+                   style="background: var(--card-bg); border-color: var(--border-color); color: var(--text-muted);">
                   ← Volver
                 </a>
               </div>
@@ -228,8 +232,8 @@ type Phase = 'upload' | 'steps' | 'complete';
               <div class="text-center py-8">
                 <div class="text-6xl mb-6">🎵</div>
                 <h2 class="text-3xl font-black uppercase italic tracking-tighter text-green-400 mb-4">¡Proceso registrado!</h2>
-                <p class="text-white/60 mb-2">Token ID: <span class="font-mono text-white font-bold">#{{ mintedTokenId() }}</span></p>
-                <p class="text-white/40 text-sm mb-8">{{ completedStepsCount() }}/5 pasos documentados on-chain</p>
+                <p class="mb-2" style="color: var(--text-muted)">Token ID: <span class="font-mono font-bold" style="color: var(--text-main)">#{{ mintedTokenId() }}</span></p>
+                <p class="text-sm mb-8" style="color: var(--text-subtle)">{{ completedStepsCount() }}/5 pasos documentados on-chain</p>
 
                 <div class="space-y-3">
                   <a [href]="explorerBaseUrl + '/tx/' + mintTxHash()"
@@ -238,7 +242,8 @@ type Phase = 'upload' | 'steps' | 'complete';
                     Ver transacción en Explorer ↗
                   </a>
                   <a routerLink="/"
-                     class="block w-full p-4 rounded-2xl bg-white/5 border border-white/10 text-white/60 font-bold text-sm hover:bg-white/10 transition-all no-underline">
+                     class="block w-full p-4 rounded-2xl border font-bold text-sm transition-all no-underline"
+                     style="background: var(--card-bg); border-color: var(--border-color); color: var(--text-muted);">
                     ← Volver al Ranking
                   </a>
                 </div>

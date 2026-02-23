@@ -114,14 +114,41 @@
     filter: blur(30px);
   }
 
-  /* WINGS SYSTEM — gold (default) */
+  .logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 1.4rem;
+    font-weight: 700;
+  }
+  .logo-icon {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #ef4444, #ec4899, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .logo-text {
+    text-transform: uppercase;
+    background: linear-gradient(135deg, #ef4444, #ec4899, #8b5cf6);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    letter-spacing: 0.04em;
+    color: var(--text-main);
+  }
+  body.light-mode .logo-text {
+    color: var(--text-main);
+  }
+
+  /* WINGS SYSTEM — gold (default), más grandes */
   .wings-system {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 500px;
-    height: 300px;
+    width: 680px;
+    height: 400px;
     display: flex;
     justify-content: space-between;
     pointer-events: none;
@@ -130,8 +157,8 @@
 
   .ala {
     position: relative;
-    width: 220px;
-    height: 220px;
+    width: 300px;
+    height: 300px;
   }
 
   .ala-derecha {
@@ -142,8 +169,8 @@
     position: absolute;
     top: 0;
     right: 0;
-    width: 38px;
-    height: 120px;
+    width: 48px;
+    height: 160px;
     border-radius: 100% 0% 100% 100% / 100% 0% 100% 100%;
     transform-origin: top right;
     animation: feather-wave 4s ease-in-out infinite;
@@ -165,32 +192,30 @@
     opacity: 0.7;
   }
 
-  /* Silver wings */
   .wings-sm {
-    width: 380px;
-    height: 230px;
+    width: 520px;
+    height: 320px;
   }
   .wings-sm .ala {
-    width: 170px;
-    height: 170px;
+    width: 230px;
+    height: 230px;
   }
   .wings-sm .pluma {
-    width: 30px;
-    height: 100px;
+    width: 40px;
+    height: 130px;
   }
 
-  /* Bronze wings */
   .wings-xs {
-    width: 300px;
-    height: 190px;
+    width: 420px;
+    height: 260px;
   }
   .wings-xs .ala {
-    width: 140px;
-    height: 140px;
+    width: 190px;
+    height: 190px;
   }
   .wings-xs .pluma {
-    width: 24px;
-    height: 80px;
+    width: 32px;
+    height: 110px;
   }
 }
 

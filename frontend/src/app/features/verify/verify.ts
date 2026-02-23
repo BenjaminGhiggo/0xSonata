@@ -17,29 +17,28 @@ interface VerifySuccess {
   imports: [CommonModule, RouterLink],
   host: { style: 'display: block' },
   template: `
-    <div class="min-h-screen flex flex-col bg-[radial-gradient(circle_at_50%_-20%,#1e1b4b_0%,#05060b_80%)]">
-      <!-- H4: NAV CONSISTENTE -->
+    <div class="min-h-screen flex flex-col transition-colors duration-300"
+         [style.background]="'radial-gradient(circle at 50% -20%, var(--card-hover) 0%, var(--bg-base) 80%)'">
       <nav class="flex items-center justify-between px-8 md:px-12 py-5 sticky top-0 z-50 backdrop-blur-xl border-b"
            style="background: var(--bg-nav); border-color: var(--border-color);">
         <a routerLink="/" class="flex items-center space-x-4 no-underline">
-          <div class="w-12 h-12 bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full flex items-center justify-center font-black italic text-white shadow-lg text-sm">0x</div>
-          <div>
-            <span class="text-xl md:text-2xl font-black uppercase italic tracking-tighter text-white">0xSonata</span>
-            <div class="text-xs font-bold tracking-[0.2em] uppercase -mt-0.5 text-white/40">Cadena de Evidencia Creativa</div>
+          <div class="logo">
+            <span class="logo-icon">&#119070;</span>
+            <span class="logo-text">0xSonata</span>
           </div>
         </a>
         <div class="flex items-center gap-4">
-          <a routerLink="/" class="text-sm font-black uppercase tracking-widest text-white/40 no-underline pb-1" style="border-bottom: 2px solid transparent;">Ranking</a>
-          <a routerLink="/mint" class="text-sm font-black uppercase tracking-widest text-white/40 no-underline pb-1" style="border-bottom: 2px solid transparent;">Crear NFT</a>
-          <span class="text-sm font-black uppercase tracking-widest text-white pb-1" style="border-bottom: 2px solid #06b6d4;">Verificar</span>
-          <div class="h-6 w-[1px] bg-white/10"></div>
+          <a routerLink="/" class="text-sm font-black uppercase tracking-widest no-underline pb-1" style="color: var(--text-subtle); border-bottom: 2px solid transparent;">Ranking</a>
+          <a routerLink="/mint" class="text-sm font-black uppercase tracking-widest no-underline pb-1" style="color: var(--text-subtle); border-bottom: 2px solid transparent;">Crear NFT</a>
+          <span class="text-sm font-black uppercase tracking-widest pb-1" style="color: var(--text-main); border-bottom: 2px solid #06b6d4;">Verificar</span>
+          <div class="h-6 w-[1px]" style="background: var(--border-color);"></div>
           @if (!walletService.isConnected()) {
             <button (click)="walletService.connect()"
                     class="px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all">
               Conectar Wallet
             </button>
           } @else {
-            <span class="text-sm text-green-400/80 font-mono flex items-center gap-2">
+            <span class="text-sm font-mono flex items-center gap-2" style="color: var(--text-muted);">
               <span class="w-2 h-2 rounded-full bg-green-400 inline-block"></span>
               {{ walletService.account()?.slice(0,6) }}...{{ walletService.account()?.slice(-4) }}
             </span>
@@ -48,36 +47,34 @@ interface VerifySuccess {
       </nav>
 
       <div class="flex-1 max-w-3xl mx-auto mt-10 px-8 pb-20 w-full">
-        <!-- H3: Breadcrumb -->
-        <div class="mb-6 flex items-center gap-2 text-sm text-white/40">
-          <a routerLink="/" class="hover:text-purple-400 transition-colors no-underline text-white/40">Inicio</a>
+        <div class="mb-6 flex items-center gap-2 text-sm" style="color: var(--text-subtle);">
+          <a routerLink="/" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle);">Inicio</a>
           <span>/</span>
-          <span class="text-white">Verificar Idea</span>
+          <span style="color: var(--text-main);">Verificar Idea</span>
         </div>
 
         @if (!walletService.isConnected()) {
-          <div class="bg-white/5 p-10 rounded-3xl border border-white/10 text-center">
+          <div class="p-10 rounded-3xl border text-center" style="background: var(--card-bg); border-color: var(--border-color);">
             <div class="text-5xl mb-4">🔗</div>
-            <p class="text-xl font-bold text-white/60 mb-3">Conecta tu wallet para verificar ideas</p>
-            <p class="text-sm text-white/30 mb-6">Necesitas un stake mínimo de 0.001 tSYS. Al verificar, atestiguas que la autoría del artista es legítima.</p>
+            <p class="text-xl font-bold mb-3" style="color: var(--text-muted);">Conecta tu wallet para verificar ideas</p>
+            <p class="text-sm mb-6" style="color: var(--text-subtle);">Necesitas un stake mínimo de 0.001 tSYS. Al verificar, atestiguas que la autoría del artista es legítima.</p>
             <button (click)="walletService.connect()"
                     class="px-8 py-4 rounded-2xl bg-gradient-to-r from-cyan-600 to-blue-600 text-white font-black uppercase hover:brightness-110 transition-all">
               Conectar Pali Wallet
             </button>
-            <p class="text-xs text-white/20 mt-4">¿No tienes Pali Wallet? <a href="https://paliwallet.com" target="_blank" class="text-cyan-400 hover:underline no-underline">Descárgala aquí ↗</a></p>
+            <p class="text-xs mt-4" style="color: var(--text-subtle);">¿No tienes Pali Wallet? <a href="https://paliwallet.com" target="_blank" class="text-cyan-400 hover:underline no-underline">Descárgala aquí ↗</a></p>
           </div>
         } @else {
-          <div class="bg-white/5 p-10 rounded-3xl border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden">
+          <div class="p-10 rounded-3xl border backdrop-blur-2xl shadow-2xl relative overflow-hidden" style="background: var(--card-bg); border-color: var(--border-color);">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-cyan-500 to-blue-500"></div>
-            <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter text-white">Verificar Idea</h2>
-            <p class="text-sm text-white/40 mb-8">Atestigua la autoría de otro artista. Tu verificación aumenta la credibilidad de su registro.</p>
+            <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter" style="color: var(--text-main)">Verificar Idea</h2>
+            <p class="text-sm mb-8" style="color: var(--text-subtle)">Atestigua la autoría de otro artista. Tu verificación aumenta la credibilidad de su registro.</p>
 
-            <!-- H1: Estado del stake visible -->
             <div class="p-5 rounded-2xl bg-cyan-500/5 border border-cyan-500/10 mb-8">
               <div class="flex justify-between items-center">
                 <div>
-                  <span class="text-sm font-black uppercase text-white/40">Tu Stake</span>
-                  <p class="text-xs text-white/30 mt-0.5">Garantía depositada para verificar</p>
+                  <span class="text-sm font-black uppercase" style="color: var(--text-subtle)">Tu Stake</span>
+                  <p class="text-xs mt-0.5" style="color: var(--text-subtle)">Garantía depositada para verificar</p>
                 </div>
                 <span class="text-lg font-bold text-cyan-400">{{ stakeBalance() }} tSYS</span>
               </div>
@@ -97,15 +94,14 @@ interface VerifySuccess {
 
             <div class="space-y-6">
               <div class="space-y-2">
-                <label class="text-sm font-black uppercase opacity-40 ml-2 text-white">Token ID de la idea a verificar</label>
+                <label class="text-sm font-black uppercase ml-2" style="color: var(--text-subtle)">Token ID de la idea a verificar</label>
                 <input type="number" [value]="tokenIdValue()" (input)="onTokenIdChange($event)"
                        placeholder="Ej: 0, 1, 2..."
                        min="0" step="1"
-                       class="w-full p-5 rounded-2xl font-bold outline-none text-white text-base"
-                       style="background: var(--card-bg); border: 1px solid var(--border-color);"
+                       class="w-full p-5 rounded-2xl font-bold outline-none text-base"
+                       style="background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);"
                        [disabled]="isProcessing()">
-                <!-- H6: Contexto para que el usuario no tenga que recordar -->
-                <p class="text-xs text-white/30 ml-2">El Token ID lo encuentras en el Explorer o en el perfil del artista que deseas verificar.</p>
+                <p class="text-xs ml-2" style="color: var(--text-subtle)">El Token ID lo encuentras en el Explorer o en el perfil del artista que deseas verificar.</p>
               </div>
 
               @if (statusMessage()) {
