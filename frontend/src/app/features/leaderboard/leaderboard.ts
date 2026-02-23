@@ -16,97 +16,118 @@ interface DisplayEntry extends LeaderboardEntry {
   imports: [CommonModule, RouterLink],
   host: { style: 'display: block' },
   template: `
-    <div class="min-h-screen transition-all duration-500"
+    <div class="min-h-screen transition-all duration-500 flex flex-col"
          [class]="isDarkMode()
            ? 'bg-[radial-gradient(circle_at_50%_-20%,#1e1b4b_0%,#05060b_80%)]'
            : 'bg-[radial-gradient(circle_at_50%_-20%,#e0e7ff_0%,#f8fafc_80%)]'">
 
-      <!-- NAV -->
+      <!-- H4: NAV CONSISTENTE — H2: Labels en español -->
       <nav class="flex flex-wrap items-center justify-between px-8 md:px-12 py-5 sticky top-0 z-50 backdrop-blur-xl border-b gap-4"
            style="background: var(--bg-nav); border-color: var(--border-color);">
         <div class="flex items-center space-x-4 cursor-pointer" routerLink="/">
           <div class="w-12 h-12 bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full flex items-center justify-center font-black italic text-white shadow-lg text-sm">0x</div>
           <div>
             <span class="text-xl md:text-2xl font-black uppercase italic tracking-tighter" style="color: var(--text-main)">0xSonata</span>
-            <div class="text-xs font-bold tracking-[0.3em] uppercase -mt-0.5" style="color: var(--text-subtle)">Creative Evidence Chain</div>
+            <div class="text-xs font-bold tracking-[0.2em] uppercase -mt-0.5" style="color: var(--text-subtle)">Cadena de Evidencia Creativa</div>
           </div>
         </div>
         <div class="flex items-center space-x-3 md:space-x-6">
+          <!-- H1: Indicador de pagina activa con underline -->
           <button (click)="setView('leaderboard')"
-                  class="text-sm font-black uppercase tracking-widest transition-colors"
-                  [style.color]="currentView() === 'leaderboard' ? 'var(--text-main)' : 'var(--text-subtle)'">
-            Hierarchy
+                  class="text-sm font-black uppercase tracking-widest transition-colors pb-1"
+                  [style.color]="currentView() === 'leaderboard' ? 'var(--text-main)' : 'var(--text-subtle)'"
+                  [style.border-bottom]="currentView() === 'leaderboard' ? '2px solid #a855f7' : '2px solid transparent'">
+            Ranking
           </button>
           <button (click)="setView('register')"
-                  class="text-sm font-black uppercase tracking-widest transition-colors"
-                  [style.color]="currentView() === 'register' ? 'var(--text-main)' : 'var(--text-subtle)'">
-            Register
+                  class="text-sm font-black uppercase tracking-widest transition-colors pb-1"
+                  [style.color]="currentView() === 'register' ? 'var(--text-main)' : 'var(--text-subtle)'"
+                  [style.border-bottom]="currentView() === 'register' ? '2px solid #a855f7' : '2px solid transparent'">
+            Registrar
           </button>
+          <a routerLink="/mint"
+             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
+             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+            Crear NFT
+          </a>
+          <a routerLink="/verify"
+             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
+             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+            Verificar
+          </a>
           <div class="h-6 w-[1px]" style="background: var(--border-color)"></div>
           <button (click)="toggleTheme()"
                   class="p-2 rounded-lg border hover:opacity-80 transition-all text-lg"
+                  [attr.aria-label]="isDarkMode() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
+                  [attr.title]="isDarkMode() ? 'Modo claro' : 'Modo oscuro'"
                   style="background: var(--badge-bg); border-color: var(--border-color);">
             {{ isDarkMode() ? '☀️' : '🌙' }}
           </button>
         </div>
       </nav>
 
+      <div class="flex-1">
       <!-- LEADERBOARD VIEW -->
       @if (currentView() === 'leaderboard') {
 
-        <!-- HERO -->
+        <!-- HERO — H2: Mensaje claro de qué es y para qué -->
         <div class="max-w-3xl mx-auto text-center pt-14 px-8">
           <h1 class="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-4" style="color: var(--text-main)">
             Protege tu creatividad musical
           </h1>
           <p class="text-base md:text-lg max-w-2xl mx-auto leading-relaxed" style="color: var(--text-muted)">
-            Registra cada paso de tu proceso creativo en blockchain. Prueba inmutable de autoria,
-            verificacion comunitaria y certificados descargables.
+            Registra cada paso de tu proceso creativo en blockchain. Obtén prueba inmutable de autoría,
+            verificación comunitaria y certificados descargables.
           </p>
+        </div>
 
-          <!-- HOW IT WORKS -->
-          <div class="mt-10 grid grid-cols-4 gap-3 max-w-2xl mx-auto">
+        <!-- H6: COMO FUNCIONA — Pasos SIEMPRE visibles con descripciones, no escondidos en tooltips -->
+        <div class="max-w-4xl mx-auto mt-10 px-8">
+          <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-6" style="color: var(--text-subtle)">¿Cómo funciona?</h2>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             @for (guide of guideSteps; track guide.step) {
-              <div class="relative">
-                <button (click)="toggleGuide(guide.step)"
-                        class="w-full p-4 rounded-xl border transition-all text-center"
-                        [style.background]="activeGuide() === guide.step ? 'rgba(168,85,247,0.15)' : 'var(--card-bg)'"
-                        [style.border-color]="activeGuide() === guide.step ? 'rgba(168,85,247,0.4)' : 'var(--card-border)'">
-                  <div class="text-2xl mb-2">{{ guide.icon }}</div>
-                  <div class="text-xs font-black uppercase tracking-wider leading-tight" style="color: var(--text-muted)">{{ guide.title }}</div>
-                </button>
-                @if (activeGuide() === guide.step) {
-                  <div class="absolute z-30 top-full mt-2 left-1/2 -translate-x-1/2 w-72 p-4 rounded-xl shadow-2xl text-left"
-                       [style.background]="isDarkMode() ? '#12122a' : '#ffffff'"
-                       [style.border]="isDarkMode() ? '1px solid rgba(168,85,247,0.3)' : '1px solid rgba(0,0,0,0.1)'">
-                    <p class="text-sm leading-relaxed" style="color: var(--text-muted)">{{ guide.description }}</p>
-                    <button (click)="toggleGuide(0)" class="mt-2 text-xs text-purple-500 hover:text-purple-400 font-bold">Cerrar</button>
-                  </div>
-                }
+              <div class="p-5 rounded-xl border text-center transition-all hover:border-purple-500/30"
+                   style="background: var(--card-bg); border-color: var(--card-border);">
+                <!-- H6: Numero de paso visible = reconocimiento -->
+                <div class="flex items-center justify-center gap-2 mb-3">
+                  <span class="w-7 h-7 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-black">{{ guide.step }}</span>
+                  <span class="text-2xl">{{ guide.icon }}</span>
+                </div>
+                <h3 class="text-sm font-black uppercase tracking-wide mb-2" style="color: var(--text-main)">{{ guide.title }}</h3>
+                <p class="text-xs leading-relaxed" style="color: var(--text-muted)">{{ guide.description }}</p>
               </div>
             }
           </div>
 
-          <!-- CTA -->
+          <!-- CTA con contexto — H2: Verbo accionable en español -->
           <div class="mt-8 flex items-center justify-center gap-4">
             <a routerLink="/mint"
                class="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm hover:brightness-110 transition-all shadow-lg shadow-purple-900/40 no-underline">
-              Registrar Proceso
+              Comenzar registro →
             </a>
             <a routerLink="/verify"
                class="px-8 py-4 rounded-xl border font-bold text-sm hover:opacity-80 transition-all no-underline"
                style="background: var(--card-bg); border-color: var(--border-color); color: var(--text-muted);">
-              Verificar Idea
+              Verificar una idea
             </a>
           </div>
         </div>
 
-        <!-- DIVINE TOP 3 PODIUM -->
-        @if (top3().length >= 3) {
+        <!-- H1: LOADING STATE -->
+        @if (isLoading()) {
+          <div class="max-w-5xl mx-auto px-8 mt-16 text-center">
+            <div class="inline-block w-8 h-8 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
+            <p class="text-sm mt-3" style="color: var(--text-muted)">Cargando ranking...</p>
+          </div>
+        }
+
+        <!-- TOP 3 PODIO -->
+        @if (!isLoading() && top3().length >= 3) {
           <div class="max-w-5xl mx-auto px-8 mt-16">
+            <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-8" style="color: var(--text-subtle)">Top artistas</h2>
             <div class="grid grid-cols-3 items-end gap-4 md:gap-8">
 
-              <!-- #2 SILVER -->
+              <!-- #2 PLATA -->
               <div class="flex flex-col items-center" style="animation: divine-float 6s infinite;">
                 <div class="relative mb-4">
                   <div class="wings-system wings-sm silver-wings" [innerHTML]="wingsHtml(3)"></div>
@@ -114,17 +135,17 @@ interface DisplayEntry extends LeaderboardEntry {
                   <img [src]="getAvatar(top3()[1].seed)"
                        class="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-3 border-slate-300 relative z-10 bg-slate-800/40 object-cover"
                        style="box-shadow: 0 0 30px rgba(203,213,225,0.3);"
-                       alt="Silver">
+                       [alt]="'Avatar de ' + top3()[1].alias">
                   <div class="absolute -top-8 left-1/2 -translate-x-1/2 text-4xl z-20">🥈</div>
                 </div>
                 <h3 class="text-lg md:text-xl font-bold text-center text-slate-300 uppercase tracking-wide mb-3">{{ top3()[1].alias }}</h3>
                 <div class="pedestal-plata w-full rounded-t-2xl text-center py-6 px-3" style="min-height: 140px;">
                   <span class="font-black text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[1].score | number }}</span>
-                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">{{ top3()[1].steps }}/5 Steps</span>
+                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">{{ top3()[1].steps }}/5 Pasos</span>
                 </div>
               </div>
 
-              <!-- #1 GOLD -->
+              <!-- #1 ORO -->
               <div class="flex flex-col items-center" style="animation: divine-float 4s infinite;">
                 <div class="relative mb-5">
                   <div class="wings-system gold-wings" [innerHTML]="wingsHtml(5)"></div>
@@ -132,29 +153,29 @@ interface DisplayEntry extends LeaderboardEntry {
                   <img [src]="getAvatar(top3()[0].seed)"
                        class="w-44 h-44 md:w-56 md:h-56 rounded-3xl border-4 border-yellow-500 relative z-10 bg-indigo-950/30 object-cover"
                        style="box-shadow: 0 0 60px rgba(255,215,0,0.3);"
-                       alt="Gold">
+                       [alt]="'Avatar de ' + top3()[0].alias">
                   <div class="absolute -top-10 left-1/2 -translate-x-1/2 text-6xl z-20">👑</div>
                 </div>
                 <h3 class="text-2xl md:text-3xl font-black text-yellow-500 italic uppercase tracking-tighter text-center mb-4">{{ top3()[0].alias }}</h3>
                 <div class="pedestal-divino w-full rounded-t-3xl text-center py-10 px-4 shadow-xl" style="min-height: 200px;">
                   <span class="text-4xl md:text-5xl font-black italic drop-shadow-md tracking-tighter block" style="color: var(--text-main)">{{ top3()[0].score | number }}</span>
-                  <span class="text-sm uppercase font-black text-yellow-500/60 mt-3 tracking-[0.2em] block">Integrity Score</span>
+                  <span class="text-sm uppercase font-black text-yellow-500/60 mt-3 tracking-[0.2em] block">Puntaje de Integridad</span>
                 </div>
               </div>
 
-              <!-- #3 BRONZE -->
+              <!-- #3 BRONCE -->
               <div class="flex flex-col items-center" style="animation: divine-float 7s infinite;">
                 <div class="relative mb-4">
                   <div class="wings-system wings-xs bronze-wings" [innerHTML]="wingsHtml(2)"></div>
                   <img [src]="getAvatar(top3()[2].seed)"
                        class="w-28 h-28 md:w-36 md:h-36 rounded-xl border-2 border-orange-700/50 relative z-10 bg-indigo-950/20 object-cover shadow-lg"
-                       alt="Bronze">
+                       [alt]="'Avatar de ' + top3()[2].alias">
                   <div class="absolute -top-8 left-1/2 -translate-x-1/2 text-4xl z-20">🥉</div>
                 </div>
                 <h3 class="text-lg md:text-xl font-bold text-center mb-3" style="color: var(--text-main)">{{ top3()[2].alias }}</h3>
                 <div class="pedestal-bronce w-full rounded-t-2xl text-center py-5 px-3" style="min-height: 110px;">
                   <span class="font-black text-orange-400 text-2xl tracking-tighter block">{{ top3()[2].score | number }}</span>
-                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Verified Chain</span>
+                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Cadena Verificada</span>
                 </div>
               </div>
 
@@ -162,21 +183,22 @@ interface DisplayEntry extends LeaderboardEntry {
           </div>
         }
 
-        <!-- OTHERS LIST -->
-        @if (others().length > 0) {
+        <!-- LISTA DE OTROS ARTISTAS -->
+        @if (!isLoading() && others().length > 0) {
           <div class="max-w-3xl mx-auto mt-16 space-y-4 px-8">
-            <h4 class="text-sm font-black uppercase tracking-[0.4em] text-center mb-8" style="color: var(--text-muted)">Creative Evidence Logs</h4>
+            <h4 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-8" style="color: var(--text-muted)">Registros de Evidencia Creativa</h4>
             @for (entry of others(); track entry.address) {
               <div class="flex items-center justify-between p-5 md:p-6 rounded-2xl border transition-all group backdrop-blur-md"
                    style="background: var(--card-bg); border-color: var(--card-border);">
                 <div class="flex items-center space-x-4">
                   <span class="font-black w-8 text-base" style="color: var(--text-subtle)">#{{ entry.rank }}</span>
-                  <img [src]="getAvatar(entry.seed)" class="w-14 h-14 rounded-xl bg-black/20" [alt]="entry.alias">
+                  <img [src]="getAvatar(entry.seed)" class="w-14 h-14 rounded-xl bg-black/20" [alt]="'Avatar de ' + entry.alias">
                   <div>
                     <span class="font-bold uppercase tracking-tight text-base group-hover:text-purple-400 transition-colors" style="color: var(--text-main)">{{ entry.alias }}</span>
                     <div class="flex space-x-1.5 mt-2">
                       @for (s of [0,1,2,3,4]; track s) {
-                        <div class="w-4 h-1.5 rounded-full" [class]="s < entry.steps ? 'bg-green-500' : 'bg-white/10'"></div>
+                        <div class="w-4 h-1.5 rounded-full" [class]="s < entry.steps ? 'bg-green-500' : 'bg-white/10'"
+                             [attr.title]="s < entry.steps ? 'Paso ' + (s+1) + ' completado' : 'Paso ' + (s+1) + ' pendiente'"></div>
                       }
                     </div>
                   </div>
@@ -190,13 +212,26 @@ interface DisplayEntry extends LeaderboardEntry {
           </div>
         }
 
-        <!-- FEATURES: QUE OFRECE 0xSonata -->
+        <!-- H1: Estado vacio explicito -->
+        @if (!isLoading() && entries().length === 0) {
+          <div class="max-w-2xl mx-auto mt-16 px-8 text-center">
+            <div class="text-5xl mb-4">🎵</div>
+            <p class="text-lg font-bold" style="color: var(--text-main)">Aún no hay artistas registrados</p>
+            <p class="text-sm mt-2" style="color: var(--text-muted)">Sé el primero en registrar tu proceso creativo</p>
+            <a routerLink="/mint"
+               class="inline-block mt-6 px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm no-underline">
+              Comenzar registro →
+            </a>
+          </div>
+        }
+
+        <!-- QUE OFRECE 0xSonata -->
         <div class="max-w-6xl mx-auto mt-24 px-8">
           <h2 class="text-2xl md:text-3xl font-black uppercase italic tracking-tighter text-center mb-3" style="color: var(--text-main)">
-            ¿Que ofrece 0xSonata?
+            ¿Qué ofrece 0xSonata?
           </h2>
           <p class="text-center text-base mb-12" style="color: var(--text-muted)">
-            Cuatro capas de proteccion para tu musica
+            Cuatro capas de protección para tu música
           </p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @for (feat of features; track feat.title) {
@@ -214,8 +249,8 @@ interface DisplayEntry extends LeaderboardEntry {
           </div>
         </div>
 
-        <!-- PERSONAS: CASOS DE USO -->
-        <div class="max-w-5xl mx-auto mt-24 px-8 pb-24">
+        <!-- PERSONAS -->
+        <div class="max-w-5xl mx-auto mt-24 px-8">
           <h2 class="text-2xl md:text-3xl font-black uppercase italic tracking-tighter text-center mb-3" style="color: var(--text-main)">
             ¿Te identificas?
           </h2>
@@ -255,16 +290,23 @@ interface DisplayEntry extends LeaderboardEntry {
       <!-- REGISTER VIEW -->
       @if (currentView() === 'register') {
         <div class="max-w-3xl mx-auto mt-16 px-8 pb-16">
+          <!-- H3: Breadcrumb -->
+          <div class="mb-6 flex items-center gap-2 text-sm" style="color: var(--text-subtle)">
+            <button (click)="setView('leaderboard')" class="hover:text-purple-400 transition-colors">Inicio</button>
+            <span>/</span>
+            <span style="color: var(--text-main)">Registrar proceso</span>
+          </div>
+
           <div class="p-10 md:p-14 rounded-3xl border backdrop-blur-2xl shadow-2xl relative overflow-hidden"
                style="background: var(--card-bg); border-color: var(--border-color);">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-500 to-pink-500"></div>
-            <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter" style="color: var(--text-main)">Chain of Evidence</h2>
+            <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter" style="color: var(--text-main)">Cadena de Evidencia</h2>
             <p class="text-sm mb-10 font-bold uppercase tracking-widest" style="color: var(--text-subtle)">Documenta el control humano en tu proceso creativo</p>
 
             <div class="space-y-6">
               <div class="space-y-3">
                 <label class="text-sm font-black uppercase ml-2" style="color: var(--text-subtle)">Nombre del Proyecto</label>
-                <input #regName placeholder="Ej: Neon Reggaeton"
+                <input #regName placeholder="Ej: Neon Reggaeton Beat"
                        class="w-full p-5 rounded-xl font-bold outline-none transition-all text-base"
                        style="background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main);">
               </div>
@@ -280,18 +322,25 @@ interface DisplayEntry extends LeaderboardEntry {
                           [style.background]="!isStepComplete(step.id) ? 'var(--card-bg)' : ''"
                           [style.border-color]="!isStepComplete(step.id) ? 'var(--border-color)' : ''"
                           [style.color]="!isStepComplete(step.id) ? 'var(--text-subtle)' : ''">
-                    <span class="text-sm font-black uppercase tracking-widest">{{ step.label }}</span>
-                    <span class="text-base">{{ isStepComplete(step.id) ? '✓' : '⚡' }}</span>
+                    <div class="flex items-center gap-3">
+                      <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black shrink-0"
+                            [class]="isStepComplete(step.id) ? 'bg-green-500/30 text-green-300' : 'bg-white/10 text-white/40'">
+                        {{ isStepComplete(step.id) ? '✓' : step.id + 1 }}
+                      </span>
+                      <span class="text-sm font-black uppercase tracking-widest">{{ step.label }}</span>
+                    </div>
+                    <span class="text-sm">{{ isStepComplete(step.id) ? 'Completado' : 'Vincular' }}</span>
                   </button>
                 }
               </div>
 
+              <!-- H1: Barra de progreso con estado claro -->
               <div class="p-5 rounded-xl" style="background: rgba(168,85,247,0.05); border: 1px solid rgba(168,85,247,0.1);">
                 <div class="flex justify-between items-center mb-3">
                   <span class="text-sm font-black uppercase" style="color: var(--text-subtle)">Integridad</span>
                   <span class="text-base font-black italic"
                         [class]="completedSteps().length >= 3 ? 'text-green-500' : 'text-yellow-500'">
-                    {{ completedSteps().length < 3 ? 'DÉBIL' : 'FUERTE' }}
+                    {{ completedSteps().length }}/5 pasos — {{ completedSteps().length < 3 ? 'Evidencia débil' : 'Evidencia fuerte' }}
                   </span>
                 </div>
                 <div class="w-full h-2 rounded-full overflow-hidden" style="background: var(--badge-bg);">
@@ -302,12 +351,43 @@ interface DisplayEntry extends LeaderboardEntry {
 
               <button routerLink="/mint"
                       class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 p-5 rounded-xl font-black uppercase text-white text-base hover:brightness-110 active:scale-95 transition-all shadow-lg shadow-purple-900/40">
-                Sellar Proceso en zkSYS
+                Ir a registrar on-chain →
+              </button>
+
+              <!-- H3: Volver -->
+              <button (click)="setView('leaderboard')"
+                      class="w-full p-4 rounded-xl border text-sm font-bold transition-all text-center"
+                      style="background: var(--card-bg); border-color: var(--border-color); color: var(--text-muted);">
+                ← Volver al Ranking
               </button>
             </div>
           </div>
         </div>
       }
+      </div>
+
+      <!-- H3/H10: FOOTER — Navegacion persistente y ayuda -->
+      <footer class="mt-auto border-t px-8 py-8" style="border-color: var(--border-color); background: var(--bg-nav);">
+        <div class="max-w-5xl mx-auto">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 bg-gradient-to-tr from-yellow-500 to-purple-600 rounded-full flex items-center justify-center font-black italic text-white text-xs">0x</div>
+              <span class="text-sm font-bold" style="color: var(--text-muted)">0xSonata — Cadena de Evidencia Creativa</span>
+            </div>
+            <nav class="flex items-center gap-6 text-sm" style="color: var(--text-subtle);">
+              <button (click)="setView('leaderboard')" class="hover:text-purple-400 transition-colors">Ranking</button>
+              <a routerLink="/mint" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Crear NFT</a>
+              <a routerLink="/verify" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Verificar</a>
+              <a href="https://explorer-pob.dev11.top" target="_blank" rel="noopener noreferrer"
+                 class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Explorer ↗</a>
+            </nav>
+          </div>
+          <p class="text-center text-xs mt-6" style="color: var(--text-subtle)">
+            Desplegado en zkSYS PoB Devnet (Chain ID 57042) · Código abierto
+          </p>
+        </div>
+      </footer>
+
     </div>
   `,
 })
@@ -319,35 +399,35 @@ export class Leaderboard implements OnInit {
   currentView = signal<'leaderboard' | 'register'>('leaderboard');
   entries = signal<DisplayEntry[]>([]);
   completedSteps = signal<number[]>([]);
-  activeGuide = signal(0);
+  isLoading = signal(true);
 
   guideSteps = [
-    { step: 1, icon: '🎵', title: 'Sube tu audio', description: 'Sube tu beat, melodia o composicion. Se calcula un hash SHA-256 unico que identifica tu obra. Este hash se registra en blockchain como prueba inmutable de autoria.' },
-    { step: 2, icon: '⛓️', title: 'Documenta el proceso', description: 'Registra cada paso de tu proceso creativo: prompt, variaciones IA, seleccion, edicion DAW y master final. Cada paso queda sellado on-chain.' },
-    { step: 3, icon: '✅', title: 'Verificacion social', description: 'Otros artistas verifican tu trabajo depositando stake. Mas verificaciones = mayor puntaje y nivel (Emergente, Bronce, Plata, Oro).' },
-    { step: 4, icon: '📜', title: 'Certificado PDF', description: 'Descarga un certificado PDF con prueba completa de autoria: hash, pasos, verificaciones, tier y links al explorador blockchain.' },
+    { step: 1, icon: '🎵', title: 'Sube tu audio', description: 'Se calcula un hash SHA-256 único de tu archivo. Este hash se registra en blockchain como prueba inmutable de autoría.' },
+    { step: 2, icon: '⛓️', title: 'Documenta el proceso', description: 'Registra cada paso: prompt IA, variaciones, selección, edición DAW y master final. Cada paso queda sellado on-chain.' },
+    { step: 3, icon: '✅', title: 'Verificación social', description: 'Otros artistas verifican tu trabajo depositando stake. Más verificaciones = mayor puntaje y nivel.' },
+    { step: 4, icon: '📜', title: 'Certificado PDF', description: 'Descarga un certificado con prueba completa: hash, pasos, verificaciones, tier y links al explorador blockchain.' },
   ];
 
   features = [
     {
       icon: '⛓️',
-      title: 'Creative Process Chain',
-      description: 'Registra cada paso de tu proceso creativo (prompt IA, variaciones, seleccion, edicion DAW, master final). Cada paso genera un hash SHA-256 con timestamp en blockchain. Tu cadena de evidencia es publica e inmutable.',
+      title: 'Cadena de Proceso Creativo',
+      description: 'Registra cada paso de tu proceso creativo (prompt IA, variaciones, selección, edición DAW, master final). Cada paso genera un hash SHA-256 con timestamp en blockchain. Tu cadena de evidencia es pública e inmutable.',
     },
     {
       icon: '🔐',
-      title: 'Verificacion con Stake',
-      description: 'Otros artistas verifican tu trabajo depositando tokens como garantia. Si verifican contenido fraudulento, pierden su stake. Esto crea un sistema de verificacion con consecuencias reales.',
+      title: 'Verificación con Stake',
+      description: 'Otros artistas verifican tu trabajo depositando tokens como garantía. Si verifican contenido fraudulento, pierden su stake. Verificación con consecuencias reales.',
     },
     {
       icon: '🏆',
-      title: 'Reputacion y Tiers',
-      description: 'Acumula puntaje por registros, verificaciones y antigüedad. Sube de nivel: Emergente → Bronce → Plata → Oro. Tu tier refleja tu compromiso y credibilidad como artista.',
+      title: 'Reputación y Niveles',
+      description: 'Acumula puntaje por registros, verificaciones y antigüedad. Sube de nivel: Emergente → Bronce → Plata → Oro. Tu nivel refleja tu compromiso y credibilidad.',
     },
     {
       icon: '💰',
-      title: 'Project Vault + Revenue Share',
-      description: 'Agrupa obras en proyectos colaborativos con splits definidos (ej: 40%-60%). El smart contract distribuye automaticamente los pagos segun los porcentajes. Sin ambiguedad, sin intermediarios.',
+      title: 'Bóveda de Proyecto + Reparto',
+      description: 'Agrupa obras en proyectos colaborativos con porcentajes definidos (ej: 40%-60%). El smart contract distribuye automáticamente los pagos. Sin ambigüedad, sin intermediarios.',
     },
   ];
 
@@ -358,26 +438,26 @@ export class Leaderboard implements OnInit {
       emoji: '🎤',
       gradient: 'from-pink-500 to-purple-600',
       problem_title: 'Le robaron su beat y no puede probarlo',
-      problem: 'Estudia comunicaciones y usa Suno para crear beats de reggaeton. Publico 3 canciones en SoundCloud con 15,000 reproducciones. Encontro su beat en un TikTok con 200K views. El creador nunca le pidio permiso. No puede hacer nada porque no tiene copyright ni prueba de autoria.',
-      solution: 'Registra cada paso (prompt en Suno, las 10 variaciones, su seleccion, edicion en GarageBand, master final). Cada paso tiene hash y timestamp on-chain. Descarga un certificado PDF con toda la cadena de evidencia como prueba de anterioridad.',
+      problem: 'Estudia comunicaciones y usa Suno para crear beats de reggaeton. Publicó 3 canciones en SoundCloud con 15,000 reproducciones. Encontró su beat en un TikTok con 200K views. El creador nunca le pidió permiso. No puede hacer nada porque no tiene copyright ni prueba de autoría.',
+      solution: 'Registra cada paso (prompt en Suno, las 10 variaciones, su selección, edición en GarageBand, master final). Cada paso tiene hash y timestamp on-chain. Descarga un certificado PDF como prueba de anterioridad.',
     },
     {
       name: 'Diego',
-      location: 'Bogota, 28 años',
+      location: 'Bogotá, 28 años',
       emoji: '🎹',
       gradient: 'from-blue-500 to-indigo-600',
       problem_title: 'Registrar copyright es imposiblemente caro',
-      problem: 'Productor de trap que usa Udio para bases instrumentales. Quiere registrar en la Direccion Nacional de Derechos de Autor (DNDA) de Colombia, pero cada registro cuesta ~$30 USD y tarda semanas. Produce 4 beats por semana: $480 USD/mes, imposible para un artista emergente.',
-      solution: 'Registra cada produccion por el costo del gas en zkSYS (~centavos). Tiene historial publico de 200+ ideas. Cuando un sello pide prueba de autoria, muestra su perfil con verificaciones y certificados. El sello verifica las transacciones en el explorer.',
+      problem: 'Productor de trap que usa Udio para bases instrumentales. Quiere registrar en la Dirección Nacional de Derechos de Autor (DNDA) de Colombia, pero cada registro cuesta ~$30 USD y tarda semanas. Produce 4 beats por semana: $480 USD/mes, imposible para un artista emergente.',
+      solution: 'Registra cada producción por el costo del gas en zkSYS (~centavos). Tiene historial público de 200+ ideas. Cuando un sello pide prueba de autoría, muestra su perfil con verificaciones y certificados.',
     },
     {
-      name: 'Camila & Andres',
+      name: 'Camila & Andrés',
       location: 'Buenos Aires, 25 y 30 años',
       emoji: '🤝',
       gradient: 'from-green-500 to-teal-600',
-      problem_title: 'Colaboracion sin acuerdo claro de ownership',
-      problem: 'Camila escribe letras y Andres genera instrumentales con IA. Publicaron un EP de 5 tracks pero nunca dejaron claro quien hizo que. Ahora Andres quiere usar 2 tracks para un proyecto solista y Camila dice que no puede porque ella escribio las letras.',
-      solution: 'Cada uno registra su contribucion por separado. Luego crean un Project Vault con splits definidos (Camila 40%, Andres 60%). El smart contract distribuye automaticamente cualquier pago futuro. No hay ambiguedad.',
+      problem_title: 'Colaboración sin acuerdo claro de propiedad',
+      problem: 'Camila escribe letras y Andrés genera instrumentales con IA. Publicaron un EP de 5 tracks pero nunca dejaron claro quién hizo qué. Ahora Andrés quiere usar 2 tracks para un proyecto solista y Camila dice que no puede porque ella escribió las letras.',
+      solution: 'Cada uno registra su contribución por separado. Luego crean un Project Vault con porcentajes definidos (Camila 40%, Andrés 60%). El smart contract distribuye automáticamente cualquier pago futuro.',
     },
   ];
 
@@ -417,6 +497,7 @@ export class Leaderboard implements OnInit {
   }
 
   private loadLeaderboard() {
+    this.isLoading.set(true);
     this.apiService.getLeaderboard().subscribe({
       next: (data) => {
         const display: DisplayEntry[] = data.map((e) => ({
@@ -426,9 +507,11 @@ export class Leaderboard implements OnInit {
           tierClass: e.tier >= 3 ? 'gold' : e.tier >= 2 ? 'silver' : e.tier >= 1 ? 'bronze' : 'emergent',
         }));
         this.entries.set(display);
+        this.isLoading.set(false);
       },
       error: () => {
         this.entries.set(this.getFallbackData());
+        this.isLoading.set(false);
       },
     });
   }
@@ -447,10 +530,6 @@ export class Leaderboard implements OnInit {
     return `https://robohash.org/${encodeURIComponent(seed)}.png?set=set1&bgset=${bgSet}`;
   }
 
-  toggleGuide(step: number) {
-    this.activeGuide.set(this.activeGuide() === step ? 0 : step);
-  }
-
   toggleTheme() {
     this.isDarkMode.update((v) => !v);
     document.body.classList.toggle('light-mode', !this.isDarkMode());
@@ -458,6 +537,7 @@ export class Leaderboard implements OnInit {
 
   setView(view: 'leaderboard' | 'register') {
     this.currentView.set(view);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   toggleStep(id: number) {
