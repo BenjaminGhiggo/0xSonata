@@ -23,46 +23,48 @@ interface DisplayEntry extends LeaderboardEntry {
            : 'bg-[radial-gradient(circle_at_50%_-20%,#e0e7ff_0%,#f8fafc_80%)]'">
 
       <!-- H4: NAV CONSISTENTE — H2: Labels en español -->
-      <nav class="flex flex-wrap items-center justify-between px-8 md:px-12 py-5 sticky top-0 z-50 backdrop-blur-xl border-b gap-4"
+      <nav class="flex flex-wrap items-center justify-between px-4 md:px-8 lg:px-12 py-4 sticky top-0 z-50 backdrop-blur-xl border-b gap-3"
            style="background: var(--bg-nav); border-color: var(--border-color);">
-        <a routerLink="/" class="flex items-center space-x-4 no-underline cursor-pointer">
+        <a routerLink="/" class="flex items-center space-x-3 no-underline cursor-pointer">
           <div class="logo">
-            <span class="logo-icon">&#119070;</span>
-            <span class="logo-text">0xSonata</span>
+            <span class="logo-icon" style="font-size: 1.5rem;">&#119070;</span>
+            <span class="logo-text" style="font-size: 1.1rem;">0xSonata</span>
           </div>
         </a>
-        <div class="flex items-center space-x-3 md:space-x-6">
-          <!-- H1: Indicador de pagina activa con underline -->
-          <button (click)="setView('leaderboard')"
-                  class="text-sm font-black uppercase tracking-widest transition-colors pb-1"
-                  [style.color]="currentView() === 'leaderboard' ? 'var(--text-main)' : 'var(--text-subtle)'"
-                  [style.border-bottom]="currentView() === 'leaderboard' ? '2px solid #a855f7' : '2px solid transparent'">
-            Ranking
-          </button>
-          <button (click)="setView('register')"
-                  class="text-sm font-black uppercase tracking-widest transition-colors pb-1"
-                  [style.color]="currentView() === 'register' ? 'var(--text-main)' : 'var(--text-subtle)'"
-                  [style.border-bottom]="currentView() === 'register' ? '2px solid #a855f7' : '2px solid transparent'">
-            Registrar
-          </button>
-          <a routerLink="/mint"
-             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
-             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-            Crear NFT
-          </a>
-          <a routerLink="/verify"
-             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
-             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-            Verificar
-          </a>
-          <a routerLink="/tools"
-             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
-             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-            Herramientas
-          </a>
-          <div class="h-6 w-[1px]" style="background: var(--border-color)"></div>
+        <div class="flex items-center gap-2 md:gap-4 flex-wrap justify-end">
+          <!-- Botones de navegación - ocultos en móvil muy pequeño -->
+          <div class="hidden xs:flex items-center gap-1 md:gap-3 flex-wrap justify-end">
+            <button (click)="setView('leaderboard')"
+                    class="text-xs md:text-sm font-black uppercase tracking-widest transition-colors pb-1 whitespace-nowrap"
+                    [style.color]="currentView() === 'leaderboard' ? 'var(--text-main)' : 'var(--text-subtle)'"
+                    [style.border-bottom]="currentView() === 'leaderboard' ? '2px solid #a855f7' : '2px solid transparent'">
+              Ranking
+            </button>
+            <button (click)="setView('register')"
+                    class="text-xs md:text-sm font-black uppercase tracking-widest transition-colors pb-1 whitespace-nowrap"
+                    [style.color]="currentView() === 'register' ? 'var(--text-main)' : 'var(--text-subtle)'"
+                    [style.border-bottom]="currentView() === 'register' ? '2px solid #a855f7' : '2px solid transparent'">
+              Registrar
+            </button>
+            <a routerLink="/mint"
+               class="text-xs md:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
+               style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+              Crear NFT
+            </a>
+            <a routerLink="/verify"
+               class="text-xs md:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
+               style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+              Verificar
+            </a>
+            <a routerLink="/tools"
+               class="text-xs md:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
+               style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+              Herramientas
+            </a>
+          </div>
+          <div class="h-4 w-[1px] md:h-6" style="background: var(--border-color)"></div>
           <button (click)="toggleTheme()"
-                  class="p-2 rounded-lg border hover:opacity-80 transition-all text-lg"
+                  class="p-2 rounded-lg border hover:opacity-80 transition-all text-base md:text-lg shrink-0"
                   [attr.aria-label]="isDarkMode() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
                   [attr.title]="isDarkMode() ? 'Modo claro' : 'Modo oscuro'"
                   style="background: var(--badge-bg); border-color: var(--border-color);">
@@ -76,20 +78,20 @@ interface DisplayEntry extends LeaderboardEntry {
       @if (currentView() === 'leaderboard') {
 
         <!-- HERO — H2: Mensaje claro de qué es y para qué -->
-        <div class="max-w-3xl mx-auto text-center pt-14 px-8">
-          <h1 class="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-4" style="color: var(--text-main)">
-            Prueba de Autoría Humana para Música con IA
+        <div class="max-w-3xl mx-auto text-center pt-10 md:pt-14 px-4">
+          <h1 class="text-2xl md:text-4xl lg:text-5xl font-black uppercase italic tracking-tighter mb-3 md:mb-4" style="color: var(--text-main)">
+            Prueba de Autoría Humana<br class="hidden md:block" /> para Música con IA
           </h1>
-          <p class="text-base md:text-lg max-w-2xl mx-auto leading-relaxed" style="color: var(--text-muted)">
+          <p class="text-sm md:text-base lg:text-lg max-w-2xl mx-auto leading-relaxed px-2" style="color: var(--text-muted)">
             Documenta tu proceso creativo con Suno/Udio en blockchain. Cumple con el Copyright Office,
             protege tu derecho a monetizar y demuestra tu "control creativo significativo".
           </p>
         </div>
 
         <!-- H6: COMO FUNCIONA — Pasos SIEMPRE visibles con descripciones, no escondidos en tooltips -->
-        <div class="max-w-4xl mx-auto mt-10 px-8">
-          <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-6" style="color: var(--text-subtle)">¿Cómo funciona?</h2>
-          <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div class="max-w-4xl mx-auto mt-8 md:mt-10 px-4">
+          <h2 class="text-xs md:text-sm font-black uppercase tracking-[0.3em] text-center mb-4 md:mb-6" style="color: var(--text-subtle)">¿Cómo funciona?</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
             @for (guide of guideSteps; track guide.step) {
               <div class="p-5 rounded-xl border text-center transition-all hover:border-purple-500/30"
                    style="background: var(--card-bg); border-color: var(--card-border);">
@@ -128,60 +130,61 @@ interface DisplayEntry extends LeaderboardEntry {
 
         <!-- TOP 3 PODIO -->
         @if (!isLoading() && top3().length >= 3) {
-          <div class="max-w-5xl mx-auto px-8 mt-16">
-            <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-4" style="color: var(--text-subtle)">Top artistas</h2>
-            <div class="h-12"></div>
-            <div class="grid grid-cols-3 items-end gap-4 md:gap-8">
+          <div class="max-w-5xl mx-auto px-4 md:px-8 mt-10 md:mt-16">
+            <h2 class="text-xs md:text-sm font-black uppercase tracking-[0.3em] text-center mb-4" style="color: var(--text-subtle)">Top artistas</h2>
+            <div class="h-6 md:h-12"></div>
+            <!-- En móvil: columna vertical, en desktop: grid 3 columnas -->
+            <div class="flex flex-col items-center gap-8 md:grid md:grid-cols-3 md:items-end md:gap-4 lg:gap-8">
 
               <!-- #2 PLATA -->
-              <div class="flex flex-col items-center" style="animation: divine-float 6s infinite;">
+              <div class="flex flex-col items-center w-full max-w-xs" style="animation: divine-float 6s infinite;">
                 <div class="relative mb-4">
-                  <div class="wings-system wings-sm silver-wings" [innerHTML]="wingsHtml(3)"></div>
+                  <div class="wings-system wings-sm silver-wings md:block hidden" [innerHTML]="wingsHtml(3)"></div>
                   <div class="silver-aura"></div>
                   <img [src]="getAvatar(top3()[1].seed)"
-                       class="w-32 h-32 md:w-40 md:h-40 rounded-2xl border-3 border-slate-300 relative z-10 bg-slate-800/40 object-cover"
+                       class="w-24 h-24 md:w-32 md:h-32 lg:w-40 lg:h-40 rounded-2xl border-3 border-slate-300 relative z-10 bg-slate-800/40 object-cover"
                        style="box-shadow: 0 0 30px rgba(203,213,225,0.3);"
                        [alt]="'Avatar de ' + top3()[1].alias">
-                  <div class="absolute -top-8 left-1/2 -translate-x-1/2 text-4xl z-20">🥈</div>
+                  <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-3xl md:text-4xl z-20">🥈</div>
                 </div>
-                <h3 class="text-lg md:text-xl font-bold text-center text-slate-300 uppercase tracking-wide mb-3" style="color: var(--text-main)">{{ top3()[1].alias }}</h3>
-                <div class="pedestal-plata w-full rounded-t-2xl text-center py-6 px-3" style="min-height: 140px;">
-                  <span class="font-black text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[1].score | number }}</span>
-                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                <h3 class="text-base md:text-lg lg:text-xl font-bold text-center text-slate-300 uppercase tracking-wide mb-3" style="color: var(--text-main)">{{ top3()[1].alias }}</h3>
+                <div class="pedestal-plata w-full rounded-t-2xl text-center py-4 md:py-6 px-3" style="min-height: 100px; max-width: 200px;">
+                  <span class="font-black text-xl md:text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[1].score | number }}</span>
+                  <span class="text-[10px] md:text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
                 </div>
               </div>
 
               <!-- #1 ORO -->
-              <div class="flex flex-col items-center" style="animation: divine-float 4s infinite;">
+              <div class="flex flex-col items-center w-full max-w-xs" style="animation: divine-float 4s infinite;">
                 <div class="relative mb-5">
-                  <div class="wings-system gold-wings" [innerHTML]="wingsHtml(5)"></div>
-                  <div class="god-rays" style="inset: -30%; filter: blur(30px);"></div>
+                  <div class="wings-system gold-wings md:block hidden" [innerHTML]="wingsHtml(5)"></div>
+                  <div class="god-rays md:block hidden" style="inset: -30%; filter: blur(30px);"></div>
                   <img [src]="getAvatar(top3()[0].seed)"
-                       class="w-44 h-44 md:w-56 md:h-56 rounded-3xl border-4 border-yellow-500 relative z-10 bg-indigo-950/30 object-cover"
+                       class="w-32 h-32 md:w-40 md:h-40 lg:w-56 lg:h-56 rounded-3xl border-4 border-yellow-500 relative z-10 bg-indigo-950/30 object-cover"
                        style="box-shadow: 0 0 60px rgba(255,215,0,0.3);"
                        [alt]="'Avatar de ' + top3()[0].alias">
-                  <div class="absolute -top-10 left-1/2 -translate-x-1/2 text-6xl z-20">👑</div>
+                  <div class="absolute -top-8 left-1/2 -translate-x-1/2 text-5xl md:text-6xl z-20">👑</div>
                 </div>
-                <h3 class="text-2xl md:text-3xl font-black text-yellow-500 italic uppercase tracking-tighter text-center mb-4" style="color: var(--text-main)">{{ top3()[0].alias }}</h3>
-                <div class="pedestal-divino w-full rounded-t-3xl text-center py-10 px-4 shadow-xl" style="min-height: 200px;">
-                  <span class="text-4xl md:text-5xl font-black italic drop-shadow-md tracking-tighter block" style="color: var(--text-main)">{{ top3()[0].score | number }}</span>
-                  <span class="text-sm uppercase font-black mt-3 tracking-[0.2em] block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                <h3 class="text-xl md:text-2xl lg:text-3xl font-black text-yellow-500 italic uppercase tracking-tighter text-center mb-4" style="color: var(--text-main)">{{ top3()[0].alias }}</h3>
+                <div class="pedestal-divino w-full rounded-t-3xl text-center py-6 md:py-10 px-4 shadow-xl" style="min-height: 140px; max-width: 240px;">
+                  <span class="text-3xl md:text-4xl lg:text-5xl font-black italic drop-shadow-md tracking-tighter block" style="color: var(--text-main)">{{ top3()[0].score | number }}</span>
+                  <span class="text-xs md:text-sm uppercase font-black mt-3 tracking-[0.2em] block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
                 </div>
               </div>
 
               <!-- #3 BRONCE -->
-              <div class="flex flex-col items-center" style="animation: divine-float 7s infinite;">
+              <div class="flex flex-col items-center w-full max-w-xs" style="animation: divine-float 7s infinite;">
                 <div class="relative mb-4">
-                  <div class="wings-system wings-xs bronze-wings" [innerHTML]="wingsHtml(2)"></div>
+                  <div class="wings-system wings-xs bronze-wings md:block hidden" [innerHTML]="wingsHtml(2)"></div>
                   <img [src]="getAvatar(top3()[2].seed)"
-                       class="w-28 h-28 md:w-36 md:h-36 rounded-xl border-2 border-orange-700/50 relative z-10 bg-indigo-950/20 object-cover shadow-lg"
+                       class="w-20 h-20 md:w-28 md:h-28 lg:w-36 lg:h-36 rounded-xl border-2 border-orange-700/50 relative z-10 bg-indigo-950/20 object-cover shadow-lg"
                        [alt]="'Avatar de ' + top3()[2].alias">
-                  <div class="absolute -top-8 left-1/2 -translate-x-1/2 text-4xl z-20">🥉</div>
+                  <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-3xl md:text-4xl z-20">🥉</div>
                 </div>
-                <h3 class="text-lg md:text-xl font-bold text-center mb-3" style="color: var(--text-main)">{{ top3()[2].alias }}</h3>
-                <div class="pedestal-bronce w-full rounded-t-2xl text-center py-5 px-3" style="min-height: 110px;">
-                  <span class="font-black text-orange-400 text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[2].score | number }}</span>
-                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                <h3 class="text-base md:text-lg lg:text-xl font-bold text-center mb-3" style="color: var(--text-main)">{{ top3()[2].alias }}</h3>
+                <div class="pedestal-bronce w-full rounded-t-2xl text-center py-4 md:py-5 px-3" style="min-height: 80px; max-width: 180px;">
+                  <span class="font-black text-orange-400 text-xl md:text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[2].score | number }}</span>
+                  <span class="text-[10px] md:text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
                 </div>
               </div>
 
@@ -191,19 +194,19 @@ interface DisplayEntry extends LeaderboardEntry {
 
         <!-- LISTA DE OTROS ARTISTAS -->
         @if (!isLoading() && others().length > 0) {
-          <div class="max-w-3xl mx-auto mt-16 space-y-4 px-8">
-            <h4 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-8" style="color: var(--text-muted)">Registros de Evidencia Creativa</h4>
+          <div class="max-w-3xl mx-auto mt-10 md:mt-16 space-y-3 md:space-y-4 px-4 md:px-8">
+            <h4 class="text-xs md:text-sm font-black uppercase tracking-[0.3em] text-center mb-6 md:mb-8" style="color: var(--text-muted)">Registros de Evidencia Creativa</h4>
             @for (entry of others(); track entry.address) {
-              <div class="flex items-center justify-between p-5 md:p-6 rounded-2xl border transition-all group backdrop-blur-md"
+              <div class="flex items-center justify-between p-4 md:p-5 lg:p-6 rounded-xl md:rounded-2xl border transition-all group backdrop-blur-md"
                    style="background: var(--card-bg); border-color: var(--card-border);">
-                <div class="flex items-center space-x-4">
-                  <span class="font-black w-8 text-base" style="color: var(--text-subtle)">#{{ entry.rank }}</span>
-                  <img [src]="getAvatar(entry.seed)" class="w-14 h-14 rounded-xl bg-black/20" [alt]="'Avatar de ' + entry.alias">
-                  <span class="font-bold uppercase tracking-tight text-base group-hover:text-purple-400 transition-colors" style="color: var(--text-main)">{{ entry.alias }}</span>
+                <div class="flex items-center space-x-3 md:space-x-4">
+                  <span class="font-black w-6 md:w-8 text-sm md:text-base" style="color: var(--text-subtle)">#{{ entry.rank }}</span>
+                  <img [src]="getAvatar(entry.seed)" class="w-10 h-10 md:w-14 md:h-14 rounded-xl bg-black/20" [alt]="'Avatar de ' + entry.alias">
+                  <span class="font-bold uppercase tracking-tight text-sm md:text-base group-hover:text-purple-400 transition-colors line-clamp-1" style="color: var(--text-main)">{{ entry.alias }}</span>
                 </div>
                 <div class="flex flex-col items-end">
-                  <span class="text-xl font-black italic" style="color: var(--text-main)">{{ entry.score | number }}</span>
-                  <span class="text-xs uppercase font-bold mt-1" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                  <span class="text-base md:text-xl font-black italic" style="color: var(--text-main)">{{ entry.score | number }}</span>
+                  <span class="text-[10px] md:text-xs uppercase font-bold mt-1" style="color: var(--text-subtle)">Puntaje</span>
                 </div>
               </div>
             }
