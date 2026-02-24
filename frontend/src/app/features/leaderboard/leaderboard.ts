@@ -23,46 +23,47 @@ interface DisplayEntry extends LeaderboardEntry {
            : 'bg-[radial-gradient(circle_at_50%_-20%,#e0e7ff_0%,#f8fafc_80%)]'">
 
       <!-- H4: NAV CONSISTENTE — H2: Labels en español -->
-      <nav class="flex flex-wrap items-center justify-between px-8 md:px-12 py-5 sticky top-0 z-50 backdrop-blur-xl border-b gap-4"
+      <nav class="flex flex-wrap items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-4 sticky top-0 z-50 backdrop-blur-xl border-b gap-3"
            style="background: var(--bg-nav); border-color: var(--border-color);">
-        <a routerLink="/" class="flex items-center space-x-4 no-underline cursor-pointer">
+        <a routerLink="/" class="flex items-center space-x-3 no-underline cursor-pointer">
           <div class="logo">
-            <span class="logo-icon">&#119070;</span>
-            <span class="logo-text">0xSonata</span>
+            <span class="logo-icon" style="font-size: 1.6rem;">&#119070;</span>
+            <span class="logo-text" style="font-size: 1.1rem;">0xSonata</span>
           </div>
         </a>
-        <div class="flex items-center space-x-3 md:space-x-6">
-          <!-- H1: Indicador de pagina activa con underline -->
-          <button (click)="setView('leaderboard')"
-                  class="text-sm font-black uppercase tracking-widest transition-colors pb-1"
-                  [style.color]="currentView() === 'leaderboard' ? 'var(--text-main)' : 'var(--text-subtle)'"
-                  [style.border-bottom]="currentView() === 'leaderboard' ? '2px solid #a855f7' : '2px solid transparent'">
-            Ranking
-          </button>
-          <button (click)="setView('register')"
-                  class="text-sm font-black uppercase tracking-widest transition-colors pb-1"
-                  [style.color]="currentView() === 'register' ? 'var(--text-main)' : 'var(--text-subtle)'"
-                  [style.border-bottom]="currentView() === 'register' ? '2px solid #a855f7' : '2px solid transparent'">
-            Registrar
-          </button>
-          <a routerLink="/mint"
-             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
-             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-            Crear NFT
-          </a>
-          <a routerLink="/verify"
-             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
-             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-            Verificar
-          </a>
-          <a routerLink="/tools"
-             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
-             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-            Herramientas
-          </a>
-          <div class="h-6 w-[1px]" style="background: var(--border-color)"></div>
+        <div class="flex items-center flex-wrap justify-end gap-2 md:gap-3">
+          <div class="flex items-center flex-wrap gap-1 md:gap-2">
+            <button (click)="setView('leaderboard')"
+                    class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors pb-1 whitespace-nowrap"
+                    [style.color]="currentView() === 'leaderboard' ? 'var(--text-main)' : 'var(--text-subtle)'"
+                    [style.border-bottom]="currentView() === 'leaderboard' ? '2px solid #a855f7' : '2px solid transparent'">
+              Ranking
+            </button>
+            <button (click)="setView('register')"
+                    class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors pb-1 whitespace-nowrap"
+                    [style.color]="currentView() === 'register' ? 'var(--text-main)' : 'var(--text-subtle)'"
+                    [style.border-bottom]="currentView() === 'register' ? '2px solid #a855f7' : '2px solid transparent'">
+              Registrar
+            </button>
+            <a routerLink="/mint"
+               class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
+               style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+              Crear NFT
+            </a>
+            <a routerLink="/verify"
+               class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
+               style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+              Verificar
+            </a>
+            <a routerLink="/tools"
+               class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
+               style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+              Herramientas
+            </a>
+          </div>
+          <div class="h-5 w-[1px] md:h-6" style="background: var(--border-color)"></div>
           <button (click)="toggleTheme()"
-                  class="p-2 rounded-lg border hover:opacity-80 transition-all text-lg"
+                  class="p-2 rounded-lg border hover:opacity-80 transition-all text-base md:text-lg shrink-0"
                   [attr.aria-label]="isDarkMode() ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'"
                   [attr.title]="isDarkMode() ? 'Modo claro' : 'Modo oscuro'"
                   style="background: var(--badge-bg); border-color: var(--border-color);">
