@@ -35,16 +35,16 @@
 
   body.light-mode {
     --bg-base: #f8fafc;
-    --bg-nav: rgba(248, 250, 252, 0.85);
-    --card-bg: rgba(0, 0, 0, 0.03);
-    --card-border: rgba(0, 0, 0, 0.08);
-    --card-hover: rgba(168, 85, 247, 0.1);
+    --bg-nav: rgb(248, 250, 252);
+    --card-bg: rgb(255, 255, 255);
+    --card-border: rgba(0, 0, 0, 0.12);
+    --card-hover: rgba(168, 85, 247, 0.08);
     --text-main: #0f172a;
-    --text-muted: rgba(15, 23, 42, 0.6);
-    --text-subtle: rgba(15, 23, 42, 0.4);
-    --border-color: rgba(0, 0, 0, 0.1);
-    --badge-bg: rgba(0, 0, 0, 0.05);
-    --input-bg: rgba(0, 0, 0, 0.04);
+    --text-muted: rgba(15, 23, 42, 0.7);
+    --text-subtle: rgba(15, 23, 42, 0.5);
+    --border-color: rgba(0, 0, 0, 0.12);
+    --badge-bg: rgba(0, 0, 0, 0.06);
+    --input-bg: rgb(241, 245, 249);
   }
 
   body {
