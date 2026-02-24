@@ -127,9 +127,9 @@ interface Tool {
             ¿Qué hace 0xSonata?
           </h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--text-muted)">
-            0xSonata registra cada paso de tu proceso creativo en blockchain, generando prueba inmutable 
-            de autoría con timestamp. No detecta plagio automáticamente, pero te da la prueba legal que 
-            necesitas para reclamar autoría.
+            0xSonata documenta tu proceso creativo con IA (Suno/Udio) en blockchain. 
+            Registra tu prompt, variaciones, selección y ediciones humanas para cumplir 
+            con el Copyright Office y proteger tu derecho a monetizar.
           </p>
           <a routerLink="/mint"
              class="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm no-underline hover:brightness-110 transition-all">
@@ -172,39 +172,39 @@ export class Tools {
 
   categories = [
     { id: 'all', name: 'Todas', icon: '🔧' },
-    { id: 'copyright', name: 'Copyright', icon: '©️' },
-    { id: 'audio', name: 'Audio Fingerprint', icon: '🎵' },
-    { id: 'legal', name: 'Legal', icon: '⚖️' },
+    { id: 'audio', name: 'IA Musical', icon: '🤖' },
+    { id: 'legal', name: 'Copyright', icon: '⚖️' },
     { id: 'blockchain', name: 'Blockchain', icon: '⛓️' },
+    { id: 'copyright', name: 'Distribución', icon: '📀' },
   ];
 
   tools: Tool[] = [
     {
-      name: 'ACRCloud',
-      description: 'Reconocimiento de audio profesional. Detecta canciones, grabaciones y contenido musical en segundos. Usado por Shazam y empresas grandes.',
-      url: 'https://www.acrcloud.com/',
-      icon: '🎯',
+      name: 'Suno AI',
+      description: 'Generador de música con IA líder. Crea canciones completas desde prompts de texto. Planes desde $10/mes para uso comercial.',
+      url: 'https://suno.com/',
+      icon: '🌞',
       category: 'audio',
     },
     {
-      name: 'AudD',
-      description: 'API de identificación musical. Detecta canciones en tiempo real, encuentra plagios y contenido no autorizado en videos.',
-      url: 'https://audd.io/',
-      icon: '🔍',
-      category: 'audio',
-    },
-    {
-      name: 'Music21',
-      description: 'Toolkit de Python para análisis musicológico. Compara melodías, acordes y estructuras musicales. Ideal para investigación.',
-      url: 'https://web.mit.edu/music21/',
-      icon: '🎼',
+      name: 'Udio',
+      description: 'IA musical de alta calidad. Genera tracks profesionales con control creativo. Ideal para demos y producción asistida.',
+      url: 'https://www.udio.com/',
+      icon: '🎵',
       category: 'audio',
     },
     {
       name: 'Copyright.gov (USA)',
-      description: 'Registro oficial de derechos de autor de EE.UU. Proceso tradicional con validez legal completa en territorio estadounidense.',
+      description: 'Registro oficial de derechos de autor de EE.UU. Requiere "autoría humana significativa" para música con IA.',
       url: 'https://www.copyright.gov/',
       icon: '🏛️',
+      category: 'legal',
+    },
+    {
+      name: 'US Copyright Office: AI Guidance',
+      description: 'Guía oficial de Enero 2025 sobre registro de obras con IA. Explica qué es "autoría humana significativa".',
+      url: 'https://www.copyright.gov/ai/',
+      icon: '📋',
       category: 'legal',
     },
     {
@@ -215,58 +215,58 @@ export class Tools {
       category: 'legal',
     },
     {
-      name: 'Safe Creative',
-      description: 'Registro de propiedad intelectual online. Emite certificados con validez legal en múltiples países.',
-      url: 'https://www.safecreative.org/',
-      icon: '🛡️',
-      category: 'legal',
-    },
-    {
       name: 'Syscoin Platform',
-      description: 'Plataforma oficial de Syscoin. Explora el ecosistema, bridge entre cadenas, y herramientas nativas de la red.',
+      description: 'Blockchain donde 0xSonata está desplegado. zkSYS PoB Devnet para pruebas con tSYS gratis.',
       url: 'https://syscoin.org/',
       icon: '🪙',
       category: 'blockchain',
     },
     {
       name: 'Syscoin Explorer (PoB Devnet)',
-      description: 'Explorador de bloques de la red zkSYS PoB Devnet. Verifica transacciones, contratos y NFTs de 0xSonata.',
+      description: 'Explorador de bloques de la red zkSYS PoB Devnet. Verifica tus registros de proceso creativo.',
       url: 'https://explorer-pob.dev11.top/',
       icon: '🔍',
       category: 'blockchain',
     },
     {
       name: 'Pali Wallet',
-      description: 'Wallet oficial del ecosistema Syscoin. Conecta con 0xSonata para registrar y verificar ideas musicales.',
+      description: 'Wallet oficial del ecosistema Syscoin. Conecta con 0xSonata para registrar tu proceso creativo.',
       url: 'https://palicrypto.com/',
       icon: '👛',
       category: 'blockchain',
     },
     {
       name: 'Syscoin Faucet',
-      description: 'Obtén SYS de testnet/devnet gratis para probar 0xSonata sin gastar fondos reales.',
+      description: 'Obtén tSYS de testnet gratis para probar 0xSonata sin gastar fondos reales.',
       url: 'https://faucet-pob.dev11.top/',
       icon: '🚰',
       category: 'blockchain',
     },
     {
-      name: 'Bridge Syscoin',
-      description: 'Bridge oficial para mover activos entre Ethereum y Syscoin. Útil para tokenizar y mover NFTs.',
-      url: 'https://bridge.syscoin.org/',
-      icon: '🌉',
-      category: 'blockchain',
+      name: 'Ableton Live',
+      description: 'DAW profesional para editar material de IA. Agrega "autoría humana significativa" con tus ediciones.',
+      url: 'https://www.ableton.com/',
+      icon: '🎛️',
+      category: 'audio',
     },
     {
-      name: 'Berkli',
-      description: 'Plataforma de gestión de derechos para artistas independientes. Registro y monetización de obras.',
-      url: 'https://berkli.com/',
-      icon: '📊',
+      name: 'FL Studio',
+      description: 'DAW popular para producción musical. Edita stems de Suno/Udio y documenta tu aporte creativo.',
+      url: 'https://www.image-line.com/fl-studio/',
+      icon: '🎹',
+      category: 'audio',
+    },
+    {
+      name: 'DistroKid',
+      description: 'Distribuye tu música a Spotify, Apple Music, etc. Acepta música con IA si pruebas autoría humana.',
+      url: 'https://distrokid.com/',
+      icon: '📀',
       category: 'copyright',
     },
     {
-      name: 'Songtrust',
-      description: 'Recolección de regalías globales. Recupera dinero de streaming, radio y usos públicos de tu música.',
-      url: 'https://www.songtrust.com/',
+      name: 'TuneCore',
+      description: 'Distribución musical + Content ID. Protege tus regalías y monitorea usos no autorizados.',
+      url: 'https://www.tunecore.com/',
       icon: '💰',
       category: 'copyright',
     },
@@ -280,20 +280,20 @@ export class Tools {
 
   getCategoryColor(category: string): string {
     const colors: Record<string, string> = {
-      copyright: 'bg-blue-500/20 text-blue-400',
-      audio: 'bg-green-500/20 text-green-400',
-      legal: 'bg-purple-500/20 text-purple-400',
+      audio: 'bg-purple-500/20 text-purple-400',
+      legal: 'bg-blue-500/20 text-blue-400',
       blockchain: 'bg-orange-500/20 text-orange-400',
+      copyright: 'bg-green-500/20 text-green-400',
     };
     return colors[category] || 'bg-gray-500/20 text-gray-400';
   }
 
   getCategoryLabel(category: string): string {
     const labels: Record<string, string> = {
-      copyright: 'Copyright',
-      audio: 'Audio Fingerprint',
-      legal: 'Legal',
+      audio: 'IA Musical',
+      legal: 'Copyright',
       blockchain: 'Blockchain',
+      copyright: 'Distribución',
     };
     return labels[category] || category;
   }

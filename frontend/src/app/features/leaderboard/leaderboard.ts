@@ -77,11 +77,11 @@ interface DisplayEntry extends LeaderboardEntry {
         <!-- HERO — H2: Mensaje claro de qué es y para qué -->
         <div class="max-w-3xl mx-auto text-center pt-14 px-8">
           <h1 class="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-4" style="color: var(--text-main)">
-            Protege tu creatividad musical
+            Prueba de Autoría Humana para Música con IA
           </h1>
           <p class="text-base md:text-lg max-w-2xl mx-auto leading-relaxed" style="color: var(--text-muted)">
-            Registra cada paso de tu proceso creativo en blockchain. Obtén prueba inmutable de autoría,
-            verificación comunitaria y certificados descargables.
+            Documenta tu proceso creativo con Suno/Udio en blockchain. Cumple con el Copyright Office,
+            protege tu derecho a monetizar y demuestra tu "control creativo significativo".
           </p>
         </div>
 
@@ -297,8 +297,8 @@ interface DisplayEntry extends LeaderboardEntry {
           <div class="p-10 md:p-14 rounded-3xl border backdrop-blur-2xl shadow-2xl relative overflow-hidden"
                style="background: var(--card-bg); border-color: var(--border-color);">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-500 to-pink-500"></div>
-            <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter" style="color: var(--text-main)">Cadena de Evidencia</h2>
-            <p class="text-sm mb-10 font-bold uppercase tracking-widest" style="color: var(--text-subtle)">Documenta el control humano en tu proceso creativo</p>
+            <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter" style="color: var(--text-main)">Evidencia de Autoría Humana</h2>
+            <p class="text-sm mb-10 font-bold uppercase tracking-widest" style="color: var(--text-subtle)">Documenta tu proceso creativo con IA para el Copyright Office</p>
 
             <div class="space-y-6">
               <div class="space-y-3">
@@ -403,32 +403,32 @@ export class Leaderboard implements OnInit {
   isLoading = signal(true);
 
   guideSteps = [
-    { step: 1, icon: '🎵', title: 'Sube tu audio', description: 'Se calcula un hash SHA-256 único de tu archivo. Este hash se registra en blockchain como prueba inmutable de autoría.' },
-    { step: 2, icon: '⛓️', title: 'Documenta el proceso', description: 'Registra cada paso: prompt IA, variaciones, selección, edición DAW y master final. Cada paso queda sellado on-chain.' },
-    { step: 3, icon: '✅', title: 'Verificación social', description: 'Otros artistas verifican tu trabajo depositando stake. Más verificaciones = mayor puntaje y nivel.' },
-    { step: 4, icon: '📜', title: 'Certificado PDF', description: 'Descarga un certificado con prueba completa: hash, pasos, verificaciones, tier y links al explorador blockchain.' },
+    { step: 1, icon: '🤖', title: 'Genera con IA', description: 'Crea tu canción en Suno/Udio. Guarda el prompt exacto que usaste y las variaciones que la IA generó para ti.' },
+    { step: 2, icon: '✍️', title: 'Documenta tu aporte', description: 'Registra tu prompt, selecciones y ediciones. Esto prueba tu "autoría humana significativa" para el Copyright Office.' },
+    { step: 3, icon: '⛓️', title: 'Sella en blockchain', description: 'Cada paso genera un hash con timestamp inmutable. Tu evidencia creativa queda protegida para siempre.' },
+    { step: 4, icon: '📜', title: 'Certificado de autoría', description: 'Descarga un PDF con toda tu cadena de evidencia: prompts, variaciones, selecciones y ediciones humanas.' },
   ];
 
   features = [
     {
-      icon: '⛓️',
-      title: 'Cadena de Proceso Creativo',
-      description: 'Registra cada paso de tu proceso creativo (prompt IA, variaciones, selección, edición DAW, master final). Cada paso genera un hash SHA-256 con timestamp en blockchain. Tu cadena de evidencia es pública e inmutable.',
+      icon: '🤖',
+      title: 'Proceso Creativo con IA',
+      description: 'Registra cada paso: tu prompt en Suno/Udio, las variaciones que generaste, cuál elegiste y por qué, y las ediciones humanas en tu DAW. Esto es lo que el Copyright Office llama "autoría humana significativa".',
     },
     {
       icon: '🔐',
-      title: 'Verificación con Stake',
-      description: 'Otros artistas verifican tu trabajo depositando tokens como garantía. Si verifican contenido fraudulento, pierden su stake. Verificación con consecuencias reales.',
+      title: 'Evidencia Inmutable',
+      description: 'Cada paso genera un hash SHA-256 con timestamp en blockchain. Nadie puede alterar tu registro. Tu evidencia de autoría humana existe para siempre.',
     },
     {
       icon: '🏆',
-      title: 'Reputación y Niveles',
-      description: 'Acumula puntaje por registros, verificaciones y antigüedad. Sube de nivel: Emergente → Bronce → Plata → Oro. Tu nivel refleja tu compromiso y credibilidad.',
+      title: 'Reputación Verificada',
+      description: 'Acumula verificaciones de otros artistas que confirman tu proceso creativo. Sube de nivel: Emergente → Bronce → Plata → Oro. Tu reputación te precede.',
     },
     {
-      icon: '💰',
-      title: 'Bóveda de Proyecto + Reparto',
-      description: 'Agrupa obras en proyectos colaborativos con porcentajes definidos (ej: 40%-60%). El smart contract distribuye automáticamente los pagos. Sin ambigüedad, sin intermediarios.',
+      icon: '🤝',
+      title: 'Colaboraciones Claras',
+      description: 'Tú registras tus letras, tu colaborador registra su instrumental con IA. Luego crean un Project Vault con splits definidos (ej: 50%-50%). Pagos automáticos, sin peleas.',
     },
   ];
 
@@ -438,27 +438,27 @@ export class Leaderboard implements OnInit {
       location: 'Lima, 22 años',
       emoji: '🎤',
       gradient: 'from-pink-500 to-purple-600',
-      problem_title: 'Le robaron su beat y no puede probarlo',
-      problem: 'Estudia comunicaciones y usa Suno para crear beats de reggaeton. Publicó 3 canciones en SoundCloud con 15,000 reproducciones. Encontró su beat en un TikTok con 200K views. El creador nunca le pidió permiso. No puede hacer nada porque no tiene copyright ni prueba de autoría.',
-      solution: 'Registra cada paso (prompt en Suno, las 10 variaciones, su selección, edición en GarageBand, master final). Cada paso tiene hash y timestamp on-chain. Descarga un certificado PDF como prueba de anterioridad.',
+      problem_title: 'Generó 50 canciones en Suno, no puede copyrightear ninguna',
+      problem: 'Usa Suno Pro ($30/mes) para crear beats de reggaeton. Sube 3 canciones semanales a Spotify pero leyó que "música 100% IA no tiene copyright". Teme que alguien más registre SUS canciones y le quite las regalías. No puede pagar $45 por registro en Copyright Office.',
+      solution: 'Registra cada paso: prompt exacto en Suno, las 10 variaciones que generó, por qué eligió la #7, edición de vocales en GarageBand. Certificado PDF muestra "autoría humana significativa". Spotify acepta su evidencia.',
     },
     {
-      name: 'Diego',
-      location: 'Bogotá, 28 años',
+      name: 'Valeria',
+      location: 'Ciudad de México, 26 años',
       emoji: '🎹',
       gradient: 'from-blue-500 to-indigo-600',
-      problem_title: 'Registrar copyright es imposiblemente caro',
-      problem: 'Productor de trap que usa Udio para bases instrumentales. Quiere registrar en la Dirección Nacional de Derechos de Autor (DNDA) de Colombia, pero cada registro cuesta ~$30 USD y tarda semanas. Produce 4 beats por semana: $480 USD/mes, imposible para un artista emergente.',
-      solution: 'Registra cada producción por el costo del gas en zkSYS (~centavos). Tiene historial público de 200+ ideas. Cuando un sello pide prueba de autoría, muestra su perfil con verificaciones y certificados.',
+      problem_title: 'YouTube le quitó monetización por "contenido IA"',
+      problem: 'Compositora para medios que usa Udio para demos rápidos. YouTube le marcó 15 videos como "contenido generado por IA" sin monetización. El Copyright Office de EE.UU. le pidió prueba de "aporte humano significativo" para registrar su banda sonora.',
+      solution: 'Registra prompts, screenshots de variaciones en Udio, archivos de proyecto de Ableton con ediciones humanas. Certificado 0xSonata prueba que transformó material IA. YouTube restaura monetización, Copyright Office acepta registro.',
     },
     {
-      name: 'Camila & Andrés',
-      location: 'Buenos Aires, 25 y 30 años',
+      name: 'Andrés & Camila',
+      location: 'Buenos Aires, 25 y 28 años',
       emoji: '🤝',
       gradient: 'from-green-500 to-teal-600',
-      problem_title: 'Colaboración sin acuerdo claro de propiedad',
-      problem: 'Camila escribe letras y Andrés genera instrumentales con IA. Publicaron un EP de 5 tracks pero nunca dejaron claro quién hizo qué. Ahora Andrés quiere usar 2 tracks para un proyecto solista y Camila dice que no puede porque ella escribió las letras.',
-      solution: 'Cada uno registra su contribución por separado. Luego crean un Project Vault con porcentajes definidos (Camila 40%, Andrés 60%). El smart contract distribuye automáticamente cualquier pago futuro.',
+      problem_title: 'Colaboración IA + Humana sin acuerdo de splits',
+      problem: 'Camila escribe letras, Andrés genera instrumentales con Suno. Lanzan EP de 6 tracks en DistroKid pero no acordaron porcentajes. Andrés quiere usar 2 tracks para proyecto solista. Camila dice que sus letras son 50% del valor. No tienen contrato escrito.',
+      solution: 'Camila registra sus letras (Token #12), Andrés registra su instrumental IA (Token #13). Crean Project Vault con split 50%-50% on-chain. DistroKid paga a la wallet del Vault, smart contract distribuye automáticamente.',
     },
   ];
 
@@ -466,10 +466,10 @@ export class Leaderboard implements OnInit {
   others = computed(() => this.entries().slice(3));
 
   creativeSteps = [
-    { id: 0, label: 'Prompt Inicial (Suno/Udio)' },
-    { id: 1, label: 'Variaciones Generadas' },
-    { id: 2, label: 'Selección Creativa' },
-    { id: 3, label: 'Edición DAW (Ableton/FL)' },
+    { id: 0, label: 'Prompt en Suno/Udio' },
+    { id: 1, label: 'Variaciones IA Generadas' },
+    { id: 2, label: 'Tu Selección (decisión humana)' },
+    { id: 3, label: 'Edición DAW (aporte humano)' },
     { id: 4, label: 'Master Final' },
   ];
 
