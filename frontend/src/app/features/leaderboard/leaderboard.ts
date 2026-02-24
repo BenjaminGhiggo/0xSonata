@@ -54,6 +54,11 @@ interface DisplayEntry extends LeaderboardEntry {
              style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
             Verificar
           </a>
+          <a routerLink="/tools"
+             class="text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1"
+             style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
+            Herramientas
+          </a>
           <div class="h-6 w-[1px]" style="background: var(--border-color)"></div>
           <button (click)="toggleTheme()"
                   class="p-2 rounded-lg border hover:opacity-80 transition-all text-lg"
@@ -373,6 +378,7 @@ interface DisplayEntry extends LeaderboardEntry {
               <button (click)="setView('leaderboard')" class="hover:text-purple-400 transition-colors">Ranking</button>
               <a routerLink="/mint" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Crear NFT</a>
               <a routerLink="/verify" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Verificar</a>
+              <a routerLink="/tools" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Herramientas</a>
               <a href="https://explorer-pob.dev11.top" target="_blank" rel="noopener noreferrer"
                  class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Explorer ↗</a>
             </nav>

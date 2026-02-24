@@ -19,5 +19,5 @@ export const environment = {
     blockExplorerUrls: ['https://explorer-pob.dev11.top'],
   },
 
-  apiUrl: 'http://localhost:3000/api',
+  apiUrl: '/api',
 };

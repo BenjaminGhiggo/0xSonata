@@ -19,13 +19,13 @@ import { SeedService } from './database/seed.service';
     }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: () => ({
+      useFactory: (configService: ConfigService) => ({
         type: 'postgres' as const,
-        host: process.env.DB_HOST || 'localhost',
-        port: parseInt(process.env.DB_PORT || '5432', 10),
-        username: process.env.DB_USERNAME || 'postgres',
-        password: process.env.DB_PASSWORD || 'postgres',
-        database: process.env.DB_NAME || '0xsonata',
+        host: configService.get<string>('database.host') || 'localhost',
+        port: configService.get<number>('database.port') || 5432,
+        username: configService.get<string>('database.username') || 'postgres',
+        password: configService.get<string>('database.password') || 'postgres',
+        database: configService.get<string>('database.name') || '0xsonata',
         entities: [Artist, Idea, CreativeStep],
         synchronize: true,
       }),

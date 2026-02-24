@@ -54,8 +54,6 @@ export class SeedService implements OnApplicationBootstrap {
 
   constructor(
     @InjectRepository(Artist) private artistRepo: Repository<Artist>,
-    @InjectRepository(Idea) private ideaRepo: Repository<Idea>,
-    @InjectRepository(CreativeStep) private stepRepo: Repository<CreativeStep>,
   ) {}
 
   async onApplicationBootstrap() {
