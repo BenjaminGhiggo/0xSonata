@@ -8,7 +8,7 @@ import { CreativeStep } from './entities/creative-step.entity';
 const SEED_ARTISTS: Partial<Artist>[] = [
   {
     address: '0x000000000000000000000000000000000000VA01',
-    alias: 'Valeria_FL',
+    alias: 'Jake_FL',
     totalMints: 1,
     totalVerificationsGiven: 0,
     totalVerificationsReceived: 1,

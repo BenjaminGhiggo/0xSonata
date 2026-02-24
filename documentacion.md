@@ -27,11 +27,11 @@ Mientras tanto:
 
 ## Usuarios objetivo
 
-### Persona 1: Valeria (Lima, 22 anos)
+### Persona 1: Jake (Lima, 22 anos)
 
-Valeria estudia comunicaciones y usa Suno para crear beats de reggaeton. No sabe tocar instrumentos pero tiene buen oido: genera 10 variaciones, elige la mejor, la edita en GarageBand y le agrega su voz. Publico 3 canciones en SoundCloud que juntas tienen 15,000 reproducciones. La semana pasada encontro su beat en un video de TikTok con 200K views. El creador del video nunca le pidio permiso. Valeria no puede hacer nada porque no tiene copyright ni prueba de que ella creo ese beat primero.
+Jake estudia comunicaciones y usa Suno para crear beats de reggaeton. No sabe tocar instrumentos pero tiene buen oido: genera 10 variaciones, elige la mejor, la edita en GarageBand y le agrega su voz. Publico 3 canciones en SoundCloud que juntas tienen 15,000 reproducciones. La semana pasada encontro su beat en un video de TikTok con 200K views. El creador del video nunca le pidio permiso. Jake no puede hacer nada porque no tiene copyright ni prueba de que ella creo ese beat primero.
 
-**Con 0xSonata**: Valeria registra cada paso de su proceso (prompt en Suno, las 10 variaciones, su seleccion, su edicion en GarageBand, el master final). Cada paso tiene un hash y un timestamp on-chain. Cuando encuentra su beat robado, descarga un certificado PDF con toda la cadena de evidencia y lo presenta como prueba de anterioridad y de intervencion humana.
+**Con 0xSonata**: Jake registra cada paso de su proceso (prompt en Suno, las 10 variaciones, su seleccion, su edicion en GarageBand, el master final). Cada paso tiene un hash y un timestamp on-chain. Cuando encuentra su beat robado, descarga un certificado PDF con toda la cadena de evidencia y lo presenta como prueba de anterioridad y de intervencion humana.
 
 ### Persona 2: Diego (Bogota, 28 anos)
 
@@ -224,20 +224,20 @@ Con vault + revenue share, dos artistas que colaboran remotamente definen desde 
 
 ---
 
-## Ejemplo de flujo completo: Valeria registra un beat
+## Ejemplo de flujo completo: Jake registra un beat
 
 ```
-1. Valeria abre Suno y escribe: "reggaeton beat, 120bpm, dark vibes, minor key"
+1. Jake abre Suno y escribe: "reggaeton beat, 120bpm, dark vibes, minor key"
    -> Copia el prompt en 0xSonata
    -> Frontend hashea el texto: 0xa3f2...
    -> Se registra on-chain: Step 0 (prompt), timestamp: 2026-02-20 14:30:00 UTC
 
-2. Suno genera 5 variaciones. Valeria las descarga todas.
+2. Suno genera 5 variaciones. Jake las descarga todas.
    -> Sube los 5 archivos en 0xSonata
    -> Frontend hashea cada uno
    -> Se registra on-chain: Step 1 (variaciones_ia), hashes: [0xb1..., 0xb2..., 0xb3..., 0xb4..., 0xb5...]
 
-3. Valeria elige la variacion 3. La marca como seleccionada.
+3. Jake elige la variacion 3. La marca como seleccionada.
    -> Se registra on-chain: Step 2 (seleccion), hash: 0xb3..., metadata: "Variacion 3 de 5"
 
 4. Abre GarageBand, corta la intro, agrega reverb, sube los graves.
@@ -253,8 +253,8 @@ Con vault + revenue share, dos artistas que colaboran remotamente definen desde 
    -> Le gusta, lo verifica: verify(42)
    -> El beat ahora tiene 1 verificacion de un artista con stake
 
-7. Valeria descarga el certificado PDF:
-   -> Artista: 0x7a2F... (Valeria)
+7. Jake descarga el certificado PDF:
+   -> Artista: 0x7a2F... (Jake)
    -> Audio final: 0xd9...
    -> Proceso: 4 pasos documentados con timestamps y hashes
    -> Verificado por: 0x3bE1... (Diego, tier Bronce)

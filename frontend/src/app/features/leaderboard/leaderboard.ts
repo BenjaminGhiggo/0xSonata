@@ -428,7 +428,7 @@ export class Leaderboard implements OnInit {
 
   personas = [
     {
-      name: 'Valeria',
+      name: 'Jake',
       location: 'Lima, 22 años',
       emoji: '🎤',
       gradient: 'from-pink-500 to-purple-600',
@@ -513,7 +513,7 @@ export class Leaderboard implements OnInit {
 
   private getFallbackData(): DisplayEntry[] {
     return [
-      { rank: 1, address: '0x...VA01', alias: 'Valeria_FL', totalMints: 1, totalVerificationsReceived: 1, tier: 0, tierLabel: 'Emergente', score: 4, isSeed: true, seed: 'valeria', steps: 0, tierClass: 'emergent' },
+      { rank: 1, address: '0x...VA01', alias: 'Jake_FL', totalMints: 1, totalVerificationsReceived: 1, tier: 0, tierLabel: 'Emergente', score: 4, isSeed: true, seed: 'jake', steps: 0, tierClass: 'emergent' },
       { rank: 2, address: '0x...DI02', alias: 'Diego_Prod', totalMints: 1, totalVerificationsReceived: 0, tier: 0, tierLabel: 'Emergente', score: 3, isSeed: true, seed: 'diego', steps: 0, tierClass: 'emergent' },
       { rank: 3, address: '0x...AN03', alias: 'Andres_M', totalMints: 0, totalVerificationsReceived: 0, tier: 0, tierLabel: 'Emergente', score: 2, isSeed: true, seed: 'andres', steps: 0, tierClass: 'emergent' },
       { rank: 4, address: '0x...CA04', alias: 'Camila_AI', totalMints: 0, totalVerificationsReceived: 0, tier: 0, tierLabel: 'Emergente', score: 1, isSeed: true, seed: 'camila', steps: 0, tierClass: 'emergent' },
