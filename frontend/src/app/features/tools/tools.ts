@@ -1,6 +1,7 @@
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { ThemeService } from '../../core/services/theme.service';
 
 interface Tool {
   name: string;
@@ -166,7 +167,10 @@ interface Tool {
   `,
 })
 export class Tools {
-  isDarkMode = signal(true);
+  private themeService = inject(ThemeService);
+  
+  // Usar el signal del servicio compartido
+  isDarkMode = computed(() => this.themeService.isDarkMode());
   currentView = signal<'tools'>('tools');
   selectedCategory = signal<string>('all');
 
@@ -299,8 +303,7 @@ export class Tools {
   }
 
   toggleTheme() {
-    this.isDarkMode.update((v) => !v);
-    document.body.classList.toggle('light-mode', !this.isDarkMode());
+    this.themeService.toggle();
   }
 
   setCategory(categoryId: string) {

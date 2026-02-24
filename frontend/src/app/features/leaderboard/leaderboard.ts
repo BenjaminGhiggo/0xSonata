@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ApiService, LeaderboardEntry } from '../../core/services/api.service';
+import { ThemeService } from '../../core/services/theme.service';
 
 interface DisplayEntry extends LeaderboardEntry {
   seed: string;
@@ -395,8 +396,10 @@ interface DisplayEntry extends LeaderboardEntry {
 export class Leaderboard implements OnInit {
   private apiService = inject(ApiService);
   private sanitizer = inject(DomSanitizer);
+  private themeService = inject(ThemeService);
 
-  isDarkMode = signal(true);
+  // Usar el signal del servicio compartido
+  isDarkMode = computed(() => this.themeService.isDarkMode());
   currentView = signal<'leaderboard' | 'register'>('leaderboard');
   entries = signal<DisplayEntry[]>([]);
   completedSteps = signal<number[]>([]);
@@ -527,13 +530,12 @@ export class Leaderboard implements OnInit {
   }
 
   getAvatar(seed: string): string {
-    const bgSet = this.isDarkMode() ? 'bg2' : 'bg1';
+    const bgSet = this.themeService.isDarkMode() ? 'bg2' : 'bg1';
     return `https://robohash.org/${encodeURIComponent(seed)}.png?set=set1&bgset=${bgSet}`;
   }
 
   toggleTheme() {
-    this.isDarkMode.update((v) => !v);
-    document.body.classList.toggle('light-mode', !this.isDarkMode());
+    this.themeService.toggle();
   }
 
   setView(view: 'leaderboard' | 'register') {
