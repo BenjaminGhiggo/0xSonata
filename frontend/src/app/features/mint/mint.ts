@@ -9,6 +9,11 @@ import { getFriendlyError, EXPLORER_BASE_URL } from '../../shared/utils/error-me
 
 type Phase = 'upload' | 'steps' | 'complete';
 
+interface TooltipData {
+  title: string;
+  content: string;
+}
+
 @Component({
   selector: 'app-mint',
   standalone: true,
@@ -66,29 +71,16 @@ type Phase = 'upload' | 'steps' | 'complete';
           <div class="p-10 rounded-3xl border backdrop-blur-2xl shadow-2xl relative overflow-hidden" style="background: var(--card-bg); border-color: var(--border-color);">
             <div class="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-purple-500 to-pink-500"></div>
 
-            <!-- H1: INDICADOR DE FASE — siempre visible -->
-            <div class="flex items-center justify-center gap-2 mb-10">
-              @for (p of phases; track p.id) {
-                <div class="flex items-center gap-2">
-                  <div class="flex flex-col items-center gap-1">
-                    <div class="w-10 h-10 rounded-full flex items-center justify-center text-sm font-black transition-all"
-                         [class]="phase() === p.id ? 'bg-purple-500 text-white ring-2 ring-purple-500/50' : (phaseIndex(p.id) < phaseIndex(phase()) ? 'bg-green-500 text-white' : '')"
-                         [style.background]="(phase() !== p.id && phaseIndex(p.id) >= phaseIndex(phase())) ? 'var(--badge-bg)' : null"
-                         [style.color]="(phase() !== p.id && phaseIndex(p.id) >= phaseIndex(phase())) ? 'var(--text-subtle)' : null">
-                      {{ phaseIndex(p.id) < phaseIndex(phase()) ? '✓' : phaseIndex(p.id) + 1 }}
-                    </div>
-                    <span class="text-xs font-bold" [class]="phase() === p.id ? 'text-purple-400' : ''" [style.color]="phase() === p.id ? '' : 'var(--text-subtle)'">{{ p.label }}</span>
-                  </div>
-                  @if (p.id !== 'complete') {
-                    <div class="w-16 h-0.5 mb-5" [class]="phaseIndex(p.id) < phaseIndex(phase()) ? 'bg-green-500' : ''" [style.background]="phaseIndex(p.id) < phaseIndex(phase()) ? '' : 'var(--border-color)'"></div>
-                  }
-                </div>
-              }
-            </div>
-
             <!-- FASE 1: SUBIR Y MINTEAR -->
             @if (phase() === 'upload') {
-              <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter" style="color: var(--text-main)">Paso 1: Registrar Idea</h2>
+              <div class="flex items-center gap-3 mb-6">
+                <h2 class="text-3xl font-black uppercase italic tracking-tighter" style="color: var(--text-main)">Paso 1: Registrar Idea</h2>
+                <button (click)="openTooltip('paso1')"
+                        class="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold transition-all hover:bg-purple-500/20"
+                        style="color: var(--text-muted); border: 1px solid var(--border-color);">
+                  ℹ️
+                </button>
+              </div>
               <p class="text-sm mb-8" style="color: var(--text-subtle)">Sube tu archivo de audio. Se calculará un hash SHA-256 único y se registrará como NFT en blockchain.</p>
 
               <div class="space-y-6">
@@ -146,7 +138,14 @@ type Phase = 'upload' | 'steps' | 'complete';
 
             <!-- FASE 2: PASOS CREATIVOS -->
             @if (phase() === 'steps') {
-              <h2 class="text-3xl font-black uppercase mb-3 italic tracking-tighter mb-2" style="color: var(--text-main)">Paso 2: Documenta tu Proceso</h2>
+              <div class="flex items-center gap-3 mb-6">
+                <h2 class="text-3xl font-black uppercase italic tracking-tighter mb-2" style="color: var(--text-main)">Paso 2: Documenta tu Proceso</h2>
+                <button (click)="openTooltip('paso2')"
+                        class="w-6 h-6 rounded-full flex items-center justify-center text-sm font-bold transition-all hover:bg-purple-500/20"
+                        style="color: var(--text-muted); border: 1px solid var(--border-color);">
+                  ℹ️
+                </button>
+              </div>
               <p class="text-sm mb-2" style="color: var(--text-subtle)">Token #{{ mintedTokenId() }} registrado. Ahora documenta cada paso de tu proceso creativo.</p>
               <p class="text-xs mb-8" style="color: var(--text-subtle)">Cada paso se registra on-chain como prueba de control humano. Puedes completar los que apliquen a tu proceso.</p>
 
@@ -263,8 +262,100 @@ type Phase = 'upload' | 'steps' | 'complete';
               </div>
             </div>
           }
+
+          <!-- Entrada manual de Token ID cuando el audio ya está registrado -->
+          @if (showManualTokenInput()) {
+            <div class="mt-4 p-5 rounded-2xl bg-yellow-500/10 border border-yellow-500/30">
+              <div class="flex items-start gap-3 mb-4">
+                <span class="text-lg">ℹ️</span>
+                <div>
+                  <p class="text-yellow-400 text-sm font-bold mb-2">¿Tu audio ya estaba registrado?</p>
+                  <p class="text-yellow-400/70 text-xs">
+                    Esto puede pasar si el registro anterior se interrumpió. Ingresa tu Token ID para continuar donde lo dejaste.
+                  </p>
+                </div>
+              </div>
+
+              <div class="space-y-3">
+                <div class="flex items-center gap-2">
+                  <label class="text-sm font-black uppercase" style="color: var(--text-subtle)">Token ID</label>
+                  <button (click)="openTooltip('tokenid')"
+                          class="w-5 h-5 rounded-full flex items-center justify-center text-xs font-bold transition-all hover:bg-purple-500/20"
+                          style="color: var(--text-muted); border: 1px solid var(--border-color);">
+                    ℹ️
+                  </button>
+                </div>
+                <div class="flex gap-2">
+                  <input type="text" [value]="manualTokenId()" (input)="onManualTokenChange($event)"
+                         placeholder="Ej: 42"
+                         class="flex-1 p-3 rounded-xl font-mono font-bold outline-none text-sm"
+                         style="background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);">
+                  <button (click)="recoverFromManualToken()"
+                          [disabled]="isProcessing()"
+                          class="px-5 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-black uppercase text-sm hover:brightness-110 transition-all disabled:opacity-40">
+                    {{ isProcessing() ? '...' : 'Recuperar' }}
+                  </button>
+                </div>
+                <button (click)="showManualTokenInput.set(false)"
+                        class="text-xs font-bold uppercase transition-all"
+                        style="color: var(--text-subtle);">
+                  ← Cancelar, volver al error
+                </button>
+              </div>
+            </div>
+          }
         }
       </div>
+
+      <!-- MODAL TOOLTIP -->
+      @if (tooltipOpen()) {
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" (click)="closeTooltip()">
+          <div class="relative max-w-lg w-full p-6 rounded-2xl border shadow-2xl animate-in fade-in zoom-in duration-200"
+               style="background: var(--card-bg); border-color: var(--border-color);"
+               (click)="$event.stopPropagation()">
+            <button (click)="closeTooltip()"
+                    class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all hover:bg-red-500/20"
+                    style="color: var(--text-muted); border: 1px solid var(--border-color);">
+              ✕
+            </button>
+            <h3 class="text-xl font-black uppercase mb-4" style="color: var(--text-main)">
+              {{ tooltipData()?.title }}
+            </h3>
+            <div class="text-sm leading-relaxed space-y-3" style="color: var(--text-muted)">
+              @if (tooltipKey() === 'paso1') {
+                <p><strong class="text-purple-400">¿Qué es el Paso 1?</strong></p>
+                <p>Subes tu archivo de audio y se genera un hash SHA-256 único que se registra como NFT en blockchain.</p>
+                <div class="p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+                  <p class="text-yellow-400"><strong>⚠️ Importante:</strong> Si el proceso se interrumpe (cierre de página, error de red, etc.), tu NFT ya puede estar creado en blockchain.</p>
+                </div>
+                <p class="text-green-400"><strong>✓ Solución:</strong> En el siguiente paso, el sistema buscará automáticamente tu Token ID. Si no lo encuentra, podrás ingresarlo manualmente.</p>
+              } @else if (tooltipKey() === 'paso2') {
+                <p><strong class="text-purple-400">¿Qué es el Paso 2?</strong></p>
+                <p>Registras cada paso de tu proceso creativo con IA (Suno, Udio, etc.) para demostrar tu "autoría humana significativa" ante el Copyright Office.</p>
+                <div class="p-3 rounded-xl bg-green-500/10 border border-green-500/30">
+                  <p class="text-green-400"><strong>✓ Búsqueda automática:</strong> El sistema busca automáticamente tus tokens registrados en tu wallet y carga los pasos que ya completaste.</p>
+                </div>
+                <p class="text-yellow-400"><strong>ℹ️ Si no encuentra tu token:</strong> Podrás ingresar el Token ID manualmente. Para encontrarlo, ve al explorador y busca tus transacciones.</p>
+              } @else if (tooltipKey() === 'tokenid') {
+                <p><strong class="text-purple-400">¿Cómo encontrar tu Token ID?</strong></p>
+                <ol class="list-decimal list-inside space-y-2 ml-2">
+                  <li>Ve al explorador <a href="https://explorer-pob.dev11.top" target="_blank" class="text-purple-400 hover:underline">explorer-pob.dev11.top</a></li>
+                  <li>Busca tu dirección de wallet (la que usaste para conectar)</li>
+                  <li>Busca tus transacciones recientes del contrato <code class="px-2 py-1 rounded bg-purple-500/20 text-purple-300">SonataNFT</code></li>
+                  <li>El Token ID es el número que aparece en el evento <code class="px-2 py-1 rounded bg-purple-500/20 text-purple-300">SonataMinted</code></li>
+                </ol>
+                <div class="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 mt-4">
+                  <p class="text-purple-300"><strong>💡 Consejo:</strong> También puedes ver el Token ID en la URL de tu NFT en el explorador.</p>
+                </div>
+              }
+            </div>
+            <button (click)="closeTooltip()"
+                    class="w-full mt-6 p-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm hover:brightness-110 transition-all">
+              Entendido
+            </button>
+          </div>
+        </div>
+      }
     </div>
   `,
 })
@@ -289,8 +380,24 @@ export class Mint {
   readonly mintTxHash = signal('');
   readonly completedStepIds = signal<number[]>([]);
   readonly currentStep = signal<number | null>(null);
+  readonly showManualTokenInput = signal(false);
+  readonly manualTokenId = signal('');
+  readonly tooltipOpen = signal(false);
+  readonly tooltipKey = signal<string>('');
 
   completedStepsCount = () => this.completedStepIds().length;
+
+  tooltipData = () => {
+    const key = this.tooltipKey();
+    if (key === 'paso1') {
+      return { title: 'Paso 1: Registrar Idea' };
+    } else if (key === 'paso2') {
+      return { title: 'Paso 2: Documenta tu Proceso' };
+    } else if (key === 'tokenid') {
+      return { title: '¿Cómo encontrar tu Token ID?' };
+    }
+    return { title: 'Ayuda' };
+  };
 
   constructor(
     readonly walletService: WalletService,
@@ -307,6 +414,19 @@ export class Mint {
 
   onUriChange(event: Event): void {
     this.tokenUri.set((event.target as HTMLInputElement).value);
+  }
+
+  onManualTokenChange(event: Event): void {
+    this.manualTokenId.set((event.target as HTMLInputElement).value);
+  }
+
+  openTooltip(key: string): void {
+    this.tooltipKey.set(key);
+    this.tooltipOpen.set(true);
+  }
+
+  closeTooltip(): void {
+    this.tooltipOpen.set(false);
   }
 
   async handleFileChange(event: Event): Promise<void> {
@@ -348,8 +468,41 @@ export class Mint {
     try {
       this.statusMessage.set('Verificando que no esté duplicado...');
       const exists = await this.contractService.isHashRegistered(hash);
+      
       if (exists) {
-        this.errorMessage.set('Este audio ya está registrado on-chain. Si es tu archivo, ya tienes la prueba de autoría.');
+        // El audio ya está registrado - buscar el Token ID
+        this.statusMessage.set('Audio ya registrado. Buscando tu Token ID...');
+
+        try {
+          // Buscar por hash de audio
+          const userAddress = this.walletService.account();
+          if (!userAddress) {
+            throw new Error('Wallet no conectada');
+          }
+          const tokenId = await this.contractService.findTokenIdByAudioHash(hash, userAddress);
+
+          if (tokenId) {
+            // Verificar si ya tiene pasos registrados
+            const steps = await this.contractService.getCreativeSteps(parseInt(tokenId));
+
+            this.mintedTokenId.set(tokenId);
+            this.completedStepIds.set(steps.map(s => s.stepType));
+            this.phase.set('steps');
+            this.statusMessage.set(null);
+            return;
+          }
+        } catch (searchError) {
+          console.error('Error buscando tokenId:', searchError);
+        }
+
+        // Si no se encontró, mostrar error con opción manual
+        this.errorMessage.set(
+          `Este audio ya está registrado on-chain. ` +
+          `Token ID recuperado: ${this.mintedTokenId() || 'no encontrado'}. ` +
+          `Si es tu archivo, puedes ingresar el Token ID manualmente abajo.`
+        );
+        this.showManualTokenInput.set(true);
+        this.isProcessing.set(false);
         return;
       }
 
@@ -391,6 +544,55 @@ export class Mint {
       this.statusMessage.set(null);
       this.isProcessing.set(false);
       this.currentStep.set(null);
+    }
+  }
+
+  /**
+   * Recupera un proceso existente usando Token ID ingresado manualmente
+   */
+  async recoverFromManualToken(): Promise<void> {
+    const tokenId = this.manualTokenId().trim();
+    if (!tokenId || isNaN(parseInt(tokenId))) {
+      this.errorMessage.set('Ingresa un Token ID válido');
+      return;
+    }
+
+    this.errorMessage.set(null);
+    this.isProcessing.set(true);
+    this.statusMessage.set('Verificando Token ID...');
+
+    try {
+      // Verificar que el token existe y pertenece al usuario
+      const proof = await this.contractService.getProof(parseInt(tokenId));
+      const userAddress = this.walletService.account();
+
+      if (proof.creator.toLowerCase() !== userAddress?.toLowerCase()) {
+        this.errorMessage.set('Este Token ID no pertenece a tu wallet');
+        this.isProcessing.set(false);
+        return;
+      }
+
+      // Verificar que el hash coincide
+      const currentHash = this.audioHash();
+      if (proof.audioHash.toLowerCase() !== currentHash.toLowerCase()) {
+        this.errorMessage.set('El hash de este audio no coincide con el Token ID');
+        this.isProcessing.set(false);
+        return;
+      }
+
+      // Todo válido - cargar los pasos existentes
+      const steps = await this.contractService.getCreativeSteps(parseInt(tokenId));
+
+      this.mintedTokenId.set(tokenId);
+      this.completedStepIds.set(steps.map(s => s.stepType));
+      this.showManualTokenInput.set(false);
+      this.phase.set('steps');
+      this.statusMessage.set(null);
+    } catch (err: unknown) {
+      this.errorMessage.set(getFriendlyError(err) || 'Token ID no encontrado en blockchain');
+    } finally {
+      this.isProcessing.set(false);
+      this.statusMessage.set(null);
     }
   }
 

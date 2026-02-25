@@ -90,7 +90,7 @@ export class ContractService {
       try {
         const parsed = c.interface.parseLog(log);
         if (parsed?.name === 'SonataMinted') {
-          tokenId = parsed.args['tokenId'].toString();
+          tokenId = parsed.args[0].toString();
           break;
         }
       } catch { /* skip */ }
@@ -146,7 +146,7 @@ export class ContractService {
       try {
         const parsed = c.interface.parseLog(log);
         if (parsed?.name === 'SonataVerified') {
-          newVerificationCount = parsed.args['newVerificationCount'].toString();
+          newVerificationCount = parsed.args[2].toString();
           break;
         }
       } catch { /* skip */ }
@@ -184,5 +184,68 @@ export class ContractService {
       totalVerificationsReceived: Number(stats[2]),
       tier: Number(stats[3]),
     };
+  }
+
+  /**
+   * Busca todos los Token IDs minteados por una dirección específica
+   * usando el evento SonataMinted.
+   */
+  async findTokenIdsByOwner(address: string): Promise<string[]> {
+    const c = this.contract();
+    if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+
+    try {
+      // Filtrar eventos SonataMinted donde creator == address
+      // El segundo parámetro indexed es el creator
+      const filter = {
+        address: environment.contractAddress,
+        topics: [
+          ethers.id('SonataMinted(uint256,address,bytes32,uint256)'),
+          null, // tokenId (any)
+          ethers.zeroPadValue(address.toLowerCase(), 32), // creator address indexed
+        ],
+      };
+
+      const provider = c.runner as ethers.Provider;
+      const events = await provider.getLogs(filter);
+
+      const tokenIds: string[] = [];
+      for (const log of events) {
+        try {
+          const parsed = c.interface.parseLog(log);
+          if (parsed?.name === 'SonataMinted') {
+            tokenIds.push(parsed.args[0].toString());
+          }
+        } catch {
+          // Skip logs que no se pueden parsear
+        }
+      }
+      return tokenIds;
+    } catch (error) {
+      console.error('Error buscando tokens por owner:', error);
+      return [];
+    }
+  }
+
+  /**
+   * Busca el Token ID por audio hash específico
+   */
+  async findTokenIdByAudioHash(audioHash: string, ownerAddress: string): Promise<string | null> {
+    const c = this.contract();
+    if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+
+    const tokenIds = await this.findTokenIdsByOwner(ownerAddress);
+
+    for (const tokenId of tokenIds) {
+      try {
+        const proof = await c['getProof'](parseInt(tokenId));
+        if (proof.audioHash.toLowerCase() === audioHash.toLowerCase()) {
+          return tokenId;
+        }
+      } catch {
+        // Token no existe o error
+      }
+    }
+    return null;
   }
 }
