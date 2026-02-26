@@ -554,7 +554,7 @@ export class Mint {
   readonly manualTokenId = signal('');
   readonly tooltipOpen = signal(false);
   readonly tooltipKey = signal<string>('');
-  
+
   // Señales para los campos de cada paso
   readonly currentStepIndex = signal<number | null>(null);
   readonly stepFormData = signal<Record<number, {
@@ -581,7 +581,7 @@ export class Mint {
   constructor(
     readonly walletService: WalletService,
     private readonly contractService: ContractService,
-  ) {}
+  ) { }
 
   phaseIndex(p: string): number {
     return ['upload', 'steps', 'complete'].indexOf(p);
@@ -647,7 +647,7 @@ export class Mint {
     try {
       this.statusMessage.set('Verificando que no esté duplicado...');
       const exists = await this.contractService.isHashRegistered(hash);
-      
+
       if (exists) {
         // El audio ya está registrado - buscar el Token ID
         this.statusMessage.set('Audio ya registrado. Buscando tu Token ID...');
@@ -671,7 +671,7 @@ export class Mint {
             return;
           }
         } catch (searchError) {
-          console.error('Error buscando tokenId:', searchError);
+
         }
 
         // Si no se encontró, mostrar error con opción manual
@@ -692,7 +692,7 @@ export class Mint {
       this.mintedTokenId.set(result.tokenId);
       this.mintTxHash.set(result.txHash);
       this.phase.set('steps');
-      
+
       // Sincronizar con backend para leaderboard
       try {
         const userAddress = this.walletService.account();
@@ -710,7 +710,7 @@ export class Mint {
           }),
         });
       } catch (syncError) {
-        console.warn('Failed to sync mint with backend:', syncError);
+
       }
     } catch (err: unknown) {
       this.errorMessage.set(getFriendlyError(err));
@@ -816,7 +816,7 @@ export class Mint {
       await this.contractService.addStep(tokenId, contentHash, stepType, content);
       this.completedStepIds.update(ids => [...ids, stepType]);
       this.currentStepIndex.set(null);
-      
+
       // Sincronizar con backend para leaderboard
       try {
         await fetch('/api/ideas/sync-step', {
@@ -831,7 +831,7 @@ export class Mint {
           }),
         });
       } catch (syncError) {
-        console.warn('Failed to sync step with backend:', syncError);
+
       }
     } catch (err: unknown) {
       this.errorMessage.set(getFriendlyError(err));
@@ -869,13 +869,13 @@ export class Mint {
 
       // Primero intentar por hash de audio con la wallet
       const tokenIds = await this.contractService.findTokenIdsByOwner(userAddress);
-      console.log('[DEBUG] Token IDs encontrados:', tokenIds);
+
 
       if (tokenIds.length === 0) {
         // Si no encuentra, usar el backend para buscar por dirección
-        console.log('[DEBUG] Intentando buscar con backend...');
+
         const backendTokenIds = await this.fetchTokenIdsFromBackend(userAddress);
-        
+
         if (backendTokenIds.length === 0) {
           this.errorMessage.set('No encontramos tokens registrados a tu wallet. Intenta recargar la página.');
           this.isProcessing.set(false);

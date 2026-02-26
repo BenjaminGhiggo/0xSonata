@@ -15,7 +15,7 @@
 //   4. Concatenamos todo con prefijo "0x" (formato que espera el contrato)
 
 export async function calculateFileHash(file: File): Promise<string> {
-  console.log('[DEBUG] Calculando hash SHA-256 del archivo:', file.name, '(' + file.size + ' bytes)');
+
 
   // Paso 1: Leer el archivo como un array de bytes
   // arrayBuffer() devuelve una Promise porque leer archivos es asincrono
@@ -34,6 +34,6 @@ export async function calculateFileHash(file: File): Promise<string> {
     .map(byte => byte.toString(16).padStart(2, '0'))
     .join('');
 
-  console.log('[DEBUG] Hash calculado:', hashHex.substring(0, 14) + '...');
+
   return hashHex;
 }

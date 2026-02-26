@@ -26,8 +26,6 @@ const envPath = path.resolve(__dirname, '..', '.env');
 const envsDir = path.resolve(__dirname, '..', 'src', 'environments');
 
 if (!fs.existsSync(envPath)) {
-  console.error('[set-env] ERROR: No se encontro .env en', envPath);
-  console.error('[set-env] Copia .env.example a .env y configura los valores.');
   process.exit(1);
 }
 
@@ -49,7 +47,6 @@ const vars = parseEnvFile(envPath);
 const required = ['CONTRACT_ADDRESS', 'CHAIN_ID', 'RPC_URL'];
 const missing = required.filter((k) => !vars[k]);
 if (missing.length > 0) {
-  console.error('[set-env] ERROR: Variables obligatorias faltantes en .env:', missing.join(', '));
   process.exit(1);
 }
 
@@ -94,12 +91,3 @@ const prodPath = path.join(envsDir, 'environment.prod.ts');
 fs.writeFileSync(devPath, generateEnvFile(false), 'utf-8');
 fs.writeFileSync(prodPath, generateEnvFile(true), 'utf-8');
 
-console.log('[set-env] Archivos generados desde .env:');
-console.log('  environment.ts      (production: false)');
-console.log('  environment.prod.ts (production: true)');
-console.log('');
-console.log('  CONTRACT_ADDRESS:', vars['CONTRACT_ADDRESS']);
-console.log('  CHAIN_ID:        ', chainId, `(${chainIdHex})`);
-console.log('  RPC_URL:         ', vars['RPC_URL']);
-console.log('  EXPLORER:        ', explorerBaseUrl || '(no configurado)');
-console.log('  API_URL (dev):   ', vars['API_URL'] || 'http://localhost:3000/api');

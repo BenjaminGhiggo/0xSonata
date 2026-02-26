@@ -113,7 +113,7 @@ export class IdeasService {
         tier: stats.tier,
       });
     } catch (error) {
-      console.error('Failed to update leaderboard for', artistAddress, error);
+
     }
 
     return savedIdea;
@@ -143,7 +143,7 @@ export class IdeasService {
           blockTimestamp: proof.timestamp,
         });
       } catch (error) {
-        console.error(`Failed to fetch idea ${data.tokenId} from blockchain:`, error);
+
         throw new NotFoundException(`Idea ${data.tokenId} no encontrada en blockchain`);
       }
     }

@@ -1,5 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -19,14 +20,9 @@ async function bootstrap() {
     // Escuchar en 0.0.0.0 permite acceso desde Docker y el proxy
     await app.listen(port, '0.0.0.0');
 
-    console.log(`0xSonata backend iniciado correctamente`);
-    console.log(`Escuchando en http://0.0.0.0:${port}`);
-    console.log(`Entorno: ${process.env.NODE_ENV || 'development'}`);
-    console.log(
-      `Timestamp (UTC-5): ${new Date().toLocaleString('es-PE', {
-        timeZone: 'America/Lima',
-      })}`,
-    );
+    const logger = new Logger('Bootstrap');
+    logger.log(`0xSonata backend running on http://0.0.0.0:${port}`);
+    logger.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
   } catch (error) {
     console.error('Error crítico al iniciar el backend');
     console.error(error);

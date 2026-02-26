@@ -31,11 +31,11 @@ export class IpfsService {
 
       const result = await response.json();
       const hash = result.Hash;
-      
-      console.log(`[IPFS] Archivo subido: ${stepName} -> ${hash}`);
+
+
       return hash;
     } catch (error) {
-      console.error('[IPFS] Error uploading:', error);
+
       // Fallamos silenciosamente - el usuario puede continuar sin el archivo
       return '';
     }
