@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { ApiService, LeaderboardEntry } from '../../core/services/api.service';
 import { ThemeService } from '../../core/services/theme.service';
+import { LanguageService } from '../../core/services/language.service';
 
 interface DisplayEntry extends LeaderboardEntry {
   seed: string;
@@ -25,40 +26,50 @@ interface DisplayEntry extends LeaderboardEntry {
       <!-- H4: NAV CONSISTENTE — H2: Labels en español -->
       <nav class="flex flex-wrap items-center justify-between px-4 sm:px-6 md:px-8 lg:px-12 py-4 sticky top-0 z-50 backdrop-blur-xl border-b gap-3"
            style="background: var(--bg-nav); border-color: var(--border-color);">
-        <a routerLink="/" class="flex items-center space-x-3 no-underline cursor-pointer">
-          <div class="logo">
-            <span class="logo-icon" style="font-size: 1.6rem;">&#119070;</span>
-            <span class="logo-text" style="font-size: 1.1rem;">0xSonata</span>
-          </div>
-        </a>
+        <div class="flex items-center gap-3">
+          <a routerLink="/" class="flex items-center space-x-3 no-underline cursor-pointer">
+            <div class="logo">
+              <span class="logo-icon" style="font-size: 1.6rem;">&#119070;</span>
+              <span class="logo-text" style="font-size: 1.1rem;">0xSonata</span>
+            </div>
+          </a>
+          <button (click)="toggleLang()"
+                  class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border text-sm font-black uppercase tracking-wider transition-all hover:border-purple-500/50 shrink-0 cursor-pointer"
+                  style="background: var(--badge-bg); border-color: var(--border-color);"
+                  [title]="i18n.isEnglish() ? 'Cambiar a español' : 'Switch to English'">
+            <span class="transition-all" [class]="!i18n.isEnglish() ? 'text-purple-400' : ''" [style.color]="i18n.isEnglish() ? 'var(--text-subtle)' : ''">ES</span>
+            <span class="w-[2px] h-4 rounded-full" style="background: var(--border-color)"></span>
+            <span class="transition-all" [class]="i18n.isEnglish() ? 'text-purple-400' : ''" [style.color]="!i18n.isEnglish() ? 'var(--text-subtle)' : ''">EN</span>
+          </button>
+        </div>
         <div class="flex items-center flex-wrap justify-end gap-2 md:gap-3">
           <div class="flex items-center flex-wrap gap-1 md:gap-2">
             <button (click)="setView('leaderboard')"
                     class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors pb-1 whitespace-nowrap"
                     [style.color]="currentView() === 'leaderboard' ? 'var(--text-main)' : 'var(--text-subtle)'"
                     [style.border-bottom]="currentView() === 'leaderboard' ? '2px solid #a855f7' : '2px solid transparent'">
-              Ranking
+              {{ i18n.t('nav.ranking') }}
             </button>
             <button (click)="setView('register')"
                     class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors pb-1 whitespace-nowrap"
                     [style.color]="currentView() === 'register' ? 'var(--text-main)' : 'var(--text-subtle)'"
                     [style.border-bottom]="currentView() === 'register' ? '2px solid #a855f7' : '2px solid transparent'">
-              Registrar
+              {{ i18n.t('nav.register') }}
             </button>
             <a routerLink="/mint"
                class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
                style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-              Crear NFT
+              {{ i18n.t('nav.createNft') }}
             </a>
             <a routerLink="/verify"
                class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
                style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-              Verificar
+              {{ i18n.t('nav.verify') }}
             </a>
             <a routerLink="/tools"
                class="text-xs sm:text-sm font-black uppercase tracking-widest transition-colors no-underline pb-1 whitespace-nowrap"
                style="color: var(--text-subtle); border-bottom: 2px solid transparent;">
-              Herramientas
+              {{ i18n.t('nav.tools') }}
             </a>
           </div>
           <div class="h-5 w-[1px] md:h-6" style="background: var(--border-color)"></div>
@@ -79,17 +90,16 @@ interface DisplayEntry extends LeaderboardEntry {
         <!-- HERO — H2: Mensaje claro de qué es y para qué -->
         <div class="max-w-3xl mx-auto text-center pt-14 px-8">
           <h1 class="text-3xl md:text-5xl font-black uppercase italic tracking-tighter mb-4" style="color: var(--text-main)">
-            Prueba de Autoría Humana para Música con IA
+            {{ i18n.t('hero.title') }}
           </h1>
           <p class="text-base md:text-lg max-w-2xl mx-auto leading-relaxed" style="color: var(--text-muted)">
-            Documenta tu proceso creativo con Suno/Udio en blockchain. Cumple con el Copyright Office,
-            protege tu derecho a monetizar y demuestra tu "control creativo significativo".
+            {{ i18n.t('hero.subtitle') }}
           </p>
         </div>
 
         <!-- H6: COMO FUNCIONA — Pasos SIEMPRE visibles con descripciones, no escondidos en tooltips -->
         <div class="max-w-4xl mx-auto mt-10 px-8">
-          <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-6" style="color: var(--text-subtle)">¿Cómo funciona?</h2>
+          <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-6" style="color: var(--text-subtle)">{{ i18n.t('howItWorks.title') }}</h2>
           <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             @for (guide of guideSteps; track guide.step) {
               <div class="p-5 rounded-xl border text-center transition-all hover:border-purple-500/30"
@@ -109,12 +119,12 @@ interface DisplayEntry extends LeaderboardEntry {
           <div class="mt-8 flex items-center justify-center gap-4">
             <a routerLink="/mint"
                class="px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm hover:brightness-110 transition-all shadow-lg shadow-purple-900/40 no-underline">
-              Comenzar registro →
+              {{ i18n.t('cta.startRegistration') }}
             </a>
             <a routerLink="/verify"
                class="px-8 py-4 rounded-xl border font-bold text-sm hover:opacity-80 transition-all no-underline"
                style="background: var(--card-bg); border-color: var(--border-color); color: var(--text-muted);">
-              Verificar una idea
+              {{ i18n.t('cta.verifyIdea') }}
             </a>
           </div>
         </div>
@@ -123,7 +133,7 @@ interface DisplayEntry extends LeaderboardEntry {
         @if (isLoading()) {
           <div class="max-w-5xl mx-auto px-8 mt-16 text-center">
             <div class="inline-block w-8 h-8 border-3 border-purple-500/30 border-t-purple-500 rounded-full animate-spin"></div>
-            <p class="text-sm mt-3" style="color: var(--text-muted)">Cargando ranking...</p>
+            <p class="text-sm mt-3" style="color: var(--text-muted)">{{ i18n.t('loading.ranking') }}</p>
           </div>
         }
 
@@ -131,11 +141,11 @@ interface DisplayEntry extends LeaderboardEntry {
         @if (!isLoading() && top3().length >= 3) {
           <div class="max-w-5xl mx-auto px-8 mt-16">
             <div class="flex items-center justify-center gap-2 mb-4">
-              <h2 class="text-sm font-black uppercase tracking-[0.3em]" style="color: var(--text-subtle)">Top artistas</h2>
+              <h2 class="text-sm font-black uppercase tracking-[0.3em]" style="color: var(--text-subtle)">{{ i18n.t('leaderboard.topArtists') }}</h2>
               <button (click)="openInfoModal('leaderboard')"
                       class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all hover:bg-purple-500/20 cursor-pointer"
                       style="color: var(--text-muted); border: 1px solid var(--border-color);"
-                      title="¿Qué es el Ranking?">
+                      [title]="i18n.t('modal.leaderboard.title')">
                 ℹ️
               </button>
             </div>
@@ -157,7 +167,7 @@ interface DisplayEntry extends LeaderboardEntry {
                 <div class="pedestal-plata w-full rounded-t-2xl text-center py-6 px-3" style="min-height: 140px;">
                   <span class="font-black text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[1].score | number }}</span>
                   <div class="flex items-center justify-center gap-1 mt-2">
-                    <span class="text-xs uppercase font-black" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                    <span class="text-xs uppercase font-black" style="color: var(--text-subtle)">{{ i18n.t('leaderboard.integrityScore') }}</span>
                     <button (click)="openInfoModal('score'); $event.stopPropagation()" class="text-xs opacity-60 hover:opacity-100 transition-opacity cursor-pointer">ℹ️</button>
                   </div>
                 </div>
@@ -178,7 +188,7 @@ interface DisplayEntry extends LeaderboardEntry {
                 <div class="pedestal-divino w-full rounded-t-3xl text-center py-10 px-4 shadow-xl" style="min-height: 200px;">
                   <span class="text-4xl md:text-5xl font-black italic drop-shadow-md tracking-tighter block" style="color: var(--text-main)">{{ top3()[0].score | number }}</span>
                   <div class="flex items-center justify-center gap-1 mt-3">
-                    <span class="text-sm uppercase font-black tracking-[0.2em]" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                    <span class="text-sm uppercase font-black tracking-[0.2em]" style="color: var(--text-subtle)">{{ i18n.t('leaderboard.integrityScore') }}</span>
                     <button (click)="openInfoModal('score'); $event.stopPropagation()" class="text-sm opacity-60 hover:opacity-100 transition-opacity cursor-pointer">ℹ️</button>
                   </div>
                 </div>
@@ -197,7 +207,7 @@ interface DisplayEntry extends LeaderboardEntry {
                 <div class="pedestal-bronce w-full rounded-t-2xl text-center py-5 px-3" style="min-height: 110px;">
                   <span class="font-black text-orange-400 text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[2].score | number }}</span>
                   <div class="flex items-center justify-center gap-1 mt-2">
-                    <span class="text-xs uppercase font-black" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                    <span class="text-xs uppercase font-black" style="color: var(--text-subtle)">{{ i18n.t('leaderboard.integrityScore') }}</span>
                     <button (click)="openInfoModal('score'); $event.stopPropagation()" class="text-xs opacity-60 hover:opacity-100 transition-opacity cursor-pointer">ℹ️</button>
                   </div>
                 </div>
@@ -210,7 +220,7 @@ interface DisplayEntry extends LeaderboardEntry {
         <!-- LISTA DE OTROS ARTISTAS -->
         @if (!isLoading() && others().length > 0) {
           <div class="max-w-3xl mx-auto mt-16 px-8">
-            <h4 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-8" style="color: var(--text-muted)">Registros de Evidencia Creativa</h4>
+            <h4 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-8" style="color: var(--text-muted)">{{ i18n.t('leaderboard.otherArtists') }}</h4>
             <div class="rounded-2xl border overflow-hidden" style="border-color: var(--border-color); background: var(--card-bg);">
               <div class="overflow-y-auto space-y-0" style="max-height: 400px; scrollbar-width: thin; scrollbar-color: rgba(168,85,247,0.3) transparent;">
                 @for (entry of others(); track entry.address) {
@@ -223,7 +233,7 @@ interface DisplayEntry extends LeaderboardEntry {
                     </div>
                     <div class="flex flex-col items-end">
                       <span class="text-xl font-black italic" style="color: var(--text-main)">{{ entry.score | number }}</span>
-                      <span class="text-xs uppercase font-bold mt-1" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                      <span class="text-xs uppercase font-bold mt-1" style="color: var(--text-subtle)">{{ i18n.t('leaderboard.integrityScore') }}</span>
                     </div>
                   </div>
                 }
@@ -236,11 +246,11 @@ interface DisplayEntry extends LeaderboardEntry {
         @if (!isLoading() && entries().length === 0) {
           <div class="max-w-2xl mx-auto mt-16 px-8 text-center">
             <div class="text-5xl mb-4">🎵</div>
-            <p class="text-lg font-bold" style="color: var(--text-main)">Aún no hay artistas registrados</p>
-            <p class="text-sm mt-2" style="color: var(--text-muted)">Sé el primero en registrar tu proceso creativo</p>
+            <p class="text-lg font-bold" style="color: var(--text-main)">{{ i18n.t('leaderboard.noArtists') }}</p>
+            <p class="text-sm mt-2" style="color: var(--text-muted)">{{ i18n.t('leaderboard.beFirst') }}</p>
             <a routerLink="/mint"
                class="inline-block mt-6 px-8 py-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm no-underline">
-              Comenzar registro →
+              {{ i18n.t('cta.startRegistration') }}
             </a>
           </div>
         }
@@ -248,10 +258,10 @@ interface DisplayEntry extends LeaderboardEntry {
         <!-- QUE OFRECE 0xSonata -->
         <div class="max-w-6xl mx-auto mt-24 px-8">
           <h2 class="text-2xl md:text-3xl font-black uppercase italic tracking-tighter text-center mb-3" style="color: var(--text-main)">
-            ¿Qué ofrece 0xSonata?
+            {{ i18n.t('features.title') }}
           </h2>
           <p class="text-center text-base mb-12" style="color: var(--text-muted)">
-            Cuatro capas de protección para tu música
+            {{ i18n.t('features.subtitle') }}
           </p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             @for (feat of features; track feat.title) {
@@ -272,10 +282,10 @@ interface DisplayEntry extends LeaderboardEntry {
         <!-- PERSONAS -->
         <div class="max-w-5xl mx-auto mt-24 px-8">
           <h2 class="text-2xl md:text-3xl font-black uppercase italic tracking-tighter text-center mb-3" style="color: var(--text-main)">
-            ¿Te identificas?
+            {{ i18n.t('personas.title') }}
           </h2>
           <p class="text-center text-base mb-12" style="color: var(--text-muted)">
-            Historias reales de artistas que necesitan proteger su trabajo
+            {{ i18n.t('personas.subtitle') }}
           </p>
           <div class="space-y-8">
             @for (persona of personas; track persona.name) {
@@ -295,7 +305,7 @@ interface DisplayEntry extends LeaderboardEntry {
                     <p class="text-sm leading-relaxed mb-4" style="color: var(--text-muted)">{{ persona.problem }}</p>
                     <div class="p-4 rounded-xl border-l-3 border-purple-500" style="background: rgba(168,85,247,0.05);">
                       <p class="text-sm font-bold leading-relaxed" style="color: var(--text-main)">
-                        <span class="text-purple-500">Con 0xSonata → </span>{{ persona.solution }}
+                        <span class="text-purple-500">{{ i18n.t('personas.with0xSonata') }}</span>{{ persona.solution }}
                       </p>
                     </div>
                   </div>
@@ -395,19 +405,19 @@ interface DisplayEntry extends LeaderboardEntry {
                 <span class="logo-icon">&#119070;</span>
                 <span class="logo-text" style="font-size: 0.9rem;">0xSonata</span>
               </div>
-              <span class="text-sm font-bold" style="color: var(--text-muted)">Cadena de Evidencia Creativa</span>
+              <span class="text-sm font-bold" style="color: var(--text-muted)">{{ i18n.t('footer.chain') }}</span>
             </div>
             <nav class="flex items-center gap-6 text-sm" style="color: var(--text-subtle);">
-              <button (click)="setView('leaderboard')" class="hover:text-purple-400 transition-colors">Ranking</button>
-              <a routerLink="/mint" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Crear NFT</a>
-              <a routerLink="/verify" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Verificar</a>
-              <a routerLink="/tools" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Herramientas</a>
+              <button (click)="setView('leaderboard')" class="hover:text-purple-400 transition-colors">{{ i18n.t('nav.ranking') }}</button>
+              <a routerLink="/mint" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">{{ i18n.t('nav.createNft') }}</a>
+              <a routerLink="/verify" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">{{ i18n.t('nav.verify') }}</a>
+              <a routerLink="/tools" class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">{{ i18n.t('nav.tools') }}</a>
               <a href="https://explorer-pob.dev11.top" target="_blank" rel="noopener noreferrer"
                  class="hover:text-purple-400 transition-colors no-underline" style="color: var(--text-subtle)">Explorer ↗</a>
             </nav>
           </div>
           <p class="text-center text-xs mt-6" style="color: var(--text-subtle)">
-            Desplegado en zkSYS PoB Devnet (Chain ID 57042) · Código abierto
+            {{ i18n.t('footer.network') }}
           </p>
         </div>
       </footer>
@@ -425,49 +435,49 @@ interface DisplayEntry extends LeaderboardEntry {
             </button>
 
             @if (infoModalType() === 'leaderboard') {
-              <h3 class="text-xl font-black uppercase mb-4" style="color: var(--text-main)">🏆 ¿Qué es el Ranking?</h3>
+              <h3 class="text-xl font-black uppercase mb-4" style="color: var(--text-main)">{{ i18n.t('modal.leaderboard.title') }}</h3>
               <div class="text-sm leading-relaxed space-y-3" style="color: var(--text-muted)">
-                <p>El <strong class="text-purple-400">Ranking de Integridad</strong> muestra a los artistas que mejor documentan su proceso creativo con IA.</p>
-                <p>No se trata de quién hace más música, sino de quién <strong>demuestra mejor su autoría humana</strong> ante el Copyright Office.</p>
+                <p>{{ i18n.t('modal.leaderboard.p1') }}</p>
+                <p>{{ i18n.t('modal.leaderboard.p2') }}</p>
                 <div class="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
-                  <p class="text-purple-300"><strong>¿Para qué sirve?</strong></p>
+                  <p class="text-purple-300"><strong>{{ i18n.t('modal.leaderboard.purpose') }}</strong></p>
                   <ul class="list-disc list-inside text-xs space-y-1 mt-2" style="color: var(--text-muted)">
-                    <li>Visibiliza a los artistas más comprometidos con la transparencia</li>
-                    <li>Genera reputación verificable para plataformas como Spotify y YouTube</li>
-                    <li>Demuestra que tu música con IA tiene "control creativo significativo"</li>
-                    <li>Te posiciona como artista serio en el ecosistema de música + IA</li>
+                    <li>{{ i18n.t('modal.leaderboard.item1') }}</li>
+                    <li>{{ i18n.t('modal.leaderboard.item2') }}</li>
+                    <li>{{ i18n.t('modal.leaderboard.item3') }}</li>
+                    <li>{{ i18n.t('modal.leaderboard.item4') }}</li>
                   </ul>
                 </div>
               </div>
             }
 
             @if (infoModalType() === 'score') {
-              <h3 class="text-xl font-black uppercase mb-4" style="color: var(--text-main)">📊 ¿Cómo se calcula el puntaje?</h3>
+              <h3 class="text-xl font-black uppercase mb-4" style="color: var(--text-main)">{{ i18n.t('modal.score.title') }}</h3>
               <div class="text-sm leading-relaxed space-y-3" style="color: var(--text-muted)">
-                <p>El <strong class="text-purple-400">Puntaje de Integridad</strong> refleja cuánta evidencia de autoría humana has registrado on-chain:</p>
+                <p>{{ i18n.t('modal.score.p1') }}</p>
                 <div class="p-4 rounded-xl border font-mono text-center" style="background: var(--input-bg); border-color: var(--border-color);">
-                  <p class="text-lg font-black" style="color: var(--text-main)">Puntaje = <span class="text-purple-400">(Mints × 1,000)</span> + <span class="text-green-400">(Verificaciones recibidas × 500)</span> + <span class="text-blue-400">(Verificaciones dadas × 200)</span></p>
+                  <p class="text-lg font-black" style="color: var(--text-main)">{{ i18n.t('modal.score.formula') }}</p>
                 </div>
                 <div class="space-y-2 mt-2">
                   <div class="flex items-center gap-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
                     <span class="text-xl">🎵</span>
                     <div>
-                      <p class="font-bold text-purple-300">Mints (×1,000)</p>
-                      <p class="text-xs">Cada idea musical que registras con su audio hash.</p>
+                      <p class="font-bold text-purple-300">{{ i18n.t('modal.score.mints') }}</p>
+                      <p class="text-xs">{{ i18n.t('modal.score.mintsDesc') }}</p>
                     </div>
                   </div>
                   <div class="flex items-center gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
                     <span class="text-xl">✅</span>
                     <div>
-                      <p class="font-bold text-green-300">Verificaciones Recibidas (×500)</p>
-                      <p class="text-xs">Cuando otros artistas verifican que tu proceso es legítimo.</p>
+                      <p class="font-bold text-green-300">{{ i18n.t('modal.score.verifRecv') }}</p>
+                      <p class="text-xs">{{ i18n.t('modal.score.verifRecvDesc') }}</p>
                     </div>
                   </div>
                   <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
                     <span class="text-xl">🔍</span>
                     <div>
-                      <p class="font-bold text-blue-300">Verificaciones Dadas (×200)</p>
-                      <p class="text-xs">Cuando verificas el proceso de otros artistas (contribuir da puntos).</p>
+                      <p class="font-bold text-blue-300">{{ i18n.t('modal.score.verifGiven') }}</p>
+                      <p class="text-xs">{{ i18n.t('modal.score.verifGivenDesc') }}</p>
                     </div>
                   </div>
                 </div>
@@ -476,7 +486,7 @@ interface DisplayEntry extends LeaderboardEntry {
 
             <button (click)="closeInfoModal()"
                     class="w-full mt-6 p-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm hover:brightness-110 transition-all cursor-pointer">
-              Entendido
+              {{ i18n.t('modal.understood') }}
             </button>
           </div>
         </div>
@@ -489,6 +499,7 @@ export class Leaderboard implements OnInit {
   private apiService = inject(ApiService);
   private sanitizer = inject(DomSanitizer);
   private themeService = inject(ThemeService);
+  readonly i18n = inject(LanguageService);
 
   // Usar el signal del servicio compartido
   isDarkMode = computed(() => this.themeService.isDarkMode());
@@ -499,76 +510,59 @@ export class Leaderboard implements OnInit {
   infoModalOpen = signal(false);
   infoModalType = signal<'leaderboard' | 'score'>('leaderboard');
 
-  guideSteps = [
-    { step: 1, icon: '🤖', title: 'Genera con IA', description: 'Crea tu canción en Suno/Udio. Guarda el prompt exacto que usaste y las variaciones que la IA generó para ti.' },
-    { step: 2, icon: '✍️', title: 'Documenta tu aporte', description: 'Registra tu prompt, selecciones y ediciones. Esto prueba tu "autoría humana significativa" para el Copyright Office.' },
-    { step: 3, icon: '⛓️', title: 'Sella en blockchain', description: 'Cada paso genera un hash con timestamp inmutable. Tu evidencia creativa queda protegida para siempre.' },
-    { step: 4, icon: '📜', title: 'Certificado de autoría', description: 'Descarga un PDF con toda tu cadena de evidencia: prompts, variaciones, selecciones y ediciones humanas.' },
-  ];
+  get guideSteps() {
+    return [
+      { step: 1, icon: '🤖', title: this.i18n.t('howItWorks.step1.title'), description: this.i18n.t('howItWorks.step1.desc') },
+      { step: 2, icon: '✍️', title: this.i18n.t('howItWorks.step2.title'), description: this.i18n.t('howItWorks.step2.desc') },
+      { step: 3, icon: '⛓️', title: this.i18n.t('howItWorks.step3.title'), description: this.i18n.t('howItWorks.step3.desc') },
+      { step: 4, icon: '📜', title: this.i18n.t('howItWorks.step4.title'), description: this.i18n.t('howItWorks.step4.desc') },
+    ];
+  }
 
-  features = [
-    {
-      icon: '🤖',
-      title: 'Proceso Creativo con IA',
-      description: 'Registra cada paso: tu prompt en Suno/Udio, las variaciones que generaste, cuál elegiste y por qué, y las ediciones humanas en tu DAW. Esto es lo que el Copyright Office llama "autoría humana significativa".',
-    },
-    {
-      icon: '🔐',
-      title: 'Evidencia Inmutable',
-      description: 'Cada paso genera un hash SHA-256 con timestamp en blockchain. Nadie puede alterar tu registro. Tu evidencia de autoría humana existe para siempre.',
-    },
-    {
-      icon: '🏆',
-      title: 'Reputación Verificada',
-      description: 'Acumula verificaciones de otros artistas que confirman tu proceso creativo. Sube de nivel: Emergente → Bronce → Plata → Oro. Tu reputación te precede.',
-    },
-    {
-      icon: '🤝',
-      title: 'Colaboraciones Claras',
-      description: 'Tú registras tus letras, tu colaborador registra su instrumental con IA. Luego crean un Project Vault con splits definidos (ej: 50%-50%). Pagos automáticos, sin peleas.',
-    },
-  ];
+  get features() {
+    return [
+      { icon: '🤖', title: this.i18n.t('features.f1.title'), description: this.i18n.t('features.f1.desc') },
+      { icon: '🔐', title: this.i18n.t('features.f2.title'), description: this.i18n.t('features.f2.desc') },
+      { icon: '🏆', title: this.i18n.t('features.f3.title'), description: this.i18n.t('features.f3.desc') },
+      { icon: '🤝', title: this.i18n.t('features.f4.title'), description: this.i18n.t('features.f4.desc') },
+    ];
+  }
 
-  personas = [
-    {
-      name: 'Jake',
-      location: 'Lima, 22 años',
-      emoji: '🎤',
-      gradient: 'from-pink-500 to-purple-600',
-      problem_title: 'Generó 50 canciones en Suno, no puede copyrightear ninguna',
-      problem: 'Usa Suno Pro ($30/mes) para crear beats de reggaeton. Sube 3 canciones semanales a Spotify pero leyó que "música 100% IA no tiene copyright". Teme que alguien más registre SUS canciones y le quite las regalías. No puede pagar $45 por registro en Copyright Office.',
-      solution: 'Registra cada paso: prompt exacto en Suno, las 10 variaciones que generó, por qué eligió la #7, edición de vocales en GarageBand. Certificado PDF muestra "autoría humana significativa". Spotify acepta su evidencia.',
-    },
-    {
-      name: 'Valeria',
-      location: 'Ciudad de México, 26 años',
-      emoji: '🎹',
-      gradient: 'from-blue-500 to-indigo-600',
-      problem_title: 'YouTube le quitó monetización por "contenido IA"',
-      problem: 'Compositora para medios que usa Udio para demos rápidos. YouTube le marcó 15 videos como "contenido generado por IA" sin monetización. El Copyright Office de EE.UU. le pidió prueba de "aporte humano significativo" para registrar su banda sonora.',
-      solution: 'Registra prompts, screenshots de variaciones en Udio, archivos de proyecto de Ableton con ediciones humanas. Certificado 0xSonata prueba que transformó material IA. YouTube restaura monetización, Copyright Office acepta registro.',
-    },
-    {
-      name: 'Andrés & Camila',
-      location: 'Buenos Aires, 25 y 28 años',
-      emoji: '🤝',
-      gradient: 'from-green-500 to-teal-600',
-      problem_title: 'Colaboración IA + Humana sin acuerdo de splits',
-      problem: 'Camila escribe letras, Andrés genera instrumentales con Suno. Lanzan EP de 6 tracks en DistroKid pero no acordaron porcentajes. Andrés quiere usar 2 tracks para proyecto solista. Camila dice que sus letras son 50% del valor. No tienen contrato escrito.',
-      solution: 'Camila registra sus letras (Token #12), Andrés registra su instrumental IA (Token #13). Crean Project Vault con split 50%-50% on-chain. DistroKid paga a la wallet del Vault, smart contract distribuye automáticamente.',
-    },
-  ];
+  get personas() {
+    return [
+      {
+        name: 'Jake', location: 'Lima, 22', emoji: '🎤', gradient: 'from-pink-500 to-purple-600',
+        problem_title: this.i18n.t('persona.jake.problem_title'),
+        problem: this.i18n.t('persona.jake.problem'),
+        solution: this.i18n.t('persona.jake.solution'),
+      },
+      {
+        name: 'Valeria', location: 'CDMX, 26', emoji: '🎹', gradient: 'from-blue-500 to-indigo-600',
+        problem_title: this.i18n.t('persona.valeria.problem_title'),
+        problem: this.i18n.t('persona.valeria.problem'),
+        solution: this.i18n.t('persona.valeria.solution'),
+      },
+      {
+        name: 'Andrés & Camila', location: 'Buenos Aires, 25 & 28', emoji: '🤝', gradient: 'from-green-500 to-teal-600',
+        problem_title: this.i18n.t('persona.collab.problem_title'),
+        problem: this.i18n.t('persona.collab.problem'),
+        solution: this.i18n.t('persona.collab.solution'),
+      },
+    ];
+  }
 
   top3 = computed(() => this.entries().slice(0, 3));
   others = computed(() => this.entries().slice(3));
 
-  creativeSteps = [
-    { id: 0, label: 'Prompt en Suno/Udio' },
-    { id: 1, label: 'Variaciones IA Generadas' },
-    { id: 2, label: 'Tu Selección (decisión humana)' },
-    { id: 3, label: 'Edición DAW (aporte humano)' },
-    { id: 4, label: 'Master Final' },
-  ];
+  get creativeSteps() {
+    return [
+      { id: 0, label: this.i18n.t('step.0') },
+      { id: 1, label: this.i18n.t('step.1') },
+      { id: 2, label: this.i18n.t('step.2') },
+      { id: 3, label: this.i18n.t('step.3') },
+      { id: 4, label: this.i18n.t('step.4') },
+    ];
+  }
 
   private wingsCache = new Map<number, SafeHtml>();
 
@@ -630,6 +624,10 @@ export class Leaderboard implements OnInit {
 
   toggleTheme() {
     this.themeService.toggle();
+  }
+
+  toggleLang() {
+    this.i18n.toggle();
   }
 
   setView(view: 'leaderboard' | 'register') {
