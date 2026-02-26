@@ -4,6 +4,8 @@ import { Repository } from 'typeorm';
 import { BlockchainService } from '../blockchain/blockchain.service';
 import { Idea } from '../database/entities/idea.entity';
 import { CreativeStep } from '../database/entities/creative-step.entity';
+import { Artist } from '../database/entities/artist.entity';
+import { LeaderboardService } from '../leaderboard/leaderboard.service';
 
 @Injectable()
 export class IdeasService {
@@ -11,7 +13,9 @@ export class IdeasService {
     private readonly blockchainService: BlockchainService,
     @InjectRepository(Idea) private ideaRepo: Repository<Idea>,
     @InjectRepository(CreativeStep) private stepRepo: Repository<CreativeStep>,
-  ) {}
+    @InjectRepository(Artist) private artistRepo: Repository<Artist>,
+    private readonly leaderboardService: LeaderboardService,
+  ) { }
 
   async getIdea(tokenId: number) {
     const dbIdea = await this.ideaRepo.findOne({
@@ -68,6 +72,26 @@ export class IdeasService {
     blockTimestamp: number;
     txHash?: string;
   }) {
+    // Primero asegurar que el artista existe en DB
+    const artistAddress = data.creatorAddress.toLowerCase();
+    let artist = await this.artistRepo.findOne({ where: { address: artistAddress } });
+
+    if (!artist) {
+      // Artista no existe, crearlo
+      artist = this.artistRepo.create({
+        address: artistAddress,
+        alias: undefined,
+        totalMints: 0,
+        totalVerificationsGiven: 0,
+        totalVerificationsReceived: 0,
+        tier: 0,
+        score: 0,
+        isSeed: false,
+      });
+      await this.artistRepo.save(artist);
+    }
+
+    // Ahora crear/actualizar la idea
     let idea = await this.ideaRepo.findOne({ where: { tokenId: data.tokenId } });
 
     if (idea) {
@@ -76,7 +100,23 @@ export class IdeasService {
       idea = this.ideaRepo.create(data);
     }
 
-    return this.ideaRepo.save(idea);
+    const savedIdea = await this.ideaRepo.save(idea);
+
+    // Actualizar stats del artista en el leaderboard
+    try {
+      const stats = await this.blockchainService.getCreatorStats(artistAddress);
+      await this.leaderboardService.upsertArtist({
+        address: artistAddress,
+        totalMints: stats.totalMints,
+        totalVerificationsGiven: stats.totalVerificationsGiven,
+        totalVerificationsReceived: stats.totalVerificationsReceived,
+        tier: stats.tier,
+      });
+    } catch (error) {
+      console.error('Failed to update leaderboard for', artistAddress, error);
+    }
+
+    return savedIdea;
   }
 
   async syncStep(data: {
@@ -89,7 +129,7 @@ export class IdeasService {
   }) {
     // Verificar si la idea existe, si no, crearla primero
     let idea = await this.ideaRepo.findOne({ where: { tokenId: data.tokenId } });
-    
+
     if (!idea) {
       // Idea no existe, intentar obtener de blockchain
       try {
@@ -107,7 +147,7 @@ export class IdeasService {
         throw new NotFoundException(`Idea ${data.tokenId} no encontrada en blockchain`);
       }
     }
-    
+
     const step = this.stepRepo.create(data);
     return this.stepRepo.save(step);
   }

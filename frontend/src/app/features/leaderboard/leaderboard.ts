@@ -130,7 +130,15 @@ interface DisplayEntry extends LeaderboardEntry {
         <!-- TOP 3 PODIO -->
         @if (!isLoading() && top3().length >= 3) {
           <div class="max-w-5xl mx-auto px-8 mt-16">
-            <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-4" style="color: var(--text-subtle)">Top artistas</h2>
+            <div class="flex items-center justify-center gap-2 mb-4">
+              <h2 class="text-sm font-black uppercase tracking-[0.3em]" style="color: var(--text-subtle)">Top artistas</h2>
+              <button (click)="openInfoModal('leaderboard')"
+                      class="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all hover:bg-purple-500/20 cursor-pointer"
+                      style="color: var(--text-muted); border: 1px solid var(--border-color);"
+                      title="¿Qué es el Ranking?">
+                ℹ️
+              </button>
+            </div>
             <div class="h-12"></div>
             <div class="grid grid-cols-3 items-end gap-4 md:gap-8">
 
@@ -148,7 +156,10 @@ interface DisplayEntry extends LeaderboardEntry {
                 <h3 class="text-lg md:text-xl font-bold text-center text-slate-300 uppercase tracking-wide mb-3" style="color: var(--text-main)">{{ top3()[1].alias }}</h3>
                 <div class="pedestal-plata w-full rounded-t-2xl text-center py-6 px-3" style="min-height: 140px;">
                   <span class="font-black text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[1].score | number }}</span>
-                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                  <div class="flex items-center justify-center gap-1 mt-2">
+                    <span class="text-xs uppercase font-black" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                    <button (click)="openInfoModal('score'); $event.stopPropagation()" class="text-xs opacity-60 hover:opacity-100 transition-opacity cursor-pointer">ℹ️</button>
+                  </div>
                 </div>
               </div>
 
@@ -166,7 +177,10 @@ interface DisplayEntry extends LeaderboardEntry {
                 <h3 class="text-2xl md:text-3xl font-black text-yellow-500 italic uppercase tracking-tighter text-center mb-4" style="color: var(--text-main)">{{ top3()[0].alias }}</h3>
                 <div class="pedestal-divino w-full rounded-t-3xl text-center py-10 px-4 shadow-xl" style="min-height: 200px;">
                   <span class="text-4xl md:text-5xl font-black italic drop-shadow-md tracking-tighter block" style="color: var(--text-main)">{{ top3()[0].score | number }}</span>
-                  <span class="text-sm uppercase font-black mt-3 tracking-[0.2em] block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                  <div class="flex items-center justify-center gap-1 mt-3">
+                    <span class="text-sm uppercase font-black tracking-[0.2em]" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                    <button (click)="openInfoModal('score'); $event.stopPropagation()" class="text-sm opacity-60 hover:opacity-100 transition-opacity cursor-pointer">ℹ️</button>
+                  </div>
                 </div>
               </div>
 
@@ -182,7 +196,10 @@ interface DisplayEntry extends LeaderboardEntry {
                 <h3 class="text-lg md:text-xl font-bold text-center mb-3" style="color: var(--text-main)">{{ top3()[2].alias }}</h3>
                 <div class="pedestal-bronce w-full rounded-t-2xl text-center py-5 px-3" style="min-height: 110px;">
                   <span class="font-black text-orange-400 text-2xl tracking-tighter block" style="color: var(--text-main)">{{ top3()[2].score | number }}</span>
-                  <span class="text-xs uppercase font-black mt-2 block" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                  <div class="flex items-center justify-center gap-1 mt-2">
+                    <span class="text-xs uppercase font-black" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                    <button (click)="openInfoModal('score'); $event.stopPropagation()" class="text-xs opacity-60 hover:opacity-100 transition-opacity cursor-pointer">ℹ️</button>
+                  </div>
                 </div>
               </div>
 
@@ -192,22 +209,26 @@ interface DisplayEntry extends LeaderboardEntry {
 
         <!-- LISTA DE OTROS ARTISTAS -->
         @if (!isLoading() && others().length > 0) {
-          <div class="max-w-3xl mx-auto mt-16 space-y-4 px-8">
+          <div class="max-w-3xl mx-auto mt-16 px-8">
             <h4 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-8" style="color: var(--text-muted)">Registros de Evidencia Creativa</h4>
-            @for (entry of others(); track entry.address) {
-              <div class="flex items-center justify-between p-5 md:p-6 rounded-2xl border transition-all group backdrop-blur-md"
-                   style="background: var(--card-bg); border-color: var(--card-border);">
-                <div class="flex items-center space-x-4">
-                  <span class="font-black w-8 text-base" style="color: var(--text-subtle)">#{{ entry.rank }}</span>
-                  <img [src]="getAvatar(entry.seed)" class="w-14 h-14 rounded-xl bg-black/20" [alt]="'Avatar de ' + entry.alias">
-                  <span class="font-bold uppercase tracking-tight text-base group-hover:text-purple-400 transition-colors" style="color: var(--text-main)">{{ entry.alias }}</span>
-                </div>
-                <div class="flex flex-col items-end">
-                  <span class="text-xl font-black italic" style="color: var(--text-main)">{{ entry.score | number }}</span>
-                  <span class="text-xs uppercase font-bold mt-1" style="color: var(--text-subtle)">Puntaje de Integridad</span>
-                </div>
+            <div class="rounded-2xl border overflow-hidden" style="border-color: var(--border-color); background: var(--card-bg);">
+              <div class="overflow-y-auto space-y-0" style="max-height: 400px; scrollbar-width: thin; scrollbar-color: rgba(168,85,247,0.3) transparent;">
+                @for (entry of others(); track entry.address) {
+                  <div class="flex items-center justify-between p-5 md:p-6 transition-all group border-b last:border-b-0"
+                       style="border-color: var(--border-color);">
+                    <div class="flex items-center space-x-4">
+                      <span class="font-black w-8 text-base" style="color: var(--text-subtle)">#{{ entry.rank }}</span>
+                      <img [src]="getAvatar(entry.seed)" class="w-14 h-14 rounded-xl bg-black/20" [alt]="'Avatar de ' + entry.alias">
+                      <span class="font-bold uppercase tracking-tight text-base group-hover:text-purple-400 transition-colors" style="color: var(--text-main)">{{ entry.alias }}</span>
+                    </div>
+                    <div class="flex flex-col items-end">
+                      <span class="text-xl font-black italic" style="color: var(--text-main)">{{ entry.score | number }}</span>
+                      <span class="text-xs uppercase font-bold mt-1" style="color: var(--text-subtle)">Puntaje de Integridad</span>
+                    </div>
+                  </div>
+                }
               </div>
-            }
+            </div>
           </div>
         }
 
@@ -391,6 +412,76 @@ interface DisplayEntry extends LeaderboardEntry {
         </div>
       </footer>
 
+      <!-- MODAL INFO -->
+      @if (infoModalOpen()) {
+        <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" (click)="closeInfoModal()">
+          <div class="relative max-w-lg w-full p-6 rounded-2xl border shadow-2xl"
+               style="background: var(--card-bg); border-color: var(--border-color);"
+               (click)="$event.stopPropagation()">
+            <button (click)="closeInfoModal()"
+                    class="absolute top-3 right-3 w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-all hover:bg-red-500/20 cursor-pointer"
+                    style="color: var(--text-muted); border: 1px solid var(--border-color);">
+              ✕
+            </button>
+
+            @if (infoModalType() === 'leaderboard') {
+              <h3 class="text-xl font-black uppercase mb-4" style="color: var(--text-main)">🏆 ¿Qué es el Ranking?</h3>
+              <div class="text-sm leading-relaxed space-y-3" style="color: var(--text-muted)">
+                <p>El <strong class="text-purple-400">Ranking de Integridad</strong> muestra a los artistas que mejor documentan su proceso creativo con IA.</p>
+                <p>No se trata de quién hace más música, sino de quién <strong>demuestra mejor su autoría humana</strong> ante el Copyright Office.</p>
+                <div class="p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                  <p class="text-purple-300"><strong>¿Para qué sirve?</strong></p>
+                  <ul class="list-disc list-inside text-xs space-y-1 mt-2" style="color: var(--text-muted)">
+                    <li>Visibiliza a los artistas más comprometidos con la transparencia</li>
+                    <li>Genera reputación verificable para plataformas como Spotify y YouTube</li>
+                    <li>Demuestra que tu música con IA tiene "control creativo significativo"</li>
+                    <li>Te posiciona como artista serio en el ecosistema de música + IA</li>
+                  </ul>
+                </div>
+              </div>
+            }
+
+            @if (infoModalType() === 'score') {
+              <h3 class="text-xl font-black uppercase mb-4" style="color: var(--text-main)">📊 ¿Cómo se calcula el puntaje?</h3>
+              <div class="text-sm leading-relaxed space-y-3" style="color: var(--text-muted)">
+                <p>El <strong class="text-purple-400">Puntaje de Integridad</strong> refleja cuánta evidencia de autoría humana has registrado on-chain:</p>
+                <div class="p-4 rounded-xl border font-mono text-center" style="background: var(--input-bg); border-color: var(--border-color);">
+                  <p class="text-lg font-black" style="color: var(--text-main)">Puntaje = <span class="text-purple-400">(Mints × 1,000)</span> + <span class="text-green-400">(Verificaciones recibidas × 500)</span> + <span class="text-blue-400">(Verificaciones dadas × 200)</span></p>
+                </div>
+                <div class="space-y-2 mt-2">
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                    <span class="text-xl">🎵</span>
+                    <div>
+                      <p class="font-bold text-purple-300">Mints (×1,000)</p>
+                      <p class="text-xs">Cada idea musical que registras con su audio hash.</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                    <span class="text-xl">✅</span>
+                    <div>
+                      <p class="font-bold text-green-300">Verificaciones Recibidas (×500)</p>
+                      <p class="text-xs">Cuando otros artistas verifican que tu proceso es legítimo.</p>
+                    </div>
+                  </div>
+                  <div class="flex items-center gap-3 p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                    <span class="text-xl">🔍</span>
+                    <div>
+                      <p class="font-bold text-blue-300">Verificaciones Dadas (×200)</p>
+                      <p class="text-xs">Cuando verificas el proceso de otros artistas (contribuir da puntos).</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+
+            <button (click)="closeInfoModal()"
+                    class="w-full mt-6 p-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm hover:brightness-110 transition-all cursor-pointer">
+              Entendido
+            </button>
+          </div>
+        </div>
+      }
+
     </div>
   `,
 })
@@ -405,6 +496,8 @@ export class Leaderboard implements OnInit {
   entries = signal<DisplayEntry[]>([]);
   completedSteps = signal<number[]>([]);
   isLoading = signal(true);
+  infoModalOpen = signal(false);
+  infoModalType = signal<'leaderboard' | 'score'>('leaderboard');
 
   guideSteps = [
     { step: 1, icon: '🤖', title: 'Genera con IA', description: 'Crea tu canción en Suno/Udio. Guarda el prompt exacto que usaste y las variaciones que la IA generó para ti.' },
@@ -554,5 +647,14 @@ export class Leaderboard implements OnInit {
 
   isStepComplete(id: number): boolean {
     return this.completedSteps().includes(id);
+  }
+
+  openInfoModal(type: 'leaderboard' | 'score') {
+    this.infoModalType.set(type);
+    this.infoModalOpen.set(true);
+  }
+
+  closeInfoModal() {
+    this.infoModalOpen.set(false);
   }
 }

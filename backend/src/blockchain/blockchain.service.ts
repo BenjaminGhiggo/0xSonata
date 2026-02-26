@@ -2,16 +2,20 @@ import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { ethers } from 'ethers';
 
+// ABI ajustado para coincidir con el contrato DESPLEGADO en 0x01c9...373
+// El contrato desplegado es una versión anterior al código fuente actual
 const SONATA_ABI = [
   'function totalSupply() view returns (uint256)',
-  'function getCreatorStats(address creator) view returns (uint256 totalMints, uint256 totalVerificationsGiven, uint256 totalVerificationsReceived, uint8 tier)',
-  'function getProof(uint256 tokenId) view returns (tuple(bytes32 audioHash, uint256 timestamp, address creator, uint256 verificationCount, uint256 stepCount))',
+  'function ownerOf(uint256 tokenId) view returns (address)',
+  'function creatorMintCount(address) view returns (uint256)',
+  'function verifierCount(address) view returns (uint256)',
+  'function getCreatorStats(address creator) view returns (uint256 totalMints, uint256 totalVerificationsGiven)',
+  'function getProof(uint256 tokenId) view returns (bytes32 audioHash, uint256 timestamp, address creator, uint256 verificationCount)',
   'function getCreativeSteps(uint256 tokenId) view returns (tuple(bytes32 contentHash, uint8 stepType, uint256 timestamp, string metadata)[])',
   'function isHashRegistered(bytes32 audioHash) view returns (bool)',
-  'function getTier(address creator) view returns (uint8)',
-  'function getVerificationWeight(address verifier) view returns (uint256)',
   'function stakeBalance(address) view returns (uint256)',
   'function MIN_STAKE() view returns (uint256)',
+  'function addStep(uint256 tokenId, bytes32 contentHash, uint8 stepType, string metadata)',
   'event SonataMinted(uint256 indexed tokenId, address indexed creator, bytes32 audioHash, uint256 timestamp)',
 ];
 
@@ -26,7 +30,7 @@ export interface SonataProof {
   timestamp: number;
   creator: string;
   verificationCount: number;
-  stepCount: number;
+  stepCount: number; // NOTE: not in deployed contract, computed from getCreativeSteps
 }
 
 export interface CreativeStepData {
@@ -69,7 +73,7 @@ export class BlockchainService implements OnModuleInit {
   private isReady = false;
   private hasVault = false;
 
-  constructor(private readonly configService: ConfigService) {}
+  constructor(private readonly configService: ConfigService) { }
 
   onModuleInit(): void {
     const rpcUrl = this.configService.get<string>('rpcUrl', '');
@@ -107,12 +111,12 @@ export class BlockchainService implements OnModuleInit {
    */
   async getTokenIdFromTx(txHash: string): Promise<TokenIdFromTxResult> {
     this.ensureReady();
-    
+
     this.logger.log(`[TOKEN-ID] Buscando Token ID para tx: ${txHash}`);
-    
+
     try {
       const receipt = await this.provider.getTransactionReceipt(txHash);
-      
+
       if (!receipt) {
         this.logger.error(`[TOKEN-ID] Receipt no encontrado para: ${txHash}`);
         return { tokenId: null, error: 'Receipt no encontrado' };
@@ -132,7 +136,7 @@ export class BlockchainService implements OnModuleInit {
 
       const contractAddress = (this.sonataNft.target as string).toLowerCase();
       const eventSignature = ethers.id('SonataMinted(uint256,address,bytes32,uint256)');
-      
+
       this.logger.log(`[TOKEN-ID] Event signature: ${eventSignature}`);
 
       // Método 1: Parsear con interface
@@ -161,14 +165,14 @@ export class BlockchainService implements OnModuleInit {
 
       // Método 2: Extraer de topics directamente
       this.logger.log(`[TOKEN-ID] Intentando método 2 (topics directos)...`);
-      
+
       for (const log of receipt.logs) {
         if (log.address?.toLowerCase() !== contractAddress) {
           continue;
         }
 
         this.logger.log(`  Comparando topic[0]: ${log.topics?.[0]}`);
-        
+
         if (log.topics && log.topics[0] === eventSignature) {
           const tokenId = BigInt(log.topics[1]).toString();
           this.logger.log(`  ✅ Token ID encontrado (método 2): ${tokenId}`);
@@ -178,9 +182,9 @@ export class BlockchainService implements OnModuleInit {
 
       this.logger.error(`[TOKEN-ID] ❌ No se pudo extraer Token ID`);
       this.logger.error(`[TOKEN-ID] Logs del contrato: ${receipt.logs.filter((l: any) => l.address?.toLowerCase() === contractAddress).length}`);
-      
-      return { 
-        tokenId: null, 
+
+      return {
+        tokenId: null,
         error: 'No se pudo extraer Token ID',
         logs: receipt.logs.map((l: any) => ({ address: l.address, topics: l.topics?.length })),
       };
@@ -195,17 +199,18 @@ export class BlockchainService implements OnModuleInit {
    */
   async getTokenIdsByCreator(creatorAddress: string): Promise<string[]> {
     this.ensureReady();
-    
+
     this.logger.log(`[TOKEN-ID] Buscando tokens para: ${creatorAddress}`);
-    
+
     try {
       const totalSupply = await this.getTotalSupply();
       const tokenIds: string[] = [];
 
+      // Usar ownerOf (ERC-721 estándar) que es más confiable que getProof
       for (let tokenId = 0; tokenId < totalSupply; tokenId++) {
         try {
-          const proof = await this.getProof(tokenId);
-          if (proof.creator.toLowerCase() === creatorAddress.toLowerCase()) {
+          const owner = await this.sonataNft.ownerOf(tokenId);
+          if (owner.toLowerCase() === creatorAddress.toLowerCase()) {
             tokenIds.push(tokenId.toString());
             this.logger.log(`  Token ${tokenId}: pertenece a ${creatorAddress}`);
           }
@@ -225,12 +230,19 @@ export class BlockchainService implements OnModuleInit {
   async getProof(tokenId: number): Promise<SonataProof> {
     this.ensureReady();
     const proof = await this.sonataNft.getProof(tokenId);
+    // El contrato desplegado retorna 4 campos (sin stepCount)
+    // stepCount se obtiene de getCreativeSteps si es necesario
+    let stepCount = 0;
+    try {
+      const steps = await this.sonataNft.getCreativeSteps(tokenId);
+      stepCount = steps.length;
+    } catch { /* ignore */ }
     return {
-      audioHash: proof.audioHash,
-      timestamp: Number(proof.timestamp),
-      creator: proof.creator,
-      verificationCount: Number(proof.verificationCount),
-      stepCount: Number(proof.stepCount),
+      audioHash: proof[0],
+      timestamp: Number(proof[1]),
+      creator: proof[2],
+      verificationCount: Number(proof[3]),
+      stepCount,
     };
   }
 
@@ -247,13 +259,13 @@ export class BlockchainService implements OnModuleInit {
 
   async getCreatorStats(address: string): Promise<CreatorStats> {
     this.ensureReady();
-    const [totalMints, totalVerificationsGiven, totalVerificationsReceived, tier] =
-      await this.sonataNft.getCreatorStats(address);
+    // El contrato desplegado solo retorna 2 campos: (totalMints, totalVerificationsGiven)
+    const result = await this.sonataNft.getCreatorStats(address);
     return {
-      totalMints: Number(totalMints),
-      totalVerificationsGiven: Number(totalVerificationsGiven),
-      totalVerificationsReceived: Number(totalVerificationsReceived),
-      tier: Number(tier),
+      totalMints: Number(result[0]),
+      totalVerificationsGiven: Number(result[1]),
+      totalVerificationsReceived: 0, // No existe en el contrato desplegado
+      tier: 0, // No existe en el contrato desplegado
     };
   }
 
@@ -269,8 +281,9 @@ export class BlockchainService implements OnModuleInit {
 
     for (let tokenId = 0; tokenId < totalSupply; tokenId++) {
       try {
-        const proof = await this.getProof(tokenId);
-        if (proof.creator.toLowerCase() === address.toLowerCase()) {
+        const owner = await this.sonataNft.ownerOf(tokenId);
+        if (owner.toLowerCase() === address.toLowerCase()) {
+          const proof = await this.getProof(tokenId);
           ideas.push({ tokenId, ...proof });
         }
       } catch {
