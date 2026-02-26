@@ -87,6 +87,27 @@ export class IdeasService {
     blockTimestamp: number;
     txHash?: string;
   }) {
+    // Verificar si la idea existe, si no, crearla primero
+    let idea = await this.ideaRepo.findOne({ where: { tokenId: data.tokenId } });
+    
+    if (!idea) {
+      // Idea no existe, intentar obtener de blockchain
+      try {
+        const proof = await this.blockchainService.getProof(data.tokenId);
+        await this.syncIdea({
+          tokenId: data.tokenId,
+          audioHash: proof.audioHash,
+          creatorAddress: proof.creator,
+          verificationCount: proof.verificationCount,
+          stepCount: proof.stepCount,
+          blockTimestamp: proof.timestamp,
+        });
+      } catch (error) {
+        console.error(`Failed to fetch idea ${data.tokenId} from blockchain:`, error);
+        throw new NotFoundException(`Idea ${data.tokenId} no encontrada en blockchain`);
+      }
+    }
+    
     const step = this.stepRepo.create(data);
     return this.stepRepo.save(step);
   }
