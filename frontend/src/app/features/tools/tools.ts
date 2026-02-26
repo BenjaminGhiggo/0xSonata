@@ -122,20 +122,84 @@ interface Tool {
 
       <!-- INFO BOX -->
       <div class="max-w-4xl mx-auto px-8 pb-20">
-        <div class="p-8 rounded-2xl border"
+        <div class="p-8 rounded-2xl border mb-6"
              style="background: rgba(168,85,247,0.05); border-color: rgba(168,85,247,0.2);">
           <h3 class="text-lg font-black uppercase mb-3" style="color: var(--text-main)">
             ¿Qué hace 0xSonata?
           </h3>
           <p class="text-sm leading-relaxed mb-4" style="color: var(--text-muted)">
-            0xSonata documenta tu proceso creativo con IA (Suno/Udio) en blockchain. 
-            Registra tu prompt, variaciones, selección y ediciones humanas para cumplir 
+            0xSonata documenta tu proceso creativo con IA (Suno/Udio) en blockchain.
+            Registra tu prompt, variaciones, selección y ediciones humanas para cumplir
             con el Copyright Office y proteger tu derecho a monetizar.
           </p>
           <a routerLink="/mint"
              class="inline-block px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm no-underline hover:brightness-110 transition-all">
             Registrar mi proceso →
           </a>
+        </div>
+
+        <!-- IPFS INFO -->
+        <div class="p-8 rounded-2xl border"
+             style="background: rgba(59,130,246,0.05); border-color: rgba(59,130,246,0.2);">
+          <div class="flex items-start gap-4 mb-4">
+            <div class="text-4xl">🌐</div>
+            <div>
+              <h3 class="text-lg font-black uppercase mb-2" style="color: var(--text-main)">
+                ¿Qué es IPFS?
+              </h3>
+              <p class="text-sm leading-relaxed mb-3" style="color: var(--text-muted)">
+                <strong>IPFS (InterPlanetary File System)</strong> es como un "Google Drive descentralizado" donde los archivos 
+                no están en un servidor central, sino distribuidos en miles de computadoras alrededor del mundo.
+              </p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+            <div class="p-4 rounded-xl" style="background: rgba(239,68,68,0.1);">
+              <h4 class="text-sm font-black uppercase mb-2" style="color: var(--text-main)">🏢 Almacenamiento Tradicional</h4>
+              <ul class="text-xs space-y-1" style="color: var(--text-subtle)">
+                <li>• Un solo servidor central</li>
+                <li>• Si el servidor cae → pierdes el archivo</li>
+                <li>• URL: <code>https://servidor.com/archivo.jpg</code></li>
+                <li>• Ellos controlan tus archivos</li>
+              </ul>
+            </div>
+            <div class="p-4 rounded-xl" style="background: rgba(34,197,94,0.1);">
+              <h4 class="text-sm font-black uppercase mb-2" style="color: var(--text-main)">🌍 IPFS (Descentralizado)</h4>
+              <ul class="text-xs space-y-1" style="color: var(--text-subtle)">
+                <li>• Miles de nodos distribuidos</li>
+                <li>• Si algunos nodos caen → el archivo sigue disponible</li>
+                <li>• URL: <code>ipfs://QmX7...</code> (hash del archivo)</li>
+                <li>• Tú controlas tus archivos</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="p-4 rounded-xl mb-4"
+               style="background: rgba(168,85,247,0.1); border: 1px solid rgba(168,85,247,0.2);">
+            <h4 class="text-sm font-black uppercase mb-2" style="color: var(--text-main)">
+              💡 ¿Por qué usamos IPFS en 0xSonata?
+            </h4>
+            <p class="text-sm leading-relaxed" style="color: var(--text-muted)">
+              Cuando subes screenshots, audios o proyectos DAW, los guardamos en IPFS para que:
+            </p>
+            <ul class="text-xs space-y-1 mt-2" style="color: var(--text-subtle)">
+              <li>✅ <strong>Sean permanentes:</strong> No se pierden si un servidor cae</li>
+              <li>✅ <strong>Sean verificables:</strong> El hash en blockchain prueba que el archivo es original</li>
+              <li>✅ <strong>Sean accesibles:</strong> Cualquiera puede ver tu evidencia desde cualquier gateway IPFS</li>
+            </ul>
+          </div>
+
+          <div class="p-4 rounded-xl"
+               style="background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.2);">
+            <h4 class="text-sm font-black uppercase mb-2" style="color: var(--text-main)">
+              ⚠️ Importante: Archivos Públicos
+            </h4>
+            <p class="text-sm leading-relaxed" style="color: var(--text-muted)">
+              Los archivos en IPFS son <strong>PÚBLICOS</strong>. Cualquiera con el hash puede verlos.
+              <strong>NO subas archivos confidenciales</strong> - solo evidencia que quieras compartir para probar tu autoría.
+            </p>
+          </div>
         </div>
       </div>
 

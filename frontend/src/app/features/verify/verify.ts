@@ -71,23 +71,51 @@ interface VerifySuccess {
             <p class="text-sm mb-8" style="color: var(--text-subtle)">Atestigua la autoría de otro artista. Tu verificación aumenta la credibilidad de su registro.</p>
 
             <div class="p-5 rounded-2xl bg-cyan-500/5 border border-cyan-500/10 mb-8">
-              <div class="flex justify-between items-center">
+              <div class="flex justify-between items-center mb-3">
                 <div>
                   <span class="text-sm font-black uppercase" style="color: var(--text-subtle)">Tu Stake</span>
                   <p class="text-xs mt-0.5" style="color: var(--text-subtle)">Garantía depositada para verificar</p>
                 </div>
                 <span class="text-lg font-bold text-cyan-400">{{ stakeBalance() }} tSYS</span>
               </div>
+              
               @if (parseFloat(stakeBalance()) < 0.001) {
-                <!-- H9: Error con accion clara -->
-                <div class="mt-3 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
-                  <p class="text-sm text-yellow-400 font-bold">Stake insuficiente</p>
-                  <p class="text-xs text-yellow-400/60 mt-1">Necesitas mínimo 0.001 tSYS. Deposita para poder verificar.</p>
-                  <button (click)="handleDeposit()"
-                          [disabled]="isProcessing()"
-                          class="mt-2 px-5 py-2.5 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-sm font-black uppercase hover:bg-cyan-500/30 transition-all disabled:opacity-30">
-                    {{ isProcessing() ? 'Depositando...' : 'Depositar 0.002 tSYS' }}
-                  </button>
+                <!-- Stake insuficiente -->
+                <div class="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/20">
+                  <div class="flex items-start gap-3 mb-3">
+                    <span class="text-xl">⚠️</span>
+                    <div class="flex-1">
+                      <p class="text-sm text-yellow-400 font-bold mb-1">Stake insuficiente</p>
+                      <p class="text-xs text-yellow-400/80 leading-relaxed">
+                        Para verificar artistas necesitas depositar <strong>mínimo 0.001 tSYS</strong> como garantía.
+                        Esto asegura que las verificaciones sean honestas.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div class="space-y-3">
+                    <button (click)="handleDeposit()"
+                            [disabled]="isProcessing()"
+                            class="w-full px-5 py-3 rounded-xl bg-cyan-500/20 border border-cyan-500/40 text-cyan-400 text-sm font-black uppercase hover:bg-cyan-500/30 transition-all disabled:opacity-30">
+                      {{ isProcessing() ? '⏳ Confirma en tu wallet...' : '💰 Depositar 0.002 tSYS' }}
+                    </button>
+                    
+                    <div class="text-xs text-yellow-400/60 text-center">
+                      💡 ¿No tienes tSYS? 
+                      <a href="https://faucet-pob.dev11.top/" target="_blank" 
+                         class="text-cyan-400 hover:underline no-underline">
+                        Consigue gratis en el faucet ↗
+                      </a>
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <!-- Stake suficiente -->
+                <div class="p-3 rounded-xl bg-green-500/10 border border-green-500/20">
+                  <div class="flex items-center gap-2">
+                    <span class="text-lg">✅</span>
+                    <p class="text-sm text-green-400 font-bold">Stake suficiente para verificar</p>
+                  </div>
                 </div>
               }
             </div>
@@ -114,7 +142,15 @@ interface VerifySuccess {
               <button (click)="handleVerify()"
                       [disabled]="tokenIdValue() === '' || isProcessing() || parseFloat(stakeBalance()) < 0.001"
                       class="w-full bg-gradient-to-r from-cyan-600 to-blue-600 p-5 rounded-2xl font-black uppercase text-white text-base hover:brightness-110 active:scale-95 transition-all shadow-xl shadow-cyan-900/40 disabled:opacity-40 disabled:cursor-not-allowed">
-                {{ isProcessing() ? 'Procesando verificación...' : 'Verificar idea →' }}
+                @if (isProcessing()) {
+                  Procesando verificación...
+                } @else if (parseFloat(stakeBalance()) < 0.001) {
+                  🚫 Deposita stake primero
+                } @else if (tokenIdValue() === '') {
+                  📝 Ingresa Token ID
+                } @else {
+                  ✅ Verificar idea →
+                }
               </button>
 
               @if (parseFloat(stakeBalance()) < 0.001 && tokenIdValue() !== '') {
@@ -205,13 +241,17 @@ export class Verify implements OnInit {
     this.isProcessing.set(true);
     this.errorMessage.set(null);
     try {
-      this.statusMessage.set('Confirma el depósito en tu wallet...');
+      this.statusMessage.set('💰 Confirma el depósito de 0.002 tSYS en tu wallet...');
       await this.contractService.deposit('0.002');
+      this.statusMessage.set('✅ Depósito exitoso! Recargando balance...');
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Pequeña pausa para UX
       await this.loadStakeBalance();
-    } catch (err: unknown) {
-      this.errorMessage.set(getFriendlyError(err));
-    } finally {
       this.statusMessage.set(null);
+    } catch (err: unknown) {
+      const errorMsg = getFriendlyError(err);
+      this.errorMessage.set(`❌ Error al depositar: ${errorMsg}`);
+      this.statusMessage.set(null);
+    } finally {
       this.isProcessing.set(false);
     }
   }

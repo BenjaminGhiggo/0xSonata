@@ -61,6 +61,20 @@ export interface CreativeStepData {
   metadata: string;
 }
 
+export interface StepContent {
+  prompt?: string;
+  platform?: string;
+  description?: string;
+  reason?: string;
+  edits?: string[];
+  daw?: string;
+  specs?: string;
+  screenshotHash?: string;
+  audioHash?: string;
+  projectHash?: string;
+  masterHash?: string;
+}
+
 export const STEP_TYPES = [
   { id: 0, label: 'Prompt Inicial', description: 'Texto/instruccion usada para generar con IA (Suno, Udio, etc.)' },
   { id: 1, label: 'Variacion IA', description: 'Resultado generado por la herramienta de IA' },
@@ -189,9 +203,17 @@ export class ContractService {
     return { txHash: receipt.hash, tokenId, blockNumber: receipt.blockNumber };
   }
 
-  async addStep(tokenId: number, contentHash: string, stepType: number, metadata: string): Promise<string> {
+  async addStep(tokenId: number, contentHash: string, stepType: number, content: StepContent): Promise<string> {
     const c = this.contract();
     if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
+    
+    // Crear metadata con el contenido completo
+    const metadata = JSON.stringify({
+      step: STEP_TYPES.find(s => s.id === stepType)?.label || 'Unknown',
+      timestamp: new Date().toISOString(),
+      content: content
+    });
+    
     const tx = await c['addStep'](tokenId, contentHash, stepType, metadata);
     const receipt = await tx.wait();
     return receipt.hash;

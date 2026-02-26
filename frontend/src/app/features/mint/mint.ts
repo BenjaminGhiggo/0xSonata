@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { ethers } from 'ethers';
 import { WalletService } from '../../core/services/wallet.service';
-import { ContractService, STEP_TYPES } from '../../core/services/contract.service';
+import { ContractService, STEP_TYPES, StepContent } from '../../core/services/contract.service';
 import { calculateFileHash } from '../../shared/utils/hash.util';
 import { getFriendlyError, EXPLORER_BASE_URL } from '../../shared/utils/error-messages.util';
 
@@ -226,44 +226,137 @@ interface TooltipData {
                 <p class="text-xs mb-8" style="color: var(--text-subtle)">Cada paso se registra on-chain como prueba de control humano. Puedes completar los que apliquen a tu proceso.</p>
               }
 
-              <div class="space-y-3 mb-8">
+              <div class="space-y-4 mb-8">
                 @for (step of stepTypes; track step.id) {
-                  <div class="flex items-center justify-between p-5 rounded-2xl border transition-all"
-                       [class]="isStepDone(step.id) ? 'bg-green-500/20 border-green-500/50' : (currentStep() === step.id ? 'bg-purple-500/10 border-purple-500/50' : '')"
-                       [style.background]="(!isStepDone(step.id) && currentStep() !== step.id) ? 'var(--card-bg)' : null"
-                       [style.border-color]="(!isStepDone(step.id) && currentStep() !== step.id) ? 'var(--border-color)' : null">
-                    <div>
-                      <div class="flex items-center gap-2">
-                        <span class="w-7 h-7 rounded-full flex items-center justify-center text-xs font-black"
-                              [class]="isStepDone(step.id) ? 'bg-green-500/30 text-green-300' : ''"
-                              [style.background]="!isStepDone(step.id) ? 'var(--badge-bg)' : null"
-                              [style.color]="!isStepDone(step.id) ? 'var(--text-subtle)' : null">
-                          {{ isStepDone(step.id) ? '✓' : step.id + 1 }}
-                        </span>
-                        <span class="text-sm font-black uppercase tracking-widest"
-                              [class]="isStepDone(step.id) ? 'text-green-400' : ''"
-                              [style.color]="!isStepDone(step.id) ? 'var(--text-muted)' : null">
-                          {{ step.label }}
-                        </span>
-                      </div>
-                      <p class="text-xs mt-1 ml-9" style="color: var(--text-subtle)">{{ step.description }}</p>
-                    </div>
-                    <div>
-                      @if (isStepDone(step.id)) {
-                        <span class="text-green-400 text-sm font-bold">Registrado ✓</span>
-                      } @else if (currentStep() === step.id && isProcessing()) {
-                        <div class="flex items-center gap-2 text-yellow-400 text-sm">
-                          <div class="w-4 h-4 border-2 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin"></div>
-                          Firmando...
+                  <div class="rounded-2xl border transition-all overflow-hidden"
+                       [class]="isStepDone(step.id) ? 'bg-green-500/20 border-green-500/50' : (currentStepIndex() === step.id ? 'border-purple-500/50' : 'border-color')"
+                       [style.background]="(!isStepDone(step.id) && currentStepIndex() !== step.id) ? 'var(--card-bg)' : null"
+                       [style.border-color]="(!isStepDone(step.id) && currentStepIndex() !== step.id) ? 'var(--border-color)' : null">
+                    
+                    <!-- Header del paso -->
+                    <div class="p-5" (click)="!isStepDone(step.id) && openStepForm(step.id)" [class.cursor-pointer]="!isStepDone(step.id)">
+                      <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                          <span class="w-8 h-8 rounded-full flex items-center justify-center text-sm font-black"
+                                [class]="isStepDone(step.id) ? 'bg-green-500/30 text-green-300' : ''"
+                                [style.background]="!isStepDone(step.id) ? 'var(--badge-bg)' : null"
+                                [style.color]="!isStepDone(step.id) ? 'var(--text-subtle)' : null">
+                            {{ isStepDone(step.id) ? '✓' : step.id + 1 }}
+                          </span>
+                          <div>
+                            <span class="text-sm font-black uppercase tracking-widest"
+                                  [class]="isStepDone(step.id) ? 'text-green-400' : ''"
+                                  [style.color]="!isStepDone(step.id) ? 'var(--text-main)' : null">
+                              {{ step.label }}
+                            </span>
+                            @if (!isStepDone(step.id)) {
+                              <p class="text-xs" style="color: var(--text-subtle)">Click para documentar</p>
+                            }
+                          </div>
                         </div>
-                      } @else {
-                        <button (click)="submitStep(step.id)"
-                                [disabled]="isProcessing()"
-                                class="px-4 py-2 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 text-sm font-black uppercase hover:bg-purple-500/30 transition-all disabled:opacity-30">
-                          Registrar
-                        </button>
-                      }
+                        @if (!isStepDone(step.id)) {
+                          <button class="text-purple-400 text-sm font-bold hover:text-purple-300">
+                            {{ currentStepIndex() === step.id ? 'Cancelar' : 'Documentar →' }}
+                          </button>
+                        } @else {
+                          <span class="text-green-400 text-sm font-bold">Completado</span>
+                        }
+                      </div>
                     </div>
+
+                    <!-- Form del paso (se muestra cuando está activo) -->
+                    @if (currentStepIndex() === step.id && !isStepDone(step.id)) {
+                      <div class="p-5 pt-0 border-t" style="border-color: var(--border-color)">
+                        
+                        <!-- Tooltip explicativo -->
+                        <div class="mb-4 p-3 rounded-xl bg-purple-500/10 border border-purple-500/20">
+                          <div class="flex items-start gap-2">
+                            <span class="text-lg">ℹ️</span>
+                            <div class="text-xs" style="color: var(--text-subtle)">
+                              @if (step.id === 0) {
+                                <strong>¿Qué es el Prompt?</strong> El texto exacto que escribiste en Suno/Udio para generar tu canción. Ej: "reggaeton beat 95bpm, dembow pesado, synth oscuro"
+                              } @else if (step.id === 1) {
+                                <strong>Variaciones de IA:</strong> Describe las opciones que generó la IA y cuál te gustó más. Puedes subir el audio de las variaciones.
+                              } @else if (step.id === 2) {
+                                <strong>Selección Creativa:</strong> Explica POR QUÉ elegiste esa variación. Tu decisión creativa demuestra autoría humana.
+                              } @else if (step.id === 3) {
+                                <strong>Edición DAW:</strong> Lista los edits manuales que hiciste: EQ, compresión, MIDI original, FX, etc. Esto es evidencia clave de autoría.
+                              } @else if (step.id === 4) {
+                                <strong>Master Final:</strong> Especificaciones del master (LUFS, sample rate) y el audio final masterizado.
+                              }
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Campo de texto principal -->
+                        <div class="mb-4">
+                          <label class="text-sm font-black uppercase mb-2 block" style="color: var(--text-subtle)">
+                            {{ step.id === 0 ? 'Prompt exacto:' : step.id === 3 ? 'Ediciones realizadas (una por línea):' : 'Descripción:' }}
+                          </label>
+                          <textarea
+                            [value]="stepFormData()[step.id]?.text || ''"
+                            (input)="onStepTextChange(step.id, $any($event.target).value)"
+                            [placeholder]="step.id === 0 ? 'Ej: lofi hip hop beat, 90bpm, jazzy piano, chill vibes...' : (step.id === 3 ? 'EQ en el kick (corte 30Hz)\\nCompresión en dembow (4:1)\\nHi-hats adicionales (patrón propio)\\nLínea de bajo con MIDI (100% original)' : '')"
+                            rows="4"
+                            class="w-full p-3 rounded-xl font-normal outline-none text-sm resize-none"
+                            style="background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main)">
+                          </textarea>
+                        </div>
+
+                        <!-- Campos específicos por paso -->
+                        @if (step.id === 0 || step.id === 3) {
+                          <div class="mb-4">
+                            <label class="text-sm font-black uppercase mb-2 block" style="color: var(--text-subtle)">
+                              {{ step.id === 0 ? 'Plataforma IA:' : 'DAW usado:' }}
+                            </label>
+                            <input
+                              type="text"
+                              [value]="stepFormData()[step.id]?.platform || ''"
+                              (input)="onStepPlatformChange(step.id, $any($event.target).value)"
+                              [placeholder]="step.id === 0 ? 'Ej: Suno AI v3.5, Udio 1.0...' : 'Ej: Ableton Live 11, FL Studio 21, Logic Pro X...'"
+                              class="w-full p-3 rounded-xl font-normal outline-none text-sm"
+                              style="background: var(--input-bg); border: 1px solid var(--border-color); color: var(--text-main)">
+                          </div>
+                        }
+
+                        <!-- Upload de archivos (PRÓXIMAMENTE) -->
+                        <div class="mb-4 p-4 rounded-xl border border-dashed"
+                             style="border-color: var(--border-color); background: rgba(168,85,247,0.05);">
+                          <div class="flex items-start gap-3">
+                            <span class="text-2xl">📎</span>
+                            <div class="flex-1">
+                              <h4 class="text-sm font-black uppercase mb-1" style="color: var(--text-main)">
+                                Archivos de evidencia (Próximamente)
+                              </h4>
+                              <p class="text-xs mb-2" style="color: var(--text-subtle)">
+                                <strong>Pronto podrás subir:</strong> Screenshots del prompt, audio de variaciones, proyecto DAW, master final.
+                                Los archivos se guardarán en IPFS para permanencia permanente.
+                              </p>
+                              <p class="text-xs" style="color: var(--text-subtle)">
+                                💡 <strong>Por ahora:</strong> Guarda tus archivos localmente en tu computadora.
+                                El texto que registres en blockchain ya es evidencia válida para Copyright Office.
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Botones de acción -->
+                        <div class="flex gap-3">
+                          <button
+                            (click)="submitStepWithContent(step.id)"
+                            [disabled]="isProcessing() || !stepFormData()[step.id]?.text"
+                            class="flex-1 bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm py-3 rounded-xl hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                            {{ isProcessing() ? 'Registrando...' : 'Registrar paso' }}
+                          </button>
+                          <button
+                            (click)="cancelStepForm()"
+                            class="px-6 py-3 rounded-xl border font-bold text-sm hover:bg-white/5 transition-all"
+                            style="border-color: var(--border-color); color: var(--text-subtle)">
+                            Cancelar
+                          </button>
+                        </div>
+                      </div>
+                    }
                   </div>
                 }
               </div>
@@ -461,6 +554,15 @@ export class Mint {
   readonly manualTokenId = signal('');
   readonly tooltipOpen = signal(false);
   readonly tooltipKey = signal<string>('');
+  
+  // Señales para los campos de cada paso
+  readonly currentStepIndex = signal<number | null>(null);
+  readonly stepFormData = signal<Record<number, {
+    text: string;
+    platform?: string;
+    daw?: string;
+    specs?: string;
+  }>>({});
 
   completedStepsCount = () => this.completedStepIds().length;
 
@@ -598,35 +700,115 @@ export class Mint {
     }
   }
 
-  async submitStep(stepType: number): Promise<void> {
+  /**
+   * Abre el form para editar un paso
+   */
+  openStepForm(stepId: number): void {
+    this.currentStepIndex.set(stepId);
+    // Inicializar form data si no existe
+    if (!this.stepFormData()[stepId]) {
+      this.stepFormData.update(data => ({
+        ...data,
+        [stepId]: { text: '', platform: '', daw: '', specs: '' }
+      }));
+    }
+  }
+
+  /**
+   * Cierra el form sin guardar
+   */
+  cancelStepForm(): void {
+    this.currentStepIndex.set(null);
+  }
+
+  /**
+   * Actualiza el texto del form
+   */
+  onStepTextChange(stepId: number, value: string): void {
+    this.stepFormData.update(data => ({
+      ...data,
+      [stepId]: { ...data[stepId], text: value }
+    }));
+  }
+
+  /**
+   * Actualiza el campo platform/daw
+   */
+  onStepPlatformChange(stepId: number, value: string): void {
+    this.stepFormData.update(data => ({
+      ...data,
+      [stepId]: { ...data[stepId], platform: value, daw: value }
+    }));
+  }
+
+  /**
+   * Actualiza el campo specs
+   */
+  onStepSpecsChange(stepId: number, value: string): void {
+    this.stepFormData.update(data => ({
+      ...data,
+      [stepId]: { ...data[stepId], specs: value }
+    }));
+  }
+
+  /**
+   * Registra un paso con su contenido
+   */
+  async submitStepWithContent(stepType: number): Promise<void> {
     const tokenId = parseInt(this.mintedTokenId(), 10);
-    
-    // Validar que el Token ID sea válido
-    if (isNaN(tokenId) || this.mintedTokenId() === 'N/A') {
-      this.errorMessage.set('Token ID no válido. El mint no se completó correctamente. Por favor, intenta de nuevo o contacta soporte.');
+    const formData = this.stepFormData()[stepType];
+
+    // Validar que haya texto
+    if (!formData || !formData.text) {
+      this.errorMessage.set('Debes ingresar una descripción para este paso.');
+      return;
+    }
+
+    // Validar Token ID
+    if (isNaN(tokenId)) {
+      this.errorMessage.set('Token ID no válido. Intenta de nuevo.');
       return;
     }
 
     this.errorMessage.set(null);
     this.isProcessing.set(true);
-    this.currentStep.set(stepType);
 
     try {
       const stepLabel = STEP_TYPES.find(s => s.id === stepType)?.label || 'Step';
-      this.statusMessage.set(`Registrando: ${stepLabel}...`);
+      this.statusMessage.set(`Registrando ${stepLabel}...`);
 
-      const contentHash = ethers.keccak256(ethers.toUtf8Bytes(`token-${tokenId}-step-${stepType}-${Date.now()}`));
-      const metadata = JSON.stringify({ step: stepLabel, timestamp: new Date().toISOString() });
+      // Preparar contenido (SOLO TEXTO por ahora)
+      const content: StepContent = {
+        prompt: stepType === 0 ? formData.text : undefined,
+        platform: formData.platform,
+        description: stepType === 1 ? formData.text : undefined,
+        reason: stepType === 2 ? formData.text : undefined,
+        edits: stepType === 3 ? formData.text.split('\n').filter(line => line.trim()) : undefined,
+        daw: formData.daw,
+        specs: stepType === 4 ? formData.text || formData.specs : undefined,
+      };
 
-      await this.contractService.addStep(tokenId, contentHash, stepType, metadata);
+      // NOTA: IPFS se implementará en el futuro para archivos
+      // const contentHash = ethers.keccak256(ethers.toUtf8Bytes(JSON.stringify(content)));
+      const contentHash = ethers.keccak256(ethers.toUtf8Bytes(JSON.stringify(content)));
+
+      // Registrar en blockchain
+      await this.contractService.addStep(tokenId, contentHash, stepType, content);
       this.completedStepIds.update(ids => [...ids, stepType]);
+      this.currentStepIndex.set(null);
     } catch (err: unknown) {
       this.errorMessage.set(getFriendlyError(err));
     } finally {
       this.statusMessage.set(null);
       this.isProcessing.set(false);
-      this.currentStep.set(null);
     }
+  }
+
+  /**
+   * Versión simplificada para registrar sin form (legacy)
+   */
+  async submitStep(stepType: number): Promise<void> {
+    await this.submitStepWithContent(stepType);
   }
 
   /**
