@@ -4,6 +4,7 @@ import { WalletService } from './wallet.service';
 import { environment } from '../../../environments/environment';
 
 const SONATA_ABI = [
+  // Funciones principales
   'function mint(bytes32 audioHash, string uri) external returns (uint256)',
   'function verify(uint256 tokenId) external',
   'function getProof(uint256 tokenId) external view returns (bytes32 audioHash, uint256 timestamp, address creator, uint256 verificationCount, uint256 stepCount)',
@@ -18,10 +19,18 @@ const SONATA_ABI = [
   'function getCreatorStats(address creator) external view returns (uint256 totalMints, uint256 totalVerificationsGiven, uint256 totalVerificationsReceived, uint8 tier)',
   'function getVerificationWeight(address verifier) external view returns (uint256)',
   'function MIN_STAKE() external view returns (uint256)',
+  
+  // Eventos personalizados del contrato
   'event SonataMinted(uint256 indexed tokenId, address indexed creator, bytes32 audioHash, uint256 timestamp)',
   'event SonataVerified(uint256 indexed tokenId, address indexed verifier, uint256 newVerificationCount)',
   'event StepAdded(uint256 indexed tokenId, uint8 stepType, bytes32 contentHash)',
   'event StakeDeposited(address indexed user, uint256 amount)',
+  'event StakeWithdrawn(address indexed user, uint256 amount)',
+  
+  // Eventos ERC721 (siempre se emiten en un mint)
+  'event Transfer(address indexed from, address indexed to, uint256 indexed tokenId)',
+  'event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId)',
+  'event ApprovalForAll(address indexed owner, address indexed operator, bool approved)',
 ];
 
 export interface SonataProof {
@@ -83,19 +92,100 @@ export class ContractService {
     if (!c) throw new Error('Contrato no disponible. Conecta tu wallet.');
 
     const tx = await c['mint'](audioHash, uri);
-    const receipt = await tx.wait();
+    console.log('[DEBUG] Mint tx hash:', tx.hash);
 
-    let tokenId = 'N/A';
-    for (const log of receipt.logs) {
-      try {
-        const parsed = c.interface.parseLog(log);
-        if (parsed?.name === 'SonataMinted') {
-          tokenId = parsed.args[0].toString();
-          break;
-        }
-      } catch { /* skip */ }
+    // Usar provider.getTransactionReceipt para obtener todos los logs
+    const provider = c.runner?.provider;
+    if (!provider) {
+      throw new Error('Provider no disponible');
     }
 
+    console.log('[DEBUG] Esperando confirmación...');
+    const receipt = await provider.getTransactionReceipt(tx.hash);
+    
+    if (!receipt) {
+      console.error('[ERROR] Receipt es null!');
+      throw new Error('No se pudo obtener el receipt. Intenta de nuevo.');
+    }
+
+    console.log('[DEBUG] Receipt obtenido:');
+    console.log('  - Block:', receipt.blockNumber);
+    console.log('  - Status:', receipt.status);
+    console.log('  - Logs count:', receipt.logs.length);
+    console.log('  - Contract address:', environment.contractAddress);
+
+    let tokenId = 'N/A';
+    const contractAddress = environment.contractAddress?.toLowerCase();
+
+    // Mostrar todos los logs para debug
+    console.log('[DEBUG] Analizando logs...');
+    receipt.logs.forEach((log, i) => {
+      console.log(`[DEBUG] Log ${i}:`, {
+        address: log.address,
+        topics: log.topics?.length,
+        data: log.data?.substring(0, 20) + '...',
+      });
+    });
+
+    // Método 1: Filtrar logs por contrato y parsear
+    for (const log of receipt.logs) {
+      // Solo procesar logs de nuestro contrato
+      if (log.address?.toLowerCase() !== contractAddress) {
+        continue;
+      }
+
+      try {
+        // En ethers v6, parseLog recibe el log object completo directamente
+        const parsed = c.interface.parseLog(log);
+
+        console.log('[DEBUG] Parsed event:', parsed?.name, 'Args:', parsed?.args);
+
+        if (parsed?.name === 'SonataMinted') {
+          tokenId = parsed.args[0]?.toString() || parsed.args['tokenId']?.toString();
+          console.log('[DEBUG] ✅ Token ID encontrado (SonataMinted):', tokenId);
+          break;
+        }
+        
+        // Fallback: usar evento Transfer de ERC721 (siempre se emite en un mint)
+        if (parsed?.name === 'Transfer' && parsed.args['to']?.toLowerCase() === this.walletService.account()?.toLowerCase()) {
+          tokenId = parsed.args['tokenId']?.toString();
+          console.log('[DEBUG] ✅ Token ID encontrado (Transfer):', tokenId);
+          break;
+        }
+      } catch (parseErr: any) {
+        console.log('[DEBUG] Parse error:', parseErr.message);
+      }
+    }
+
+    // Método 2: Extraer directamente de topics si parseLog falla
+    if (tokenId === 'N/A') {
+      console.log('[DEBUG] Intentando método 2 (topics directos)...');
+      const eventSignature = ethers.id('SonataMinted(uint256,address,bytes32,uint256)');
+      console.log('[DEBUG] Event signature:', eventSignature);
+
+      for (const log of receipt.logs) {
+        if (log.address?.toLowerCase() !== contractAddress) {
+          continue;
+        }
+
+        console.log('[DEBUG] Comparando topic[0]:', log.topics?.[0]);
+        
+        if (log.topics && log.topics[0] === eventSignature) {
+          // tokenId está en topics[1] (primer parámetro indexed, 32 bytes)
+          tokenId = BigInt(log.topics[1]).toString();
+          console.log('[DEBUG] ✅ Token ID encontrado (método 2):', tokenId);
+          break;
+        }
+      }
+    }
+
+    console.log('[DEBUG] Token ID final:', tokenId);
+    
+    if (tokenId === 'N/A') {
+      console.error('[ERROR] No se pudo extraer Token ID!');
+      console.error('[ERROR] Logs del contrato:', receipt.logs.filter(l => l.address?.toLowerCase() === contractAddress).length);
+    }
+    
     return { txHash: receipt.hash, tokenId, blockNumber: receipt.blockNumber };
   }
 

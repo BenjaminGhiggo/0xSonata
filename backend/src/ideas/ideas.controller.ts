@@ -42,3 +42,18 @@ export class IdeasController {
     return this.ideasService.syncStep(body);
   }
 }
+
+@Controller('blockchain')
+export class BlockchainController {
+  constructor(private readonly ideasService: IdeasService) {}
+
+  @Get('token-id/:txHash')
+  async getTokenIdFromTx(@Param('txHash') txHash: string) {
+    return this.ideasService.getTokenIdFromTx(txHash);
+  }
+
+  @Get('tokens/:creatorAddress')
+  async getTokensByCreator(@Param('creatorAddress') creatorAddress: string) {
+    return this.ideasService.getTokensByCreator(creatorAddress);
+  }
+}

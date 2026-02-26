@@ -90,4 +90,12 @@ export class IdeasService {
     const step = this.stepRepo.create(data);
     return this.stepRepo.save(step);
   }
+
+  async getTokenIdFromTx(txHash: string) {
+    return this.blockchainService.getTokenIdFromTx(txHash);
+  }
+
+  async getTokensByCreator(creatorAddress: string) {
+    return this.blockchainService.getTokenIdsByCreator(creatorAddress);
+  }
 }

@@ -144,48 +144,66 @@ export class WalletService {
   // 3. Cambia a la red correcta
   // 4. Crea provider y signer de ethers.js
   async connect(): Promise<void> {
+    console.log('[DEBUG] WalletService.connect() llamado');
+    console.log('[DEBUG] this.ethereum:', this.ethereum);
+    console.log('[DEBUG] window.ethereum:', (window as any).ethereum);
+    
     if (!this.ethereum) {
+      console.log('[ERROR] No hay ethereum provider disponible');
       this._error.set('Necesitas Pali Wallet instalada');
       return;
     }
-
+    
+    console.log('[DEBUG] Iniciando conexión...');
     this._isConnecting.set(true);
     this._error.set(null);
 
     try {
       // Paso 1: Pedir permiso para acceder a las cuentas
       // Esto abre un popup en la wallet del usuario
+      console.log('[DEBUG] Solicitando eth_requestAccounts...');
       const accounts = await this.ethereum.request({
         method: 'eth_requestAccounts',
       }) as string[];
+      console.log('[DEBUG] Cuentas recibidas:', accounts);
       this._account.set(accounts[0]);
       console.log('[DEBUG] Cuenta conectada:', accounts[0]);
 
       // Paso 2: Cambiar a la red zkSYS PoB Devnet si es necesario
+      console.log('[DEBUG] Verificando red...');
       await this.ensureCorrectNetwork();
 
       // Paso 3: Crear provider y signer de ethers.js
       // BrowserProvider: puente entre la wallet (window.ethereum) y ethers.js
       // Es un "envoltorio" que traduce las peticiones de ethers al formato
       // que entiende la wallet
+      console.log('[DEBUG] Creando BrowserProvider...');
       const browserProvider = new ethers.BrowserProvider(this.ethereum as ethers.Eip1193Provider);
       this._provider.set(browserProvider);
+      console.log('[DEBUG] Provider creado:', browserProvider);
 
       // getSigner(): obtiene un objeto que puede FIRMAR transacciones
       // Internamente usa la clave privada guardada en la wallet (nunca sale de ahi)
+      console.log('[DEBUG] Obteniendo signer...');
       const browserSigner = await browserProvider.getSigner();
       this._signer.set(browserSigner);
+      console.log('[DEBUG] Signer obtenido:', browserSigner);
 
       // Paso 4: Obtener el chainId actual para verificar la red
+      console.log('[DEBUG] Obteniendo network...');
       const network = await browserProvider.getNetwork();
       this._chainId.set(Number(network.chainId));
       console.log('[DEBUG] Red:', Number(network.chainId));
+      
+      console.log('[DEBUG] Conexión completada exitosamente');
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : String(err);
       console.log('[ERROR] Error al conectar wallet:', message);
+      console.log('[ERROR] Error object:', err);
       this._error.set(message);
     } finally {
       this._isConnecting.set(false);
+      console.log('[DEBUG] isConnecting set to false');
     }
   }
 

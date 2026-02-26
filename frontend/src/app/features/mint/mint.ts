@@ -61,11 +61,34 @@ interface TooltipData {
             <div class="text-5xl mb-4">🔗</div>
             <p class="text-xl font-bold mb-3" style="color: var(--text-muted);">Conecta tu wallet para comenzar</p>
             <p class="text-sm mb-6" style="color: var(--text-subtle);">Necesitas Pali Wallet conectada a la red zkSYS PoB Devnet (Chain ID 57042)</p>
-            <button (click)="walletService.connect()"
-                    class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase hover:brightness-110 transition-all">
-              Conectar Pali Wallet
-            </button>
-            <p class="text-xs mt-4" style="color: var(--text-subtle);">¿No tienes Pali Wallet? <a href="https://paliwallet.com" target="_blank" class="text-purple-400 hover:underline no-underline">Descárgala aquí ↗</a></p>
+            
+            @if (walletService.error()) {
+              <div class="mb-6 p-4 rounded-xl bg-red-500/10 border border-red-500/30">
+                <p class="text-red-400 text-sm font-bold">⚠️ Error: {{ walletService.error() }}</p>
+              </div>
+            }
+            
+            <div class="space-y-4">
+              <button (click)="walletService.connect()"
+                      [disabled]="walletService.isConnecting()"
+                      class="px-8 py-4 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase hover:brightness-110 transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+                {{ walletService.isConnecting() ? 'Conectando...' : 'Conectar Pali Wallet' }}
+              </button>
+              
+              @if (!walletService.hasWallet) {
+                <div class="p-4 rounded-xl bg-yellow-500/10 border border-yellow-500/30">
+                  <p class="text-yellow-400 text-sm mb-2">⚠️ No detectamos Pali Wallet instalada</p>
+                  <a href="https://paliwallet.com" target="_blank" 
+                     class="inline-block px-6 py-3 rounded-xl bg-purple-500/20 border border-purple-500/40 text-purple-400 font-bold text-sm hover:bg-purple-500/30 transition-all no-underline">
+                    Descargar Pali Wallet ↗
+                  </a>
+                </div>
+              }
+            </div>
+            
+            <p class="text-xs mt-6" style="color: var(--text-subtle);">
+              ¿Ya tienes Pali Wallet? Asegúrate de estar en la red <strong>zkSYS PoB Devnet (57042)</strong>
+            </p>
           </div>
         } @else {
           <div class="p-10 rounded-3xl border backdrop-blur-2xl shadow-2xl relative overflow-hidden" style="background: var(--card-bg); border-color: var(--border-color);">
@@ -146,8 +169,62 @@ interface TooltipData {
                   ℹ️
                 </button>
               </div>
-              <p class="text-sm mb-2" style="color: var(--text-subtle)">Token #{{ mintedTokenId() }} registrado. Ahora documenta cada paso de tu proceso creativo.</p>
-              <p class="text-xs mb-8" style="color: var(--text-subtle)">Cada paso se registra on-chain como prueba de control humano. Puedes completar los que apliquen a tu proceso.</p>
+              
+              @if (mintedTokenId() === 'N/A') {
+                <!-- ALERTA: Token ID no capturado -->
+                <div class="mb-6 p-6 rounded-2xl bg-red-500/10 border border-red-500/30">
+                  <div class="flex items-start gap-3 mb-4">
+                    <span class="text-2xl">⚠️</span>
+                    <div>
+                      <h3 class="text-lg font-black uppercase text-red-400 mb-2">Token ID no capturado</h3>
+                      <p class="text-sm text-red-300 mb-4">
+                        El mint se completó en blockchain, pero no pudimos capturar tu Token ID. 
+                        Esto puede pasar por un problema de red o de la wallet.
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div class="space-y-4">
+                    <div class="p-4 rounded-xl bg-purple-500/10 border border-purple-500/30">
+                      <p class="text-sm font-bold text-purple-300 mb-2">✅ Tu NFT está seguro en blockchain</p>
+                      <p class="text-xs text-purple-200">
+                        El audio se registró correctamente. Solo necesitamos encontrar el Token ID para continuar.
+                      </p>
+                    </div>
+                    
+                    <div>
+                      <p class="text-sm font-bold uppercase mb-2" style="color: var(--text-subtle)">Opción 1: Buscar automáticamente</p>
+                      <button (click)="searchTokenId()"
+                              [disabled]="isProcessing()"
+                              class="w-full p-4 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-black uppercase text-sm hover:brightness-110 transition-all disabled:opacity-50">
+                        {{ isProcessing() ? 'Buscando...' : '🔍 Buscar mi Token ID' }}
+                      </button>
+                    </div>
+                    
+                    <div>
+                      <p class="text-sm font-bold uppercase mb-2" style="color: var(--text-subtle)">Opción 2: Ingresar manualmente</p>
+                      <div class="flex gap-2">
+                        <input type="text" [value]="manualTokenId()" (input)="onManualTokenChange($event)"
+                               placeholder="Ej: 2"
+                               class="flex-1 p-3 rounded-xl font-mono font-bold outline-none text-sm"
+                               style="background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main);">
+                        <button (click)="recoverFromManualToken()"
+                                [disabled]="isProcessing()"
+                                class="px-6 py-3 rounded-xl bg-gradient-to-r from-green-600 to-emerald-600 text-white font-black uppercase text-sm hover:brightness-110 transition-all disabled:opacity-50">
+                          {{ isProcessing() ? '...' : 'Usar' }}
+                        </button>
+                      </div>
+                      <p class="text-xs mt-2" style="color: var(--text-subtle)">
+                        ¿No sabes tu Token ID? <button (click)="openTooltip('tokenid')" class="text-purple-400 hover:underline">Ver instrucciones</button>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              } @else {
+                <!-- Token ID capturado correctamente -->
+                <p class="text-sm mb-2" style="color: var(--text-subtle)">Token #{{ mintedTokenId() }} registrado. Ahora documenta cada paso de tu proceso creativo.</p>
+                <p class="text-xs mb-8" style="color: var(--text-subtle)">Cada paso se registra on-chain como prueba de control humano. Puedes completar los que apliquen a tu proceso.</p>
+              }
 
               <div class="space-y-3 mb-8">
                 @for (step of stepTypes; track step.id) {
@@ -523,7 +600,12 @@ export class Mint {
 
   async submitStep(stepType: number): Promise<void> {
     const tokenId = parseInt(this.mintedTokenId(), 10);
-    if (isNaN(tokenId)) return;
+    
+    // Validar que el Token ID sea válido
+    if (isNaN(tokenId) || this.mintedTokenId() === 'N/A') {
+      this.errorMessage.set('Token ID no válido. El mint no se completó correctamente. Por favor, intenta de nuevo o contacta soporte.');
+      return;
+    }
 
     this.errorMessage.set(null);
     this.isProcessing.set(true);
@@ -544,6 +626,106 @@ export class Mint {
       this.statusMessage.set(null);
       this.isProcessing.set(false);
       this.currentStep.set(null);
+    }
+  }
+
+  /**
+   * Busca el Token ID del usuario automáticamente
+   */
+  async searchTokenId(): Promise<void> {
+    this.errorMessage.set(null);
+    this.isProcessing.set(true);
+    this.statusMessage.set('Buscando tu Token ID en blockchain...');
+
+    try {
+      const userAddress = this.walletService.account();
+      if (!userAddress) {
+        throw new Error('Wallet no conectada');
+      }
+
+      const hash = this.audioHash();
+      if (!hash) {
+        throw new Error('No hay hash de audio');
+      }
+
+      // Primero intentar por hash de audio con la wallet
+      const tokenIds = await this.contractService.findTokenIdsByOwner(userAddress);
+      console.log('[DEBUG] Token IDs encontrados:', tokenIds);
+
+      if (tokenIds.length === 0) {
+        // Si no encuentra, usar el backend para buscar por dirección
+        console.log('[DEBUG] Intentando buscar con backend...');
+        const backendTokenIds = await this.fetchTokenIdsFromBackend(userAddress);
+        
+        if (backendTokenIds.length === 0) {
+          this.errorMessage.set('No encontramos tokens registrados a tu wallet. Intenta recargar la página.');
+          this.isProcessing.set(false);
+          return;
+        }
+
+        // Verificar cuál coincide con el hash
+        for (const tokenId of backendTokenIds) {
+          try {
+            const proof = await this.contractService.getProof(parseInt(tokenId));
+            if (proof.audioHash.toLowerCase() === hash.toLowerCase()) {
+              this.mintedTokenId.set(tokenId);
+              const steps = await this.contractService.getCreativeSteps(parseInt(tokenId));
+              this.completedStepIds.set(steps.map(s => s.stepType));
+              this.statusMessage.set(null);
+              this.isProcessing.set(false);
+              return;
+            }
+          } catch {
+            // Token no existe o error, continuar con el siguiente
+          }
+        }
+
+        this.errorMessage.set(`Encontramos ${backendTokenIds.length} token(s) pero ninguno coincide con este audio.`);
+        this.isProcessing.set(false);
+        return;
+      }
+
+      // Si hay un token, verificar si coincide con el hash
+      for (const tokenId of tokenIds) {
+        try {
+          const proof = await this.contractService.getProof(parseInt(tokenId));
+          if (proof.audioHash.toLowerCase() === hash.toLowerCase()) {
+            // Encontrado!
+            this.mintedTokenId.set(tokenId);
+            const steps = await this.contractService.getCreativeSteps(parseInt(tokenId));
+            this.completedStepIds.set(steps.map(s => s.stepType));
+            this.statusMessage.set(null);
+            this.isProcessing.set(false);
+            return;
+          }
+        } catch {
+          // Token no existe o error, continuar con el siguiente
+        }
+      }
+
+      // Si llegamos aquí, encontramos tokens pero ninguno coincide con el hash
+      this.errorMessage.set(`Encontramos ${tokenIds.length} token(s) pero ninguno coincide con este audio. Los tokens son: ${tokenIds.join(', ')}`);
+    } catch (err: unknown) {
+      this.errorMessage.set(getFriendlyError(err) || 'Error buscando Token ID');
+    } finally {
+      this.statusMessage.set(null);
+      this.isProcessing.set(false);
+    }
+  }
+
+  /**
+   * Obtiene los Token IDs desde el backend
+   */
+  private async fetchTokenIdsFromBackend(creatorAddress: string): Promise<string[]> {
+    try {
+      const response = await fetch(`/api/blockchain/tokens/${creatorAddress}`);
+      if (!response.ok) {
+        return [];
+      }
+      const data = await response.json();
+      return data || [];
+    } catch {
+      return [];
     }
   }
 
