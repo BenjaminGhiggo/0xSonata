@@ -692,6 +692,26 @@ export class Mint {
       this.mintedTokenId.set(result.tokenId);
       this.mintTxHash.set(result.txHash);
       this.phase.set('steps');
+      
+      // Sincronizar con backend para leaderboard
+      try {
+        const userAddress = this.walletService.account();
+        await fetch('/api/ideas/sync', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tokenId: parseInt(result.tokenId),
+            audioHash: hash,
+            creatorAddress: userAddress || '',
+            verificationCount: 0,
+            stepCount: 0,
+            blockTimestamp: Date.now(),
+            txHash: result.txHash,
+          }),
+        });
+      } catch (syncError) {
+        console.warn('Failed to sync mint with backend:', syncError);
+      }
     } catch (err: unknown) {
       this.errorMessage.set(getFriendlyError(err));
     } finally {
@@ -796,6 +816,23 @@ export class Mint {
       await this.contractService.addStep(tokenId, contentHash, stepType, content);
       this.completedStepIds.update(ids => [...ids, stepType]);
       this.currentStepIndex.set(null);
+      
+      // Sincronizar con backend para leaderboard
+      try {
+        await fetch('/api/ideas/sync-step', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            tokenId,
+            contentHash,
+            stepType,
+            metadata: JSON.stringify(content),
+            blockTimestamp: Date.now(),
+          }),
+        });
+      } catch (syncError) {
+        console.warn('Failed to sync step with backend:', syncError);
+      }
     } catch (err: unknown) {
       this.errorMessage.set(getFriendlyError(err));
     } finally {
