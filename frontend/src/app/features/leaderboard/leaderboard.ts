@@ -129,6 +129,62 @@ interface DisplayEntry extends LeaderboardEntry {
           </div>
         </div>
 
+        <!-- AI MUSIC SUCCESS STORIES -->
+        <div class="max-w-4xl mx-auto mt-14 px-8">
+          <h2 class="text-sm font-black uppercase tracking-[0.3em] text-center mb-2" style="color: var(--text-subtle)">{{ i18n.t('stories.title') }}</h2>
+          <p class="text-center text-xs mb-8" style="color: var(--text-muted)">{{ i18n.t('stories.subtitle') }}</p>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+
+            <!-- Emma -->
+            <div class="p-6 rounded-2xl border transition-all hover:border-purple-500/40 hover:-translate-y-1"
+                 style="background: var(--card-bg); border-color: var(--card-border);">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center text-lg">🎤</div>
+                <div>
+                  <div class="text-sm font-black uppercase" style="color: var(--text-main)">Emma</div>
+                  <div class="text-xs" style="color: var(--text-muted)">{{ i18n.t('stories.emma.genre') }}</div>
+                </div>
+              </div>
+              <div class="text-2xl font-black italic tracking-tighter mb-2" style="background: linear-gradient(135deg,#a855f7,#6366f1); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">$1,200 USD</div>
+              <p class="text-xs leading-relaxed mb-3" style="color: var(--text-muted)">{{ i18n.t('stories.emma.desc') }}</p>
+              <a href="https://www.remiforartists.com/post/how-to-make-money-with-ai-music-in-2026-without-getting-sued" target="_blank" rel="noopener"
+                 class="text-xs no-underline opacity-50 hover:opacity-100 transition-opacity" style="color:var(--text-subtle)">Remi for Artists, Dec 2025 ↗</a>
+            </div>
+
+            <!-- CENTRAL: AI Music Market 2025 -->
+            <div class="p-6 rounded-2xl border transition-all hover:border-purple-500/40 hover:-translate-y-1 ring-1 ring-purple-500/20"
+                 style="background: var(--card-bg); border-color: var(--card-border);">
+              <div class="flex items-center justify-center gap-2 mb-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/30 to-indigo-500/30 flex items-center justify-center text-lg">💰</div>
+              </div>
+              <div class="text-center">
+                <div class="text-3xl md:text-4xl font-black italic tracking-tighter mb-1" style="background: linear-gradient(135deg,#a855f7,#ec4899,#f97316); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">$6.65B</div>
+                <div class="text-xs font-black uppercase tracking-wider mb-2" style="color: var(--text-main)">{{ i18n.t('stories.market.label') }}</div>
+                <p class="text-xs leading-relaxed mb-3" style="color: var(--text-muted)">{{ i18n.t('stories.market.desc') }}</p>
+                <a href="https://market.us/report/ai-in-music-market/" target="_blank" rel="noopener"
+                   class="text-xs no-underline opacity-50 hover:opacity-100 transition-opacity" style="color:var(--text-subtle)">Market.us Analytics, 2025 ↗</a>
+              </div>
+            </div>
+
+            <!-- Luna -->
+            <div class="p-6 rounded-2xl border transition-all hover:border-purple-500/40 hover:-translate-y-1"
+                 style="background: var(--card-bg); border-color: var(--card-border);">
+              <div class="flex items-center gap-3 mb-3">
+                <div class="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-lg">🎵</div>
+                <div>
+                  <div class="text-sm font-black uppercase" style="color: var(--text-main)">Luna</div>
+                  <div class="text-xs" style="color: var(--text-muted)">{{ i18n.t('stories.luna.genre') }}</div>
+                </div>
+              </div>
+              <div class="text-2xl font-black italic tracking-tighter mb-2" style="background: linear-gradient(135deg,#10b981,#6366f1); -webkit-background-clip:text; -webkit-text-fill-color:transparent;">NFTs</div>
+              <p class="text-xs leading-relaxed mb-3" style="color: var(--text-muted)">{{ i18n.t('stories.luna.desc') }}</p>
+              <a href="https://www.remiforartists.com/post/how-to-make-money-with-ai-music-in-2026-without-getting-sued" target="_blank" rel="noopener"
+                 class="text-xs no-underline opacity-50 hover:opacity-100 transition-opacity" style="color:var(--text-subtle)">Remi for Artists, Dec 2025 ↗</a>
+            </div>
+
+          </div>
+        </div>
+
         <!-- H1: LOADING STATE -->
         @if (isLoading()) {
           <div class="max-w-5xl mx-auto px-8 mt-16 text-center">

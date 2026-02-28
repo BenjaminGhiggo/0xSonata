@@ -13,10 +13,10 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
     'nav.lightMode': { es: 'Modo claro', en: 'Light mode' },
 
     // Hero
-    'hero.title': { es: 'Prueba de Autoría Humana para Música con IA', en: 'Human Authorship Proof for AI Music' },
+    'hero.title': { es: 'Notario Digital Web3 para Artistas Emergentes que Crean Música Usando Herramientas de IA', en: 'Web3 Digital Notary for Emerging Artists Creating Music Using AI Tools' },
     'hero.subtitle': {
-        es: 'Documenta tu proceso creativo con Suno/Udio en blockchain. Cumple con el Copyright Office, protege tu derecho a monetizar y demuestra tu "control creativo significativo".',
-        en: 'Document your creative process with Suno/Udio on blockchain. Comply with the Copyright Office, protect your right to monetize, and prove your "significant creative control".'
+        es: 'Documenta tu proceso creativo con Suno/Udio en blockchain. Protege tu derecho a monetizar y demuestra tu \'control creativo significativo\' ante el Copyright Office.',
+        en: 'Document your creative process with Suno/Udio on blockchain. Protect your right to monetize and prove your \'significant creative control\' to the Copyright Office.'
     },
 
     // How it works
@@ -33,6 +33,28 @@ const TRANSLATIONS: Record<string, Record<Lang, string>> = {
     // CTA
     'cta.startRegistration': { es: 'Comenzar registro →', en: 'Start registration →' },
     'cta.verifyIdea': { es: 'Verificar una idea', en: 'Verify an idea' },
+
+    // Success Stories
+    'stories.title': { es: 'Artistas reales, ingresos reales', en: 'Real Artists, Real Income' },
+    'stories.subtitle': {
+        es: 'Casos de éxito documentados de artistas independientes usando IA en 2025',
+        en: 'Documented success stories of independent artists using AI in 2025'
+    },
+    'stories.emma.genre': { es: 'Pop independiente', en: 'Indie Pop' },
+    'stories.emma.desc': {
+        es: 'Licenció 50 canciones a una plataforma de IA para entrenar modelos. Ganó $1,200 USD en 6 meses sin hacer más trabajo creativo.',
+        en: 'Licensed 50 songs to an AI platform for model training. Earned $1,200 USD in 6 months without any additional creative work.'
+    },
+    'stories.market.label': { es: 'Mercado IA Musical en 2025', en: 'AI Music Market in 2025' },
+    'stories.market.desc': {
+        es: 'Valor global del mercado de IA en la industria musical. Los artistas independientes que usan IA son el motor de este crecimiento.',
+        en: 'Global value of the AI music industry market. Independent artists using AI are the engine driving this growth.'
+    },
+    'stories.luna.genre': { es: 'Cantautora', en: 'Singer-Songwriter' },
+    'stories.luna.desc': {
+        es: 'Usó una herramienta de remix con IA para generar versiones únicas de sus temas. Vendió estas versiones como NFTs exclusivos.',
+        en: 'Used an AI remix tool to generate unique versions of her songs. Sold these versions as exclusive NFTs.'
+    },
 
     // Loading
     'loading.ranking': { es: 'Cargando ranking...', en: 'Loading ranking...' },

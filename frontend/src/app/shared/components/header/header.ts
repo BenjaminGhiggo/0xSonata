@@ -86,7 +86,6 @@ import { environment } from '../../../../environments/environment';
       background-clip: text;
     }
     .logo-text {
-      text-transform: uppercase;
       background: linear-gradient(135deg, #ef4444, #ec4899, #8b5cf6);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
